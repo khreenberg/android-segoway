@@ -1,8 +1,7 @@
-package khr.easv.pokebotcontroller.app;
+package khr.easv.pokebotcontroller.app.gui.activities;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,15 +13,16 @@ import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
+import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.data.BluetoothConnector;
 import khr.easv.pokebotcontroller.app.data.ReaderThread;
 
 
-public class MainActivity extends ActionBarActivity implements Observer {
+public class TestActivity extends ActionBarActivity implements Observer {
 
     // Device address MUST be uppercase hex.. :o
     public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1";
-    public MainActivity self;
+    public TestActivity self;
 
     BluetoothConnector connector;
 
@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity implements Observer {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_test);
             initialize();
             self = this;
     }
