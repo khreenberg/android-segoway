@@ -12,8 +12,9 @@ import java.util.List;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
+import khr.easv.pokebotcontroller.app.gui.Logger;
 
-public class LogListAdapter extends ArrayAdapter<LogEntry> {
+public class LogListAdapter extends ArrayAdapter<LogEntry>{
 
     public static final int
             EVEN_ALPHA = 75,

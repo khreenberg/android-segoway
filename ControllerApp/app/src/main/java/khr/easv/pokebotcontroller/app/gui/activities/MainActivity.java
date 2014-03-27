@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
+import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 

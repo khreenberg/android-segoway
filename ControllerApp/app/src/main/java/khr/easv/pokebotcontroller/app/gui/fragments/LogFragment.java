@@ -12,6 +12,7 @@ import java.util.List;
 import khr.easv.pokebotcontroller.app.R;
 
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
+import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
 
 /**
@@ -21,7 +22,7 @@ import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class LogFragment extends ListFragment {
+public class LogFragment extends ListFragment implements Logger.LoggerListener{
 
     private OnLogEntryClickedListener mListener;
     LogListAdapter adapter;
@@ -35,9 +36,10 @@ public class LogFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = createDummyData();
+        List<LogEntry> entries = new ArrayList<LogEntry>(); // createDummyData();
         adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
         setListAdapter(adapter);
+        Logger.addObserver(this);
     }
 
 
@@ -68,6 +70,12 @@ public class LogFragment extends ListFragment {
             // fragment is attached to one) that an item has been selected.
             mListener.onLogEntryClicked(adapter.getItem(position));
         }
+    }
+
+    @Override
+    public void onLog(LogEntry entry) {
+        adapter.add(entry); // Add the entry to the log list
+        setSelection(adapter.getCount()-1); // Scroll the view to the bottom
     }
 
     public interface OnLogEntryClickedListener {
