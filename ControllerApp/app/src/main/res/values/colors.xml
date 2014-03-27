@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="LOG_ENTRY_INFO">#6B9FFF</color>
+    <color name="LOG_ENTRY_DEBUG">#AAAAAA</color>
+    <color name="LOG_ENTRY_ERROR">#FF5656</color>
+    <color name="LOG_ENTRY_WARNING">#FFDD44</color>
+</resources>

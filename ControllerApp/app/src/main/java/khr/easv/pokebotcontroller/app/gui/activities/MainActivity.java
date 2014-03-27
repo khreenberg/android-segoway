@@ -1,26 +1,18 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
+import android.widget.Toast;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.data.BluetoothConnector;
-import khr.easv.pokebotcontroller.app.data.ReaderThread;
+import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener {
 
     // Device address MUST be uppercase hex.. :o
     public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1";
@@ -31,10 +23,12 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         if( savedInstanceState != null ) return; // Prevent overlapping fragments
-        ButtonControlFragment buttonControl = new ButtonControlFragment();
+        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+        LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.controllerFragmentContainer, buttonControl)
+                .add(R.id.controllerFragmentContainer, buttonControlFragment)
+                .add(R.id.logFragmentContainer, logFragment)
                 .commit();
     }
 
@@ -58,4 +52,8 @@ public class MainActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onLogEntryClicked(LogEntry entry) {
+        Toast.makeText(this, entry.getTag() + ": " + entry.getTitle(), Toast.LENGTH_SHORT).show();
+    }
 }
