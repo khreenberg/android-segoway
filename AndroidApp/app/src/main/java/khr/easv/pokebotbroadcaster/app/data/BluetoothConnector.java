@@ -4,9 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.UUID;
 
 public class BluetoothConnector {
@@ -20,8 +20,8 @@ public class BluetoothConnector {
     BluetoothSocket socket;
     BluetoothDevice device;
 
-    public BluetoothConnector( String deviceAddress ){
-        adapter = BluetoothAdapter.getDefaultAdapter();
+    public BluetoothConnector( String deviceAddress, BluetoothAdapter adapter ){
+        this.adapter = adapter;
         this.deviceAddress = deviceAddress;
         this.device = adapter.getRemoteDevice(deviceAddress);
     }
@@ -31,19 +31,15 @@ public class BluetoothConnector {
         this.socket.connect();
     }
 
-    public void sendMessage( String message ) throws IOException {
-        OutputStreamWriter output = null;
-
-        output = new OutputStreamWriter(socket.getOutputStream());
-        output.write(message);
+    public void sendCommand( int command ) throws IOException {
+        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+        output.writeInt(command);
         output.flush();
     }
 
     public String readMessage() throws IOException {
         StringBuilder sb = new StringBuilder();
-        InputStreamReader input = null;
-
-        input = new InputStreamReader(socket.getInputStream());
+        InputStreamReader input = new InputStreamReader(socket.getInputStream());
         char[] b = new char[128];
         int byteCount  = input.read(b);
         sb.append(b, 0, byteCount);

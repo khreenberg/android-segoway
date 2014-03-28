@@ -1,6 +1,8 @@
 package khr.easv.pokebotbroadcaster.app.activities;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,7 +24,10 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     // Device address MUST be uppercase hex.. :o
     public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1";
 
+    static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
+
     SensorManager sensorManager;
+    BluetoothAdapter adapter;
     BluetoothConnector bluetooth;
 
     TextView txtAccelX, txtAccelY, txtAccelZ;
@@ -77,9 +82,27 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     void setupBluetooth(){
-        bluetooth = new BluetoothConnector(DEVICE_ADDRESS);
+        adapter = BluetoothAdapter.getDefaultAdapter();
+        if(!adapter.isEnabled()){
+            Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
+            return;
+        }
+        createConnectorAndConnect();
+    }
+
+    private void createConnectorAndConnect() {
+        bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
         try { bluetooth.connect(); log("Connected to " + DEVICE_ADDRESS);}
         catch (IOException e) { log("IOError connecting bluetooth: " + e); }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
+        if( resultCode != RESULT_OK ) {finish(); return;}
+        createConnectorAndConnect();
     }
 
     @Override
