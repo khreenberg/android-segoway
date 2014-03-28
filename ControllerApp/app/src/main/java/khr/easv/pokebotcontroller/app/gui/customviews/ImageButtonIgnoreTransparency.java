@@ -32,10 +32,21 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Bitmap bitmap = getBitmapFromStateListDrawable();
-        if( bitmap == null ) return false;
+        if( bitmap == null ){
+            setPressed(false);
+            return false;
+        }
         int x = (int) event.getX(), y = (int) event.getY();
-        int alpha = getBitmapAlphaAtPoint(bitmap, x,y);
+        int alpha;
+        try{
+            alpha = getBitmapAlphaAtPoint(bitmap, x,y);
+        }catch (IllegalArgumentException e){
+            // This is thrown if the user clicks, holds and drags outside of the image bounds
+            setPressed(false);
+            return false;
+        }
         if( alpha > ALPHA_THRESHOLD) return super.onTouchEvent(event);
+        setPressed(false);
         return false;
     }
 

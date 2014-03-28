@@ -2,9 +2,49 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="khr.easv.pokebotcontroller.app.gui.activities.MainActivity" >
-    
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
+
+    <group
+        android:menuCategory="container"
+        android:orderInCategory="100">
+
+        <item android:id="@+id/menu_controlButton"
+            android:title="@string/menu_controlButton"
+            android:orderInCategory="1"
+            android:showAsAction="ifRoom" />
+
+        <item android:id="@+id/menu_controlAccelerometer"
+            android:title="@string/menu_controlAccelerometer"
+            android:orderInCategory="1"
+            android:showAsAction="ifRoom"/>
+
+        <item android:id="@+id/menu_controlJoystick"
+            android:title="@string/menu_controlJoystick"
+            android:orderInCategory="1"
+            android:showAsAction="ifRoom"/>
+
+        <item android:id="@+id/menu_controlExternal"
+            android:title="@string/menu_controlExternal"
+            android:orderInCategory="1"
+            android:showAsAction="ifRoom"/>
+    </group>
+    <group
+        android:menuCategory="container"
+        android:orderInCategory="200">
+
+        <item android:id="@+id/menu_clearLog"
+            android:title="@string/menu_clearLog"
+            android:showAsAction="always"
+            android:orderInCategory="2"/>
+
+        <item android:id="@+id/menu_about"
+            android:title="@string/menu_about"
+            android:showAsAction="never"
+            android:orderInCategory="2"></item>
+
+        <item android:id="@+id/menu_exit"
+            android:title="@string/menu_exit"
+            android:showAsAction="never"
+            android:orderInCategory="2"/>
+
+    </group>
 </menu>

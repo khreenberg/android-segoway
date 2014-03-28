@@ -2,8 +2,12 @@
 <resources>
 
     <string name="app_name">PokeBotController</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_controlButton">Button Control</string>
+    <string name="menu_controlAccelerometer">Accelerometer Control</string>
+    <string name="menu_controlJoystick">Onscreen Joystick</string>
+    <string name="menu_controlExternal">External Joystick</string>
+    <string name="menu_exit">Exit</string>
+    <string name="menu_clearLog">Clear Log</string>
+    <string name="menu_about">About</string>
 
 </resources>
