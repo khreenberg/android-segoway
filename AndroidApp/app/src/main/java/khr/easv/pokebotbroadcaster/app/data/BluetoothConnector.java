@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class BluetoothConnector {
 
-    // Magic "number" from documentation:
+    // Magic string from documentation:
     // http://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#createRfcommSocketToServiceRecord(java.util.UUID)
     public static final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
 
