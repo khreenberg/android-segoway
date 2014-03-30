@@ -1,7 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="khr.easv.pokebotcontroller.app.gui.activities.MainActivity" >
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group
         android:menuCategory="container"
@@ -9,23 +7,31 @@
 
         <item android:id="@+id/menu_controlButton"
             android:title="@string/menu_controlButton"
+            android:icon="@drawable/icon_control_buttons"
             android:orderInCategory="1"
-            android:showAsAction="ifRoom" />
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom" />
 
         <item android:id="@+id/menu_controlAccelerometer"
             android:title="@string/menu_controlAccelerometer"
+            android:icon="@drawable/icon_control_accelerometer"
             android:orderInCategory="1"
-            android:showAsAction="ifRoom"/>
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"/>
 
         <item android:id="@+id/menu_controlJoystick"
             android:title="@string/menu_controlJoystick"
+            android:icon="@drawable/icon_control_onscreen"
             android:orderInCategory="1"
-            android:showAsAction="ifRoom"/>
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"/>
 
         <item android:id="@+id/menu_controlExternal"
             android:title="@string/menu_controlExternal"
+            android:icon="@drawable/icon_control_external"
             android:orderInCategory="1"
-            android:showAsAction="ifRoom"/>
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"/>
     </group>
     <group
         android:menuCategory="container"
@@ -33,17 +39,17 @@
 
         <item android:id="@+id/menu_clearLog"
             android:title="@string/menu_clearLog"
-            android:showAsAction="always"
+            app:showAsAction="ifRoom"
             android:orderInCategory="2"/>
 
         <item android:id="@+id/menu_about"
             android:title="@string/menu_about"
-            android:showAsAction="never"
+            app:showAsAction="never"
             android:orderInCategory="2"></item>
 
         <item android:id="@+id/menu_exit"
             android:title="@string/menu_exit"
-            android:showAsAction="never"
+            app:showAsAction="never"
             android:orderInCategory="2"/>
 
     </group>

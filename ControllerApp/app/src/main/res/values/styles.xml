@@ -3,6 +3,13 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
         <!-- Customize your theme here. -->
+        <!--
+        <item name="android:actionBarStyle">@style/TitlelessActionBar</item>
+        -->
     </style>
 
+    <style name="TitlelessActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:displayOptions">useLogo</item>
+        <item name="android:background">@drawable/border_log</item>
+    </style>
 </resources>

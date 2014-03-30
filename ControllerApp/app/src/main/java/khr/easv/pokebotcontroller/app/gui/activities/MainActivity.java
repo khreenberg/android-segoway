@@ -1,14 +1,13 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
-import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
@@ -24,13 +23,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         setContentView(R.layout.activity_main);
 
         if( savedInstanceState != null ) return; // Prevent overlapping fragments
-        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
-        LogFragment logFragment = new LogFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.controllerFragmentContainer, buttonControlFragment)
-                .add(R.id.logFragmentContainer, logFragment)
-                .commit();
+        setup();
     }
 
 
@@ -51,6 +44,25 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void setup(){
+        setupFragments();
+        setupActionBar();
+    }
+
+    void setupActionBar(){
+
+    }
+
+    void setupFragments(){
+        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+        LogFragment logFragment = new LogFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.controllerFragmentContainer, buttonControlFragment)
+                .add(R.id.logFragmentContainer, logFragment)
+                .commit();
     }
 
     @Override
