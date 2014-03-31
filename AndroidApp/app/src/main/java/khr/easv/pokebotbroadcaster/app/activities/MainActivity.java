@@ -7,8 +7,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
-import khr.easv.pokebotbroadcaster.app.logic.PacketCreator;
 
 
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
@@ -56,9 +55,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        // if (id == R.id.action_settings) {
+        //    return true;
+        // }
         return super.onOptionsItemSelected(item);
     }
 

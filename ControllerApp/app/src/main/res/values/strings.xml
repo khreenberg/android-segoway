@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PokeBotController</string>
+    <string name="app_name">Segoway Controller</string>
     <string name="menu_controlButton">Button Control</string>
     <string name="menu_controlAccelerometer">Accelerometer Control</string>
     <string name="menu_controlJoystick">Onscreen Joystick</string>
