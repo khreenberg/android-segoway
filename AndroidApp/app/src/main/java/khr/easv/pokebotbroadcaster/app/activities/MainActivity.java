@@ -17,6 +17,8 @@ import java.io.IOException;
 
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
+import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
+import khr.easv.pokebotbroadcaster.app.logic.PacketCreator;
 
 
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
@@ -107,10 +109,24 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        txtAccelX.setText("X acceleration: " + event.values[0]);
-        txtAccelY.setText("Y acceleration: " + event.values[1]);
-        txtAccelZ.setText("Z acceleration: " + event.values[2]);
+        float   x = event.values[0],
+                y = event.values[1],
+                z = event.values[2];
+        txtAccelX.setText("X acceleration: " + x);
+        txtAccelY.setText("Y acceleration: " + y);
+        txtAccelZ.setText("Z acceleration: " + z);
         if( bluetooth == null ) return;
+        handleAccelerometerData(x,y,z);
+    }
+
+    void handleAccelerometerData(float x, float y, float z){
+        // TODO: Thread this out if necessary
+        try{
+            int packet = BalanceManager.createPacketFromAcceleration(x,y,z);
+            bluetooth.sendCommand(packet);
+        }catch (IOException e){
+            log("Error while sending packet: " + e);
+        }
     }
 
     @Override

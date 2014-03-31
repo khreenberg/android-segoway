@@ -39,13 +39,14 @@
 
         <item android:id="@+id/menu_clearLog"
             android:title="@string/menu_clearLog"
+            android:icon="@drawable/icon_log_clear"
             app:showAsAction="ifRoom"
             android:orderInCategory="2"/>
 
         <item android:id="@+id/menu_about"
             android:title="@string/menu_about"
             app:showAsAction="never"
-            android:orderInCategory="2"></item>
+            android:orderInCategory="2"/>
 
         <item android:id="@+id/menu_exit"
             android:title="@string/menu_exit"

@@ -10,7 +10,7 @@ package khr.easv.pokebotbroadcaster.app.logic;
  */
 public class PacketCreator {
 
-    int _packet;
+    private int _packet;
     static final int
             MAX_WHEEL_MOTOR_SPEED = 1023,
             MAX_RIDER_ANGLE       =   63;
@@ -27,6 +27,8 @@ public class PacketCreator {
     public PacketCreator(){
         _packet = 0;
     }
+
+    public PacketCreator(int packet){ _packet = packet; }
 
     public PacketCreator setLeftMotorSpeed( int speed ){
         int signBit = speed < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
@@ -58,9 +60,13 @@ public class PacketCreator {
         return this;
     }
 
+    public PacketCreator clear(){
+        _packet = 0;
+        return this;
+    }
     public int getPacket(){ return _packet; }
 
-    void setValueAt(int value, int bitIndex, int mask){
+    private void setValueAt(int value, int bitIndex, int mask){
         _packet &= ~(mask << bitIndex); // Clear the bits
         _packet |= value << bitIndex;   // Set the value
     }
