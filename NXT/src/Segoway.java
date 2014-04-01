@@ -4,7 +4,7 @@ import java.io.IOException;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 
-public class Connector extends Thread{
+public class Segoway extends Thread{
 
 	private static NXTConnection connection;
 	private static Receiver receiverObj;
