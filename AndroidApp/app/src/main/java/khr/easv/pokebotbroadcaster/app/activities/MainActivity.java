@@ -47,19 +47,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_FASTEST);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -96,11 +83,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer  = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
-                SensorManager.SENSOR_DELAY_NORMAL);
-//        sensorManager.registerListener(this,
-//                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-//                SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, magnetometer,SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     void setupBluetooth(){
@@ -138,36 +122,26 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         txtAccelX.setText("Azimuth: " + df.format(azimuth));
         txtAccelY.setText("Pitch: " + df.format(pitch));
         txtAccelZ.setText("Roll: " + df.format(roll));
-
-//        if( event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
-//            float x = event.values[0],
-//                    y = event.values[1],
-//                    z = event.values[2];
-//            txtAccelX.setText("X acceleration: " + x);
-//            txtAccelY.setText("Y acceleration: " + y);
-//            txtAccelZ.setText("Z acceleration: " + z);
-//            if (bluetooth == null) return;
-//            handleAccelerometerData(x, y, z);
-//        }
+        // handleSensorData(azimuth, pitch, roll);
     }
 
-    void handleAccelerometerData(float x, float y, float z){
+    void handleSensorData(double azimuth, double pitch, double roll){
         // TODO: Thread this out if necessary
         try{
-            int packet = BalanceManager.createPacketFromAcceleration(x,y,z);
+            int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
             bluetooth.sendCommand(packet);
         }catch (IOException e){
             log("Error while sending packet: " + e);
         }
     }
 
-    float[] accelerometerValues;
-    float[] magnetometerValues;
+    float[] accelerometerValues = new float[3];
+    float[] magnetometerValues = new float[3];
     float[] getOrientation(SensorEvent event){
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            accelerometerValues = event.values;
+            copyArrayValues(accelerometerValues, event.values);
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-            magnetometerValues = event.values;
+            copyArrayValues(magnetometerValues, event.values);
         if (accelerometerValues != null && magnetometerValues != null) {
             float R[] = new float[9];
             float I[] = new float[9];
@@ -181,6 +155,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         return null;
     }
 
+    void copyArrayValues( float[] a, float[] b){
+        a[0] = b[0];
+        a[1] = b[1];
+        a[2] = b[2];
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) { /* Do nothing */ }
 
