@@ -36,7 +36,7 @@ public class PacketCreator {
         if (absSpeed > MAX_WHEEL_MOTOR_SPEED)
             throw new IllegalArgumentException("Absolute value of speed parameter must be less than " + MAX_WHEEL_MOTOR_SPEED);
         setValueAt(signBit, LEFT_MOTOR_START_BIT, 1);
-        setValueAt(speed, LEFT_MOTOR_START_BIT+1, MAX_WHEEL_MOTOR_SPEED);
+        setValueAt(absSpeed, LEFT_MOTOR_START_BIT+1, MAX_WHEEL_MOTOR_SPEED);
         return this;
     }
 
@@ -46,7 +46,7 @@ public class PacketCreator {
         if (absSpeed > MAX_WHEEL_MOTOR_SPEED)
             throw new IllegalArgumentException("Absolute value of speed parameter must be less than " + MAX_WHEEL_MOTOR_SPEED);
         setValueAt(signBit, RIGHT_MOTOR_START_BIT, 1);
-        setValueAt(speed, RIGHT_MOTOR_START_BIT+1, MAX_WHEEL_MOTOR_SPEED);
+        setValueAt(absSpeed, RIGHT_MOTOR_START_BIT+1, MAX_WHEEL_MOTOR_SPEED);
         return this;
     }
 
@@ -56,7 +56,7 @@ public class PacketCreator {
         if (absAngle > MAX_RIDER_ANGLE)
             throw new IllegalArgumentException("Absolute value of angle parameter must be less than " + MAX_RIDER_ANGLE);
         setValueAt(signBit, RIDER_MOTOR_START_BIT, 1);
-        setValueAt(angle, RIDER_MOTOR_START_BIT+1, MAX_RIDER_ANGLE);
+        setValueAt(absAngle, RIDER_MOTOR_START_BIT+1, MAX_RIDER_ANGLE);
         return this;
     }
 

@@ -4,6 +4,8 @@ public class BalanceManager {
 
     public static int createPacketFromAcceleration(float x, float y, float z){
 
+        // Logic!
+
         // This is just a dummy example. Should use PID algorithm for determining exact wheel speeds
         int leftWheelSpeed  = y < 0 ? 600 : -600,
             rightWheelSpeed = y < 0 ? 600 : -600;
@@ -11,6 +13,7 @@ public class BalanceManager {
         int packet = new PacketCreator()
                 .setLeftMotorSpeed(leftWheelSpeed)
                 .setRightMotorSpeed(rightWheelSpeed)
+                .setRiderAngle(0)
                 .getPacket();
 
         return packet;
