@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -24,10 +25,12 @@ import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
     // Device address MUST be uppercase hex.. :o
-    //public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+    //public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
+
+    private boolean connected = false;
 
     SensorManager sensorManager;
     Sensor accelerometer;
@@ -84,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer  = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         sensorManager.registerListener(this, accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
-        sensorManager.registerListener(this, magnetometer,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     void setupBluetooth(){
@@ -94,13 +97,12 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
             return;
         }
-        // createConnectorAndConnect();
+        createConnectorAndConnect();
     }
 
     private void createConnectorAndConnect() {
-        bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
-        try { bluetooth.connect(); log("Connected to " + DEVICE_ADDRESS);}
-        catch (IOException e) { log("IOError connecting bluetooth: " + e); }
+        if( bluetooth == null ) bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
+        new BluetoothConnectionTask().execute(bluetooth);
     }
 
     @Override
@@ -108,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         super.onActivityResult(requestCode, resultCode, data);
         if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
         if( resultCode != RESULT_OK ) {finish(); return;}
-        // createConnectorAndConnect();
+        createConnectorAndConnect();
     }
 
     @Override
@@ -122,11 +124,12 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         txtAccelX.setText("Azimuth: " + df.format(azimuth));
         txtAccelY.setText("Pitch: " + df.format(pitch));
         txtAccelZ.setText("Roll: " + df.format(roll));
-        // handleSensorData(azimuth, pitch, roll);
+        handleSensorData(azimuth, pitch, roll);
     }
 
     void handleSensorData(double azimuth, double pitch, double roll){
         // TODO: Thread this out if necessary
+        if( !connected ) return;
         try{
             int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
             bluetooth.sendCommand(packet);
@@ -165,5 +168,39 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     void log(String str){
         txtLog.append(str + "\n");
+    }
+
+    class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
+
+        Exception e;
+
+        @Override
+        protected void onPreExecute() {
+            log("Attempting to connect via Bluetooth...");
+        }
+
+        @Override
+        protected Boolean doInBackground(BluetoothConnector... connectors) {
+            if( connectors.length == 0 )
+                throw new IllegalArgumentException("You must supply the BluetoothConnection task with a BluetoothConnector object!");
+
+            try {
+                connectors[0].connect();
+            }
+            catch (IOException e) {
+                this.e = e; return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean wasSuccess) {
+            String s = "Successfully connected to " + DEVICE_ADDRESS;
+            String f = String.format("Could not connect to %s.\n%s", DEVICE_ADDRESS, e);
+            String msg = wasSuccess ? s : f;
+            connected = wasSuccess;
+            log(msg);
+        }
     }
 }
