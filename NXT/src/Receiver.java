@@ -1,27 +1,19 @@
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import lejos.nxt.LCD;
-import lejos.nxt.Motor;
-import lejos.nxt.NXTRegulatedMotor;
-import lejos.robotics.navigation.DifferentialPilot;
-
 public class Receiver extends Thread {
 
 	private DataInputStream input;
+	private Pilot pilot;
 
-	DifferentialPilot pilot;
-
-	public Receiver(DataInputStream input) {
+	public Receiver(DataInputStream input, Pilot pilot) {
 		this.setInput(input);
+		this.pilot = pilot;
 	}
 
 	@Override
 	public void run() {
-		Motor.B.setSpeed(0.001f);
-		Motor.C.setSpeed(0.001f);
-		Motor.B.forward();
-		Motor.C.forward();
+		// Handle the input until the thread stops
 		while(true) {
 			handleInput();
 		}
@@ -31,14 +23,7 @@ public class Receiver extends Thread {
     void handleInput(){
         try{
             int packet = input.readInt();
-    		NXTRegulatedMotor motorLeft = Motor.B;
-    		NXTRegulatedMotor motorRight = Motor.C;
-
-    		int leftMotorSpeed = CommandParser.leftMotor( packet );
-    		int rightMotorSpeed = CommandParser.rightMotor( packet );
-    		LCD.clear();
-    		System.out.println("Left: " + leftMotorSpeed);
-    		System.out.println("Right: " + rightMotorSpeed);
+            pilot.updateSpeed(packet);
         }
         catch( IOException e ){
             System.out.println("Error while reading from stream.\n"+e);
