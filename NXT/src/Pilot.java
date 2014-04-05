@@ -18,9 +18,9 @@ public class Pilot {
 	}
 	
 	public void updateSpeed(int packet) {
-//		setLeftSpeed(CommandParser.leftMotor(packet));
-//		setRightSpeed(CommandParser.rightMotor(packet));
-		setLeftSpeed(rand.nextInt(600)-300);
+		setLeftSpeed(CommandParser.leftMotor(packet));
+		setRightSpeed(CommandParser.rightMotor(packet));
+//		setLeftSpeed(rand.nextInt(600)-300);
 
 		System.out.println("Left: " + getLeftSpeed());
 		System.out.println("Right: " + getRightSpeed());
