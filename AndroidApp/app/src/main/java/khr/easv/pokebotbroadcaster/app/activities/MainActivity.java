@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -38,6 +39,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     BluetoothAdapter adapter;
     BluetoothConnector bluetooth;
+
+    PacketSenderThread packetSender;
 
     TextView txtAccelX, txtAccelY, txtAccelZ;
     TextView txtLog;
@@ -101,8 +104,12 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     private void createConnectorAndConnect() {
-        if( bluetooth == null ) bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
+        // TODO: Find a way to reuse the bluetooth object
+        bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
         new BluetoothConnectionTask().execute(bluetooth);
+        if (packetSender != null) return;
+        packetSender = new PacketSenderThread(bluetooth);
+        packetSender.start();
     }
 
     @Override
@@ -129,13 +136,18 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     void handleSensorData(double azimuth, double pitch, double roll){
         // TODO: Thread this out if necessary
-        if( !connected ) return;
-        try{
-            int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
-            bluetooth.sendCommand(packet);
-        }catch (IOException e){
-            log("Error while sending packet: " + e);
-        }
+        int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
+        boolean canSend = packetSender != null;
+        String msg = canSend ? "Attempting to send packet..." : "Tried to send packet, but packet sender is null!";
+        log(msg);
+        if( canSend ) packetSender.sendPacket(packet);
+
+//        try{
+//            int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
+//            bluetooth.sendCommand(packet);
+//        }catch (IOException e){
+//            log("Error while sending packet: " + e);
+//        }
     }
 
     float[] accelerometerValues = new float[3];
@@ -166,8 +178,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) { /* Do nothing */ }
 
-    void log(String str){
-        txtLog.append(str + "\n");
+    void log(final String str){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                txtLog.append(str + "\n");
+            }
+        });
+        Log.d("LOG", str);
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
@@ -183,7 +201,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         protected Boolean doInBackground(BluetoothConnector... connectors) {
             if( connectors.length == 0 )
                 throw new IllegalArgumentException("You must supply the BluetoothConnection task with a BluetoothConnector object!");
-
             try {
                 connectors[0].connect();
             }
@@ -201,6 +218,54 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             String msg = wasSuccess ? s : f;
             connected = wasSuccess;
             log(msg);
+        }
+    }
+
+    class PacketSenderThread extends Thread{
+
+        boolean done = false;
+
+        BluetoothConnector _connector;
+
+        volatile boolean _hasChanged;
+        volatile int _packet;
+
+        public PacketSenderThread(BluetoothConnector connector) {
+            _hasChanged = false;
+            _packet = 0;
+
+            _connector = connector;
+        }
+
+        public void sendPacket(int packet){
+            log("Packet queued!");
+            _packet = packet;
+            _hasChanged = true;
+        }
+
+        @Override
+        public synchronized void start() {
+            super.start();
+            log("PacketSenderThread started!");
+        }
+
+        @Override
+        public void run() {
+            while( !done ) {
+                if( _connector.isReady )
+                    if( !_hasChanged ) yield();
+                    else send();
+            }
+        }
+
+        private void send(){
+            _hasChanged = false;
+            try {
+                _connector.sendCommand(_packet);
+                log("Packet sent: " + _packet);
+            } catch (IOException e) {
+                log(e.toString());
+            }
         }
     }
 }
