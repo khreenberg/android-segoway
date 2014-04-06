@@ -43,8 +43,10 @@ public class BalanceManager {
 
 
     public static int createPacketFromOrientation(double  azimuth, double pitch, double roll){
-        int leftWheelSpeed = PID(pitch);
-        int rightWheelSpeed = PID(pitch);
+//        int leftWheelSpeed = PID(pitch);
+//        int rightWheelSpeed = PID(pitch);
+        int leftWheelSpeed = (int) pitch;
+        int rightWheelSpeed = (int) pitch;
 
         int packet = new PacketCreator()
                 .setLeftMotorSpeed(leftWheelSpeed)

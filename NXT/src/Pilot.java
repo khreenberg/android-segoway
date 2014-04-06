@@ -20,8 +20,8 @@ public class Pilot {
 //		setRightPower(rand.nextInt(200)-100);
 		setLeftPower(CommandParser.leftMotor(packet));
 		setRightPower(CommandParser.rightMotor(packet));
-		System.out.println("Left:  " + this.leftMotor.getPower());
-		System.out.println("Right: " + this.rightMotor.getPower());
+//		System.out.println("Left:  " + this.leftMotor.getPower());
+//		System.out.println("Right: " + this.rightMotor.getPower());
 	}
 	public void setLeftPower(int power) {
 		this.leftMotor.setPower(power);
