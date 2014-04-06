@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
     private BluetoothAdapter _adapter;
     private BluetoothConnector _bluetooth;
 
-    private PacketSenderThread _packetSender;
+//    private PacketSenderThread _packetSender;
     private OrientationReaderThread _orientationReader;
 
     private TextView _txtAccelX, _txtAccelY, _txtAccelZ;
@@ -101,9 +101,9 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         // TODO: Find a way to reuse the _bluetooth object
         _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
         new BluetoothConnectionTask().execute(_bluetooth);
-        if (_packetSender != null) return;
-        _packetSender = new PacketSenderThread(_bluetooth);
-        _packetSender.start();
+//        if (_packetSender != null) return;
+//        _packetSender = new PacketSenderThread(_bluetooth);
+//        _packetSender.start();
     }
 
     @Override
@@ -132,7 +132,12 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
                 _txtAccelX.setText("Azimuth: " + azimuth);
                 _txtAccelY.setText("Pitch: " + pitch);
                 _txtAccelZ.setText("Rotation: " + roll);
-                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
+                if(_isConnected) try {
+                    _bluetooth.sendCommand(BalanceManager.createPacketFromOrientation(azimuth, pitch, roll));
+                } catch (IOException e) {
+                    log("Couldn't send packet: " + e);
+                }
+//                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
             }
         });
 
@@ -188,7 +193,6 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         }
 
         public void sendPacket(int packet){
-            log("Packet queued!");
             _packet = packet;
             _hasChanged = true;
         }
@@ -221,7 +225,7 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
 
     class OrientationReaderThread extends Thread{
 
-        public static final int ORIENTATION_READ_INTERVAL = 100; // milliseconds
+        public static final int ORIENTATION_READ_INTERVAL = 1000; // milliseconds
 
         private OrientationWrapper _wrapper;
 
