@@ -1,7 +1,5 @@
 import java.util.Random;
-
-import lejos.nxt.Motor;
-
+import lejos.nxt.MotorPort;
 
 public class Pilot {
 
@@ -10,29 +8,25 @@ public class Pilot {
 	Random rand;
 
 	public Pilot() {
-		this.leftMotor = new SegowayMotor(Motor.A); // hardcoded
-		this.rightMotor = new SegowayMotor(Motor.C); // hardcoded
+		this.leftMotor = new SegowayMotor(MotorPort.A); // hardcoded
+		this.rightMotor = new SegowayMotor(MotorPort.C); // hardcoded
 		this.leftMotor.start();
 		this.rightMotor.start();
 		rand = new Random();
 	}
 
 	public void updateSpeed(int packet) {
-		setLeftSpeed(CommandParser.leftMotor(packet));
-		setRightSpeed(CommandParser.rightMotor(packet));
-		System.out.println("Left: " + getLeftSpeed());
-		System.out.println("Right: " + getRightSpeed());
+//		setLeftPower(rand.nextInt(200)-100);
+//		setRightPower(rand.nextInt(200)-100);
+		setLeftPower(CommandParser.leftMotor(packet));
+		setRightPower(CommandParser.rightMotor(packet));
+		System.out.println("Left:  " + this.leftMotor.getPower());
+		System.out.println("Right: " + this.rightMotor.getPower());
 	}
-	public int getLeftSpeed() {
-		return this.leftMotor.getSpeed();
+	public void setLeftPower(int power) {
+		this.leftMotor.setPower(power);
 	}
-	public void setLeftSpeed(int leftSpeed) {
-		this.leftMotor.setSpeed(leftSpeed);
-	}
-	public int getRightSpeed() {
-		return this.rightMotor.getSpeed();
-	}
-	public void setRightSpeed(int rightSpeed) {
-		this.rightMotor.setSpeed(rightSpeed);
+	public void setRightPower(int power) {
+		this.rightMotor.setPower(power);
 	}
 }

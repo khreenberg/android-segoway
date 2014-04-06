@@ -26,7 +26,7 @@ public class Receiver extends Thread {
             pilot.updateSpeed(packet);
         }
         catch( IOException e ){
-            System.out.println("Error while reading from stream.\n"+e);
+            System.out.println("Error while reading from stream.\n"+e.getLocalizedMessage());
         }
     }
 
