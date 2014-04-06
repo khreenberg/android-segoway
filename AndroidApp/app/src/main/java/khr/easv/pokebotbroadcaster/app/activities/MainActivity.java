@@ -25,8 +25,8 @@ import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
     // Device address MUST be uppercase hex.. :o
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-    //public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
 
