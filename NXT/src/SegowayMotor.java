@@ -1,38 +1,37 @@
-import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.MotorPort;
+import lejos.nxt.NXTMotor;
 
 
 public class SegowayMotor extends Thread {
 	
-	private int speed = 1;
-	NXTRegulatedMotor motor;
+	private int power = 0;
+	NXTMotor motor;
 	
-	public SegowayMotor(NXTRegulatedMotor motor) {
-		this.motor = motor;
+	public SegowayMotor(MotorPort motorPort) {
+		this.motor = new NXTMotor(motorPort);
+		setPower(power);
 		motor.forward();
 	}
 	
 	@Override
 	public void run() {
 		while(true) {
-			if (speed > 0) {
-				motor.forward();
-			} else {
-				motor.backward();
-			}
+
 		}
 	}
-	
-	public int getSpeed() {
-		return this.speed;
+
+	public int getPower() {
+		return power;
 	}
-	
-	public void setSpeed(int speed) {
-		this.speed = speed;
-		motor.setSpeed(speed);
-	}
-	
-	public void stop() {
-		motor.setSpeed(0);
-		motor.stop();
+
+	public void setPower(int power) {
+		if (power > 100){
+			this.power = 100;
+		} else if (power > -100) {
+			this.power = -100;
+		} else {
+			this.power = power;
+		}
+		motor.setPower(this.power);
 	}
 }
