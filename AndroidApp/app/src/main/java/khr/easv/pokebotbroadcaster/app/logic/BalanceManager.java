@@ -7,14 +7,14 @@ public class BalanceManager {
 //    wait 3 ms
 //    restart loop
 
-    public static final int DUMMY_MULTIPLIER = 1;
+//    public static final int DUMMY_MULTIPLIER = 1;
 
 ////    TODO: Apply measurements
 //    public static final double WEIGHT_OBJECT = 0; // wheel weight
 //    public static final double WEIGHT_PENDULUM = 0; // two motors plus brick
 //    public static final double HEIGHT_PENDULUM = 0; // from mid-wheel point to the end of brick
 
-    public static int PID(double pitch) {
+    public static int PID(double pitch) { 
         double PFactor=0.5; // how much of the P should we take in?
         double IFactor=0.25;// -- I --
         double DFactor=-0.3;// -- D --
@@ -26,7 +26,7 @@ public class BalanceManager {
 
         int motor_power = 0;                  // Our output.  The RCX
 
-        while(Math.abs(pos)/100 < 40)         // just a test, not to send packet all the time
+        while(pos < 40)         // just a test, not to send packet all the time
         {
             prev_pos = pos;
             pos = pitch * 10;               // increase precision TODO: We need to access pitch here.
@@ -43,14 +43,15 @@ public class BalanceManager {
 
 
     public static int createPacketFromOrientation(double  azimuth, double pitch, double roll){
-//        int leftWheelSpeed = PID(pitch);
-//        int rightWheelSpeed = PID(pitch);
-        int leftWheelSpeed = (int) pitch;
-        int rightWheelSpeed = (int) pitch;
+//        int leftWheelPower = PID(pitch);
+//        int rightWheelPower = PID(pitch);
+
+        int leftWheelPower = (int) pitch;
+        int rightWheelPower = (int) pitch;
 
         int packet = new PacketCreator()
-                .setLeftMotorSpeed(leftWheelSpeed)
-                .setRightMotorSpeed(rightWheelSpeed)
+                .setLeftMotorSpeed(leftWheelPower)
+                .setRightMotorSpeed(rightWheelPower)
                 .setRiderAngle(0) // Not really used anymore TODO: Consider taking it out completely.
                 .getPacket();
 
