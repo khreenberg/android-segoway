@@ -20,6 +20,9 @@ public class BluetoothConnector {
     BluetoothSocket socket;
     BluetoothDevice device;
 
+    // TODO: Remove this, or convert it to get/Set.
+    public boolean isReady = false;
+
     public BluetoothConnector( String deviceAddress, BluetoothAdapter adapter ){
         this.adapter = adapter;
         this.deviceAddress = deviceAddress;
@@ -29,6 +32,7 @@ public class BluetoothConnector {
     public void connect() throws IOException {
         this.socket = device.createRfcommSocketToServiceRecord(UUID.fromString(UUIDString));
         this.socket.connect();
+        isReady = true;
     }
 
     public void sendCommand( int command ) throws IOException {
