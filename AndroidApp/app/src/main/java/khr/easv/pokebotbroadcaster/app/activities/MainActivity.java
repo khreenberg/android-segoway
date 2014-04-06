@@ -18,6 +18,8 @@ import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
 import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
+import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
+import khr.easv.pokebotbroadcaster.app.logic.PacketCreator;
 
 
 public class MainActivity extends ActionBarActivity implements IOrientationListener {
@@ -130,6 +132,7 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
                 _txtAccelX.setText("Azimuth: " + azimuth);
                 _txtAccelY.setText("Pitch: " + pitch);
                 _txtAccelZ.setText("Rotation: " + roll);
+                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
             }
         });
 
