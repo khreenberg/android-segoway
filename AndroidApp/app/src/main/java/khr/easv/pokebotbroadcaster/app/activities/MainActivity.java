@@ -27,8 +27,8 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
 
     // Device address MUST be uppercase hex.. :o
-//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+//    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     private boolean _isConnected = false;
 
@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
 
         @Override
         protected void onPostExecute(Boolean wasSuccess) {
-            String s = "Successfully _isConnected to " + DEVICE_ADDRESS;
+            String s = "Successfully connected to " + DEVICE_ADDRESS;
             String f = String.format("Could not connect to %s.\n -> %s", DEVICE_ADDRESS, e);
             String msg = wasSuccess ? s : f;
             _isConnected = wasSuccess;
