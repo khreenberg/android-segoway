@@ -1,12 +1,8 @@
 package khr.easv.pokebotbroadcaster.app.activities;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -16,34 +12,32 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
-import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
+import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
+import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener {
+public class MainActivity extends ActionBarActivity implements IOrientationListener {
+
+    public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
 
     // Device address MUST be uppercase hex.. :o
     public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
     //public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
-    static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
+    private boolean _isConnected = false;
 
-    private boolean connected = false;
+    private BluetoothAdapter _adapter;
+    private BluetoothConnector _bluetooth;
 
-    SensorManager sensorManager;
-    Sensor accelerometer;
-    Sensor magnetometer;
+    private PacketSenderThread _packetSender;
+    private OrientationReaderThread _orientationReader;
 
-    BluetoothAdapter adapter;
-    BluetoothConnector bluetooth;
-
-    PacketSenderThread packetSender;
-
-    TextView txtAccelX, txtAccelY, txtAccelZ;
-    TextView txtLog;
+    private TextView _txtAccelX, _txtAccelY, _txtAccelZ;
+    private TextView _txtLog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,31 +65,23 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         return super.onOptionsItemSelected(item);
     }
 
-    void initialize(){
+    private void initialize(){
         initializeViews();
         setupBluetooth();
-        setupSensors();
+        setupOrientationReader();
     }
 
-    void initializeViews(){
-        txtAccelX = (TextView) findViewById(R.id.txtAccelX);
-        txtAccelY = (TextView) findViewById(R.id.txtAccelY);
-        txtAccelZ = (TextView) findViewById(R.id.txtAccelZ);
-        txtLog    = (TextView) findViewById(R.id.txtLog);
-        txtLog.setText("");
+    private void initializeViews(){
+        _txtAccelX = (TextView) findViewById(R.id.txtAccelX);
+        _txtAccelY = (TextView) findViewById(R.id.txtAccelY);
+        _txtAccelZ = (TextView) findViewById(R.id.txtAccelZ);
+        _txtLog = (TextView) findViewById(R.id.txtLog);
+        _txtLog.setText("");
     }
 
-    void setupSensors(){
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer  = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        sensorManager.registerListener(this, accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_FASTEST);
-    }
-
-    void setupBluetooth(){
-        adapter = BluetoothAdapter.getDefaultAdapter();
-        if(!adapter.isEnabled()){
+    private void setupBluetooth(){
+        _adapter = BluetoothAdapter.getDefaultAdapter();
+        if(!_adapter.isEnabled()){
             Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
             return;
@@ -103,13 +89,19 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         createConnectorAndConnect();
     }
 
+    private void setupOrientationReader(){
+        _orientationReader = new OrientationReaderThread(this);
+        _orientationReader.addListener(this);
+        _orientationReader.start();
+    }
+
     private void createConnectorAndConnect() {
-        // TODO: Find a way to reuse the bluetooth object
-        bluetooth = new BluetoothConnector(DEVICE_ADDRESS, adapter);
-        new BluetoothConnectionTask().execute(bluetooth);
-        if (packetSender != null) return;
-        packetSender = new PacketSenderThread(bluetooth);
-        packetSender.start();
+        // TODO: Find a way to reuse the _bluetooth object
+        _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
+        new BluetoothConnectionTask().execute(_bluetooth);
+        if (_packetSender != null) return;
+        _packetSender = new PacketSenderThread(_bluetooth);
+        _packetSender.start();
     }
 
     @Override
@@ -120,72 +112,27 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         createConnectorAndConnect();
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        float[] orientation = getOrientation(event);
-        if( orientation == null ) return;
-        DecimalFormat df = new DecimalFormat("#0.00");
-        double  azimuth = Math.toDegrees(orientation[0]),
-                pitch   = Math.toDegrees(orientation[1]),
-                roll    = Math.toDegrees(orientation[2]);
-        txtAccelX.setText("Azimuth: " + df.format(azimuth));
-        txtAccelY.setText("Pitch: " + df.format(pitch));
-        txtAccelZ.setText("Roll: " + df.format(roll));
-        handleSensorData(azimuth, pitch, roll);
-    }
-
-    void handleSensorData(double azimuth, double pitch, double roll){
-        // TODO: Thread this out if necessary
-        int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
-        boolean canSend = packetSender != null;
-        String msg = canSend ? "Attempting to send packet..." : "Tried to send packet, but packet sender is null!";
-        log(msg);
-        if( canSend ) packetSender.sendPacket(packet);
-
-//        try{
-//            int packet = BalanceManager.createPacketFromOrientation(azimuth, pitch, roll);
-//            bluetooth.sendCommand(packet);
-//        }catch (IOException e){
-//            log("Error while sending packet: " + e);
-//        }
-    }
-
-    float[] accelerometerValues = new float[3];
-    float[] magnetometerValues = new float[3];
-    float[] getOrientation(SensorEvent event){
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            copyArrayValues(accelerometerValues, event.values);
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-            copyArrayValues(magnetometerValues, event.values);
-        if (accelerometerValues != null && magnetometerValues != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, accelerometerValues, magnetometerValues);
-            if (success) {
-                float orientation[] = new float[3];
-                SensorManager.getOrientation(R, orientation);
-                return orientation;
-            }
-        }
-        return null;
-    }
-
-    void copyArrayValues( float[] a, float[] b){
-        a[0] = b[0];
-        a[1] = b[1];
-        a[2] = b[2];
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { /* Do nothing */ }
-
     void log(final String str){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                txtLog.append(str + "\n");
+                _txtLog.append(str + "\n");
             }
         });
         Log.d("LOG", str);
+    }
+
+    @Override
+    public void onOrientationRead(final double azimuth, final double pitch, final double roll) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                _txtAccelX.setText("Azimuth: " + azimuth);
+                _txtAccelY.setText("Pitch: " + pitch);
+                _txtAccelZ.setText("Rotation: " + roll);
+            }
+        });
+
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
@@ -213,10 +160,10 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         @Override
         protected void onPostExecute(Boolean wasSuccess) {
-            String s = "Successfully connected to " + DEVICE_ADDRESS;
-            String f = String.format("Could not connect to %s.\n%s", DEVICE_ADDRESS, e);
+            String s = "Successfully _isConnected to " + DEVICE_ADDRESS;
+            String f = String.format("Could not connect to %s.\n -> %s", DEVICE_ADDRESS, e);
             String msg = wasSuccess ? s : f;
-            connected = wasSuccess;
+            _isConnected = wasSuccess;
             log(msg);
         }
     }
@@ -267,5 +214,79 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 log(e.toString());
             }
         }
+    }
+
+    class OrientationReaderThread extends Thread{
+
+        public static final int ORIENTATION_READ_INTERVAL = 100; // milliseconds
+
+        private OrientationWrapper _wrapper;
+
+        private boolean _isEnabled;
+        private boolean _isAlive;
+
+        private HashSet<IOrientationListener> _listeners;
+
+        public OrientationReaderThread(Activity activity){
+            _isEnabled = false;
+            _isAlive = false;
+            _wrapper = new OrientationWrapper(activity);
+        }
+
+        @Override
+        public synchronized void start() {
+            _isAlive = true;
+            enable();
+            super.start();
+        }
+
+        @Override
+        public void run() {
+            while(_isAlive){
+                while( !_isEnabled ) yield();
+                notifyListeners(_wrapper.getOrientation());
+                try {
+                    Thread.sleep(ORIENTATION_READ_INTERVAL);
+                } catch (InterruptedException e) {
+                    continue;
+                }
+            }
+        }
+
+        public void kill(){
+            _isAlive = false;
+        }
+
+        public void enable(){
+            if( _isEnabled ) return;
+            _isEnabled = true;
+            _wrapper.startListening();
+        }
+
+        public void disable(){
+            if( !_isEnabled ) return;
+            _isEnabled = false;
+            _wrapper.stopListening();
+        }
+
+        public void addListener(IOrientationListener listener){
+            if( _listeners == null ) _listeners = new HashSet<IOrientationListener>();
+            _listeners.add(listener);
+        }
+
+        public void removeListener(IOrientationListener listener){
+            if( _listeners == null ) return;
+            _listeners.remove(listener);
+            if( _listeners.isEmpty() ) _listeners = null; // Try to conserve memory
+        }
+
+        private void notifyListeners(float[] orientation){
+            double azimuth = Math.toDegrees(orientation[0]);
+            double pitch = Math.toDegrees(orientation[1]);
+            double roll = Math.toDegrees(orientation[2]);
+            for( IOrientationListener l : _listeners )
+                l.onOrientationRead(azimuth, pitch, roll);
+        }
+
     }
 }
