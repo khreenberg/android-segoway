@@ -25,13 +25,13 @@ public class SegowayMotor extends Thread {
 	}
 
 	public void setPower(int power) {
-		if (power > 100){
-			this.power = 100;
-		} else if (power > -100) {
-			this.power = -100;
-		} else {
+//		if (power > 100){
+//			this.power = 100;
+//		} else if (power > -100) {
+//			this.power = -100;
+//		} else {
 			this.power = power;
-		}
+//		}
 		motor.setPower(this.power);
 	}
 }
