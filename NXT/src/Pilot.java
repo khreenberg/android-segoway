@@ -16,10 +16,10 @@ public class Pilot {
 	}
 
 	public void updateSpeed(int packet) {
-		setLeftPower(rand.nextInt(200)-100);
-		setRightPower(rand.nextInt(200)-100);
-//		setLeftPower(CommandParser.leftMotor(packet));
-//		setRightPower(CommandParser.rightMotor(packet));
+//		setLeftPower(rand.nextInt(200)-100);
+//		setRightPower(rand.nextInt(200)-100);
+		setLeftPower(CommandParser.leftMotor(packet));
+		setRightPower(CommandParser.rightMotor(packet));
 		System.out.println("Left:  " + this.leftMotor.getPower());
 		System.out.println("Right: " + this.rightMotor.getPower());
 	}
