@@ -1,53 +1,111 @@
 package khr.easv.pokebotbroadcaster.app.logic;
 
-public class BalanceManager {
-//      SUGGESTION:
-//    start loop
-//    read from the sensor and pass the values through the PID method then send power data to brick
-//    wait 3 ms
-//    restart loop
+import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
-//    public static final int DUMMY_MULTIPLIER = 1;
+public class BalanceManager implements OrientationWrapper.OrientationListener {
 
-////    TODO: Apply measurements
-//    public static final double WEIGHT_OBJECT = 0; // wheel weight
-//    public static final double WEIGHT_PENDULUM = 0; // two motors plus brick
-//    public static final double HEIGHT_PENDULUM = 0; // from mid-wheel point to the end of brick
+    float _pitch = 0; // initial pitch
 
-    public static int PID(double pitch) { 
-        double PFactor=0.5; // how much of the P should we take in?
-        double IFactor=0.25;// -- I --
-        double DFactor=-0.3;// -- D --
+    Thread _thread;
+    boolean done = false;
 
-        double prev_pos = 0,
-            pos = 0,                          // The 'P' in PID
-            integral_sum = 0,                 // The 'I'
-            differential = 0;	              // The 'D'
+    public BalanceManager() {
 
-        int motor_power = 0;                  // Our output.  The RCX
+    }
 
-        while(pos < 40)         // just a test, not to send packet all the time
+    public void start() {
+        _thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loop();
+            }
+        });
+        _thread.start();
+    }
+
+    public void loop() {
+        while (!done) {
+            PID();
+        }
+    }
+
+    /*
+    This algorithm calculates the required motor-power for brick to get into equilibrium by using the angle from the orientation sensors.
+    Note: PID stands for Proportional-Integral-Derivative controller
+
+    At a later point, we might want to tweak it a bit to take the pendulum more into account. Calculating the necessary acceleration for
+    the pendulum would be:
+
+    d2tetha / dt2 = 12 ( g * cos tetha - a * sin tetha ) / L
+
+    where   tetha = pitch
+            g     = gravity
+            a     = acceleration
+            L     = pendulum length
+            t     = time
+            d     = shorthand for delta
+
+    then we set d2tetha / dt2 to 0 (zero ), and we get the following formula:
+
+    a = g cos tetha
+
+    Conclusion: required acceleration is the product between the gravity and the cosine value of the pitch.
+
+     */
+    public int PID() {
+        //      TODO: Fine-tune these values between (-1..1)
+        //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
+        //
+        //      Proportional - The product of gain and measured error (ε), where offset is inevitable
+        double  PFactor=0.5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
+        //      Integral - Eliminate steady state offset, by collecting error (ε) until it's large enough.
+        double  IFactor=0.25;                    // The shorter the integral factor, the more aggressive the integral.
+        //      Derivative - Corrects present error (ε) compared to the error from last time we checked, a.k.a. the rate of change of the error Δε.
+        double  DFactor=-0.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
+
+        // Needed variables
+        double
+                prev_pos,
+                pos = 0,                          // The 'P' in PID
+                integral_sum = 0,                 // The 'I'
+                differential;	                  // The 'D'
+
+        // The output
+        int     motor_power = 0;
+
+        //
+        while   (Math.abs(pos) < 15)              // TODO: Come up with a better angle after some experiments / or consider automating
         {
             prev_pos = pos;
-            pos = pitch * 10;               // increase precision TODO: We need to access pitch here.
-            differential = pos - prev_pos;
+            pos = Math.ceil(_pitch);
+            differential = pos - prev_pos;        // difference between current and previous angles for ex. 15-14
             integral_sum = integral_sum + pos;
 
-
-            motor_power = (int)(PFactor*pos + DFactor*differential + IFactor*integral_sum);  // Apply the PID
-            motor_power = motor_power / 100;  // hack
+            // The actual algorithm
+            motor_power = (int)(PFactor*pos + DFactor*differential + IFactor*integral_sum);
+//            motor_power = motor_power * 10  // increase precision
+//            Logger.debug("Power:" + motor_power);
         }
 
         return motor_power;
     }
 
+//    public int createPacketFromOrientation(double  azimuth, double pitch, double roll){
+//        int leftWheelPower = (int) pitch;
+//        int rightWheelPower = (int) pitch;
+//
+//        int packet = new PacketCreator()
+//                .setLeftMotorSpeed(leftWheelPower)
+//                .setRightMotorSpeed(rightWheelPower)
+//                .setRiderAngle(0) // Not really used anymore TODO: Consider taking it out completely.
+//                .getPacket();
+//
+//        return packet;
+//    }
 
-    public static int createPacketFromOrientation(double  azimuth, double pitch, double roll){
-//        int leftWheelPower = PID(pitch);
-//        int rightWheelPower = PID(pitch);
-
-        int leftWheelPower = (int) pitch;
-        int rightWheelPower = (int) pitch;
+    public int createPacketFromController(int power){
+        int leftWheelPower = (int) power;
+        int rightWheelPower = (int) power;
 
         int packet = new PacketCreator()
                 .setLeftMotorSpeed(leftWheelPower)
@@ -58,4 +116,11 @@ public class BalanceManager {
         return packet;
     }
 
+    /*
+    Sets the pitch on each tiniest orientation change.
+     */
+    @Override
+    public void onOrientationChanged(float azimuth, float pitch, float roll) {
+        this._pitch = pitch;
+    }
 }

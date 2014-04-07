@@ -32,8 +32,8 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
     public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
 
     // Device address MUST be uppercase hex.. :o
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-//    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     private LogEntry _ioErrorEntry = null;
     private int _ioErrorCount = 0;
@@ -48,6 +48,8 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
 
     //    private PacketSenderThread _packetSender;
     private OrientationReaderThread _orientationReader;
+
+    private BalanceManager _PIDController;
 
     private TextView _txtAzimuth, _txtPitch, _txtRoll;
     private Button _btnClearLog, _btnConnect;
@@ -84,6 +86,12 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         setupLogFragment();
         setupBluetooth();
         setupOrientationReader();
+        setupPIDController();
+    }
+
+    private void setupPIDController() {
+        this._PIDController = new BalanceManager();
+        _PIDController.start();
     }
 
     private void initializeViews(){
@@ -149,7 +157,9 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         super.onActivityResult(requestCode, resultCode, data);
         if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
         if( resultCode != RESULT_OK ) {finish(); return;}
+        _PIDController.start();
         bluetoothConnect();
+
     }
 
     @Override
@@ -160,12 +170,12 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
                 _txtAzimuth.setText(_orientationFormatter.format(azimuth));
                 _txtPitch.setText(_orientationFormatter.format(pitch));
                 _txtRoll.setText(_orientationFormatter.format(roll));
-                if (_isConnected) try {
-                    _bluetooth.sendCommand(BalanceManager.createPacketFromOrientation(azimuth, pitch, roll));
-                } catch (IOException e) {
-                    handlePacketIOException(e);
-                }
-//                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
+//                if (_isConnected) try {
+//                    _bluetooth.sendCommand(_PIDController.createPacketFromOrientation(azimuth, pitch, roll));
+//                } catch (IOException e) {
+//                    handlePacketIOException(e);
+//                }
+////                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
             }
         });
     }
