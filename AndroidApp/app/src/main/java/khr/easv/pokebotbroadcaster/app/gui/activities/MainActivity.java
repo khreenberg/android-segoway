@@ -26,7 +26,7 @@ import khr.easv.pokebotbroadcaster.app.gui.Logger;
 import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
-public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener {
+public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener, BalanceManager.PIDListener {
 
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
     public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
@@ -34,6 +34,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     // Device address MUST be uppercase hex.. :o
     public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
 //    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+
+    private static final long ORIENTATION_TEXT_UPDATE_DELAY = 100; // in millis
 
     private LogEntry _ioErrorEntry = null;
     private int _ioErrorCount = 0;
@@ -44,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     private OrientationWrapper _orientationWrapper;
     private DecimalFormat _orientationFormatter = new DecimalFormat("#.###");
+    private long _lastOrientationUpdate;
 
     private LogFragment _logFragment;
 
@@ -97,7 +100,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     }
 
     private void setupBalanceManager() {
-        this._balanceManager = new BalanceManager();
+        _balanceManager = new BalanceManager();
+        _balanceManager.addListener(this);
         _balanceManager.start();
     }
 
@@ -188,9 +192,23 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     @Override
     public void onOrientationChanged(float azimuth, float pitch, float roll) {
+        long time = System.currentTimeMillis();
+        long deltaTime = time - _lastOrientationUpdate;
+        if (deltaTime < ORIENTATION_TEXT_UPDATE_DELAY) return;
+        _lastOrientationUpdate = time;
+
         _txtAzimuth.setText(_orientationFormatter.format(azimuth));
         _txtPitch.setText(_orientationFormatter.format(pitch));
         _txtRoll.setText(_orientationFormatter.format(roll));
+    }
+
+    @Override
+    public void onPID(short packet) {
+        try {
+            _bluetooth.sendCommand(packet);
+        } catch (IOException e) {
+            Logger.exception(e);
+        }
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {

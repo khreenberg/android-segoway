@@ -107,6 +107,7 @@ public class OrientationWrapper implements SensorEventListener{
         _listeners.remove(listener);
     }
 
+    // also converts values from radians to degrees.
     private void notifyListeners(){
         float azimuth = (float) Math.toDegrees(_orientation[0]);
         float pitch = (float) Math.toDegrees(_orientation[1]);
