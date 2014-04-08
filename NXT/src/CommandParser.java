@@ -1,13 +1,13 @@
 public class CommandParser{
 
-    static final int LEFT_MOTOR_START_BIT   = 0,
-                     RIGHT_MOTOR_START_BIT  = 8;
+    static final int LEFT_MOTOR_START_BIT   = 	0,
+                     RIGHT_MOTOR_START_BIT  = 	8;
 
-    static final int MOTOR_POWER_MASK = 127, // 1111111 (7 1's)
-                     SIGN_MASK        =   1; //       1
+    static final int MOTOR_POWER_MASK 		= 127, // 1111111 (7 1's)
+                     SIGN_MASK        		=   1; //       1
 
-    static final int POSITIVE_BIT = 1,
-                     NEGATIVE_BIT = 0;
+    static final int POSITIVE_BIT 			= 	1,
+                     NEGATIVE_BIT 			= 	0;
 
     public static int leftMotor(int packet) {
         int signBit = getValue(packet, LEFT_MOTOR_START_BIT, SIGN_MASK);
