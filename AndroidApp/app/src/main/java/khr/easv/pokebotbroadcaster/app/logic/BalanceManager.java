@@ -90,34 +90,16 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         return motor_power;
     }
 
-//    public int createPacketFromOrientation(double  azimuth, double pitch, double roll){
-//        int leftWheelPower = (int) pitch;
-//        int rightWheelPower = (int) pitch;
-//
-//        int packet = new PacketCreator()
-//                .setLeftMotorSpeed(leftWheelPower)
-//                .setRightMotorSpeed(rightWheelPower)
-//                .setRiderAngle(0) // Not really used anymore TODO: Consider taking it out completely.
-//                .getPacket();
-//
-//        return packet;
-//    }
-
     public int createPacketFromController(int power){
-        int leftWheelPower = (int) power;
-        int rightWheelPower = (int) power;
+        int leftMotorPower = (int) power;
+        int rightMotorPower = (int) power;
 
-        int packet = new PacketCreator()
-                .setLeftMotorSpeed(leftWheelPower)
-                .setRightMotorSpeed(rightWheelPower)
-                .setRiderAngle(0) // Not really used anymore TODO: Consider taking it out completely.
-                .getPacket();
-
+        int packet = PacketCreator.createPacket(leftMotorPower, rightMotorPower);
         return packet;
     }
 
     /*
-    Sets the pitch on each tiniest orientation change.
+        Sets the pitch on each tiniest orientation change.
      */
     @Override
     public void onOrientationChanged(float azimuth, float pitch, float roll) {

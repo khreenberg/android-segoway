@@ -22,11 +22,11 @@ import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
 import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 import khr.easv.pokebotbroadcaster.app.entities.LogEntry;
-import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.gui.Logger;
+import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
-public class MainActivity extends ActionBarActivity implements IOrientationListener, LogFragment.OnLogEntryClickedListener {
+public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener {
 
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
     public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
@@ -42,14 +42,14 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
     private BluetoothAdapter _adapter;
     private BluetoothConnector _bluetooth;
 
+    private OrientationWrapper _orientationWrapper;
     private DecimalFormat _orientationFormatter = new DecimalFormat("#.###");
 
     private LogFragment _logFragment;
 
-    //    private PacketSenderThread _packetSender;
     private OrientationReaderThread _orientationReader;
 
-    private BalanceManager _PIDController;
+    private BalanceManager _balanceManager;
 
     private TextView _txtAzimuth, _txtPitch, _txtRoll;
     private Button _btnClearLog, _btnConnect;
@@ -85,13 +85,20 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         setupButtons();
         setupLogFragment();
         setupBluetooth();
-        setupOrientationReader();
-        setupPIDController();
+        setupBalanceManager();
+        setupOrientation();
     }
 
-    private void setupPIDController() {
-        this._PIDController = new BalanceManager();
-        _PIDController.start();
+    private void setupOrientation() {
+        _orientationWrapper = new OrientationWrapper(this);
+        _orientationWrapper.addListener(this);
+        _orientationWrapper.addListener(_balanceManager);
+        _orientationWrapper.startListening();
+    }
+
+    private void setupBalanceManager() {
+        this._balanceManager = new BalanceManager();
+        _balanceManager.start();
     }
 
     private void initializeViews(){
@@ -137,19 +144,10 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         }
     }
 
-    private void setupOrientationReader(){
-        _orientationReader = new OrientationReaderThread(this);
-        _orientationReader.addListener(this);
-        _orientationReader.start();
-    }
-
     private void bluetoothConnect() {
         if( _bluetooth == null )
             _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
         new BluetoothConnectionTask().execute(_bluetooth);
-//        if (_packetSender != null) return;
-//        _packetSender = new PacketSenderThread(_bluetooth);
-//        _packetSender.start();
     }
 
     @Override
@@ -157,27 +155,8 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
         super.onActivityResult(requestCode, resultCode, data);
         if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
         if( resultCode != RESULT_OK ) {finish(); return;}
-        _PIDController.start();
         bluetoothConnect();
 
-    }
-
-    @Override
-    public void onOrientationRead(final double azimuth, final double pitch, final double roll) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _txtAzimuth.setText(_orientationFormatter.format(azimuth));
-                _txtPitch.setText(_orientationFormatter.format(pitch));
-                _txtRoll.setText(_orientationFormatter.format(roll));
-//                if (_isConnected) try {
-//                    _bluetooth.sendCommand(_PIDController.createPacketFromOrientation(azimuth, pitch, roll));
-//                } catch (IOException e) {
-//                    handlePacketIOException(e);
-//                }
-////                _packetSender.sendPacket(BalanceManager.createPacketFromOrientation(azimuth,pitch,roll));
-            }
-        });
     }
 
     private void handlePacketIOException(IOException e){
@@ -205,6 +184,13 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
 
     private void updateLogList() {
         _logFragment.getListView().invalidateViews();
+    }
+
+    @Override
+    public void onOrientationChanged(float azimuth, float pitch, float roll) {
+        _txtAzimuth.setText(_orientationFormatter.format(azimuth));
+        _txtPitch.setText(_orientationFormatter.format(pitch));
+        _txtRoll.setText(_orientationFormatter.format(roll));
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
@@ -238,53 +224,6 @@ public class MainActivity extends ActionBarActivity implements IOrientationListe
             _isConnected = wasSuccess;
             _ioErrorCount = 0;
             _btnConnect.setEnabled(!_isConnected);
-        }
-    }
-
-    class PacketSenderThread extends Thread{
-
-        boolean done = false;
-
-        BluetoothConnector _connector;
-
-        volatile boolean _hasChanged;
-        volatile int _packet;
-
-        public PacketSenderThread(BluetoothConnector connector) {
-            _hasChanged = false;
-            _packet = 0;
-
-            _connector = connector;
-        }
-
-        public void sendPacket(int packet){
-            _packet = packet;
-            _hasChanged = true;
-        }
-
-        @Override
-        public synchronized void start() {
-            super.start();
-            Logger.debug("PacketSenderThread started!");
-        }
-
-        @Override
-        public void run() {
-            while( !done ) {
-                if( _connector._isReady)
-                    if( !_hasChanged ) yield();
-                    else send();
-            }
-        }
-
-        private void send(){
-            _hasChanged = false;
-            try {
-                _connector.sendCommand(_packet);
-                Logger.debug("Packet sent: " + _packet);
-            } catch (IOException e) {
-                Logger.exception(e);
-            }
         }
     }
 
