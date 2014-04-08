@@ -191,15 +191,20 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     }
 
     @Override
-    public void onOrientationChanged(float azimuth, float pitch, float roll) {
+    public void onOrientationChanged(final float azimuth, final float pitch, final float roll) {
         long time = System.currentTimeMillis();
         long deltaTime = time - _lastOrientationUpdate;
         if (deltaTime < ORIENTATION_TEXT_UPDATE_DELAY) return;
         _lastOrientationUpdate = time;
 
-        _txtAzimuth.setText(_orientationFormatter.format(azimuth));
-        _txtPitch.setText(_orientationFormatter.format(pitch));
-        _txtRoll.setText(_orientationFormatter.format(roll));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                _txtAzimuth.setText(_orientationFormatter.format(azimuth));
+                _txtPitch.setText(_orientationFormatter.format(pitch));
+                _txtRoll.setText(_orientationFormatter.format(roll));
+            }
+        });
     }
 
     @Override
