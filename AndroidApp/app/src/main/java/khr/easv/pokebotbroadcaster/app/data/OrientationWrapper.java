@@ -108,7 +108,10 @@ public class OrientationWrapper implements SensorEventListener{
     }
 
     private void notifyListeners(){
+        float azimuth = (float) Math.toDegrees(_orientation[0]);
+        float pitch = (float) Math.toDegrees(_orientation[1]);
+        float roll = (float) Math.toDegrees(_orientation[2]);
         for (OrientationListener l : _listeners)
-            l.onOrientationChanged(_orientation[0], _orientation[1], _orientation[2]);
+            l.onOrientationChanged(azimuth, pitch, roll);
     }
 }
