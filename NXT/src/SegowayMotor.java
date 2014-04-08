@@ -13,9 +13,7 @@ public class SegowayMotor extends Thread {
 
 	@Override
 	public void run() {
-		while(true) {
-
-		}
+		while(true) { /* Do nothing */ }
 	}
 
 	public int getPower() {

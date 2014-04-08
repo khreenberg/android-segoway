@@ -59,8 +59,10 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     private void PID() {
         // TODO remove this
         notifyListeners(PacketCreator.createPacket((short)_pitch, (short)_pitch));
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {}
 
-        
         /*
 
 
