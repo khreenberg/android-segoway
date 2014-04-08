@@ -23,7 +23,7 @@ public class Receiver extends Thread {
     void handleInput(){
         try{
             int packet = input.readInt();
-            pilot.updateSpeed(packet);
+            pilot.update(packet);
         }
         catch( IOException e ){
             System.out.println("Error while reading from stream.\n"+e.getLocalizedMessage());

@@ -13,7 +13,7 @@ public class Pilot {
 	    rightMotor = new NXTMotor( MotorPort.C );
 	}
 
-	public void updateSpeed(int packet) {
+	public void update(int packet) {
 	    int leftPower = CommandParser.leftMotor(packet);
 	    int rightPower = CommandParser.rightMotor(packet);
 		leftMotor.setPower(leftPower);
