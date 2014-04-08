@@ -28,4 +28,5 @@ proguard/
 *.iws
 .idea/
 
-NXT/src/Segoway.nxj
+*.nxj
+*.nxd
