@@ -54,7 +54,6 @@ public class OrientationWrapper implements SensorEventListener{
     @Override
     public void onSensorChanged(SensorEvent event) {
         updateOrientation(event);
-        if( _orientation == null ) return;
         notifyListeners();
     }
 
@@ -72,7 +71,8 @@ public class OrientationWrapper implements SensorEventListener{
     // Method used in an attempt to reduce memory consumption
     private void copyArrayValues( float[] a, float[] b){
         int min = Math.min(a.length, b.length);
-        System.arraycopy(b, 0, a, 0, min); // IDE suggested this. Haven't used it before.
+        for( int i = 0; i < min; i++ ) a[i] = b[i];
+//        System.arraycopy(b, 0, a, 0, min); // IDE suggested this. Haven't used it before.
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Receiver extends Thread {
 
     void handleInput(){
         try{
-            short packet = input.readShort();
+            int packet = input.readInt();
             pilot.updateSpeed(packet);
         }
         catch( IOException e ){

@@ -32,8 +32,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
 
     // Device address MUST be uppercase hex.. :o
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-//    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     private static final long ORIENTATION_TEXT_UPDATE_DELAY = 100; // in millis
 
@@ -209,10 +209,16 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     @Override
     public void onPID(short packet) {
+        if(!_isConnected) return;
         try {
             _bluetooth.sendCommand(packet);
-        } catch (IOException e) {
-            Logger.exception(e);
+        } catch (final IOException e) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    handlePacketIOException(e);
+                }
+            });
         }
     }
 

@@ -57,6 +57,13 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
      */
     private void PID() {
+        // TODO remove this
+        notifyListeners(PacketCreator.createPacket((short)_pitch, (short)_pitch));
+
+        
+        /*
+
+
         //      TODO: Fine-tune these values between (-1..1)
         //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
         //
@@ -91,15 +98,9 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
             //Logger.debug("Power:" + motor_power);
         }
 
-        notifyListeners(motor_power);
-    }
+        notifyListeners(PacketCreator.createPacket(motor_power, motor_power));
 
-    public int createPacketFromController(short power){
-        short leftMotorPower = power;
-        short rightMotorPower =power;
-
-        int packet = PacketCreator.createPacket(leftMotorPower, rightMotorPower);
-        return packet;
+        */
     }
 
     @Override
