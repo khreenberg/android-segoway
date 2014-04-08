@@ -1,4 +1,5 @@
 import java.util.Random;
+
 import lejos.nxt.MotorPort;
 
 public class Pilot {
@@ -15,7 +16,7 @@ public class Pilot {
 		rand = new Random();
 	}
 
-	public void updateSpeed(int packet) {
+	public void updateSpeed(short packet) {
 //		setLeftPower(rand.nextInt(200)-100);
 //		setRightPower(rand.nextInt(200)-100);
 		setLeftPower(CommandParser.leftMotor(packet));

@@ -32,8 +32,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
 
     // Device address MUST be uppercase hex.. :o
-//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
+    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+//    public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
     private LogEntry _ioErrorEntry = null;
     private int _ioErrorCount = 0;
