@@ -18,15 +18,12 @@ public class OrientationWrapper implements SensorEventListener{
 
     // Helpers for calculating orientation
     private float[]
-            _accelerometerValues,
-            _magnetometerValues,
-            _inclinationMatrix,
+            _rawRotation,
             _rotationMatrix;
 
     // Sensor stuff
     private SensorManager _sensorManager;
-    private Sensor _accelerometer;
-    private Sensor _magnetometer;
+    private Sensor _rotationVector;
 
     // Flag for checking if we're listening for sensor changes
     private boolean _isRegistered = false;
@@ -39,16 +36,13 @@ public class OrientationWrapper implements SensorEventListener{
         setupSensors(activity);
 
         _orientation = new float[3];
-        _accelerometerValues = new float[3];
-        _magnetometerValues = new float[3];
-        _inclinationMatrix = new float[9];
+        _rawRotation = new float[9];
         _rotationMatrix = new float[9];
     }
 
     void setupSensors(Activity activity){
         _sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
-        _accelerometer = _sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        _magnetometer = _sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        _rotationVector = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
 
     @Override
@@ -58,21 +52,10 @@ public class OrientationWrapper implements SensorEventListener{
     }
 
     private void updateOrientation(SensorEvent event){
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            copyArrayValues(_accelerometerValues, event.values);
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-            copyArrayValues(_magnetometerValues, event.values);
-
-        boolean success = SensorManager.getRotationMatrix(_rotationMatrix, _inclinationMatrix, _accelerometerValues, _magnetometerValues);
-        if (!success) return;
+        if( event.sensor.getType() != Sensor.TYPE_ROTATION_VECTOR) return;
+        SensorManager.getRotationMatrixFromVector(_rawRotation, event.values);
+        SensorManager.remapCoordinateSystem(_rawRotation, SensorManager.AXIS_X, SensorManager.AXIS_Z, _rotationMatrix);
         SensorManager.getOrientation(_rotationMatrix, _orientation);
-    }
-
-    // Method used in an attempt to reduce memory consumption
-    private void copyArrayValues( float[] a, float[] b){
-        int min = Math.min(a.length, b.length);
-        for( int i = 0; i < min; i++ ) a[i] = b[i];
-//        System.arraycopy(b, 0, a, 0, min); // IDE suggested this. Haven't used it before.
     }
 
     @Override
@@ -81,8 +64,7 @@ public class OrientationWrapper implements SensorEventListener{
     public void startListening(){
         if(_isRegistered) return;
         _isRegistered = true;
-        _sensorManager.registerListener(this, _accelerometer, SENSOR_DELAY);
-        _sensorManager.registerListener(this, _magnetometer, SENSOR_DELAY);
+        _sensorManager.registerListener(this, _rotationVector, SENSOR_DELAY);
     }
 
     public void stopListening(){
@@ -112,6 +94,7 @@ public class OrientationWrapper implements SensorEventListener{
         float azimuth = (float) Math.toDegrees(_orientation[0]);
         float pitch = (float) Math.toDegrees(_orientation[1]);
         float roll = (float) Math.toDegrees(_orientation[2]);
+
         for (OrientationListener l : _listeners)
             l.onOrientationChanged(azimuth, pitch, roll);
     }
