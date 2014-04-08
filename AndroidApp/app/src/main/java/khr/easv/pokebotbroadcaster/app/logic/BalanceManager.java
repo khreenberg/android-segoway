@@ -1,8 +1,12 @@
 package khr.easv.pokebotbroadcaster.app.logic;
 
+import java.util.HashSet;
+
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 public class BalanceManager implements OrientationWrapper.OrientationListener {
+
+    HashSet<PIDListener> _listeners;
 
     float _pitch = 0; // initial pitch
 
@@ -10,7 +14,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     boolean done = false;
 
     public BalanceManager() {
-
+        _listeners = new HashSet<PIDListener>();
     }
 
     public void start() {
@@ -52,7 +56,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     Conclusion: required acceleration is the product between the gravity and the cosine value of the pitch.
 
      */
-    public int PID() {
+    private void PID() {
         //      TODO: Fine-tune these values between (-1..1)
         //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
         //
@@ -66,12 +70,12 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         // Needed variables
         double
                 prev_pos,
-                pos = 0,                          // The 'P' in PID
-                integral_sum = 0,                 // The 'I'
+                pos             = 0,              // The 'P' in PID
+                integral_sum    = 0,              // The 'I'
                 differential;	                  // The 'D'
 
         // The output
-        int     motor_power = 0;
+        short   motor_power     = 0;
 
         //
         while   (Math.abs(pos) < 15)              // TODO: Come up with a better angle after some experiments / or consider automating
@@ -82,27 +86,43 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
             integral_sum = integral_sum + pos;
 
             // The actual algorithm
-            motor_power = (int)(PFactor*pos + DFactor*differential + IFactor*integral_sum);
-//            motor_power = motor_power * 10  // increase precision
-//            Logger.debug("Power:" + motor_power);
+            motor_power = (short)(PFactor*pos + DFactor*differential + IFactor*integral_sum);
+            //motor_power = motor_power * 10  // increase precision
+            //Logger.debug("Power:" + motor_power);
         }
 
-        return motor_power;
+        notifyListeners(motor_power);
     }
 
-    public int createPacketFromController(int power){
-        int leftMotorPower = (int) power;
-        int rightMotorPower = (int) power;
+    public int createPacketFromController(short power){
+        short leftMotorPower = power;
+        short rightMotorPower =power;
 
         int packet = PacketCreator.createPacket(leftMotorPower, rightMotorPower);
         return packet;
     }
 
-    /*
-        Sets the pitch on each tiniest orientation change.
-     */
     @Override
     public void onOrientationChanged(float azimuth, float pitch, float roll) {
         this._pitch = pitch;
+    }
+
+
+    public interface PIDListener {
+        void onPID(short packet);
+    }
+
+    public void addListener(PIDListener listener) {
+        _listeners.add(listener);
+    }
+
+    public void removeListener(PIDListener listener) {
+        _listeners.remove(listener);
+    }
+
+    private void notifyListeners(short packet){
+        for(PIDListener listener : _listeners) {
+            listener.onPID(packet);
+        }
     }
 }

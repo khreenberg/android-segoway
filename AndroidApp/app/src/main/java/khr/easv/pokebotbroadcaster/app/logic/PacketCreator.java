@@ -2,47 +2,61 @@ package khr.easv.pokebotbroadcaster.app.logic;
 
 public class PacketCreator {
 
-    static final int
-            MAX_MOTOR_POWER        = 1023; //TODO: Figure out what to do after updating the protocol.
+    static final short
+            MOTOR_BIT_MASK         =  127, //TODO: Figure out what to do after updating the protocol.
+            MAX_MOTOR_POWER        =  100;
 
-    static final int
-            LEFT_MOTOR_START_BIT   =   0,
-            RIGHT_MOTOR_START_BIT  =  11;
+    static final short
+            LEFT_MOTOR_START_BIT   =    0,
+            RIGHT_MOTOR_START_BIT  =    8;
 
-    static final int
-            POSITIVE_BIT           =   1,
-            NEGATIVE_BIT           =   0;
+    static final short
+            POSITIVE_BIT           =    1,
+            NEGATIVE_BIT           =    0;
 
-    public static int createPacket(int leftMotorPower, int rightMotorPower) {
-        int packet = 0;
+    public static short createPacket(short leftMotorPower, short rightMotorPower) {
+
+        short packet = 0;
+
         packet = setLeftMotorPower(packet, leftMotorPower);
         packet = setRightMotorPower(packet, rightMotorPower);
+
         return packet;
     }
 
-    private static int setLeftMotorPower(int packet, int speed){
-        int signBit = speed < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
-        int absSpeed = Math.abs(speed);
-        if (absSpeed > MAX_MOTOR_POWER)
+    private static short setLeftMotorPower(short packet, short power){
+
+        short signBit = power < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
+        short absPower = (short)Math.abs(power);
+
+        if (absPower > MAX_MOTOR_POWER)
             throw new IllegalArgumentException("Absolute value of speed parameter must be less than " + MAX_MOTOR_POWER);
+
         packet = setValueAt(packet, signBit, LEFT_MOTOR_START_BIT, 1);
-        packet = setValueAt(packet, absSpeed, LEFT_MOTOR_START_BIT+1, MAX_MOTOR_POWER);
+        packet = setValueAt(packet, absPower, LEFT_MOTOR_START_BIT+1, MOTOR_BIT_MASK);
+
         return packet;
     }
 
-    private static int setRightMotorPower(int packet, int speed){
-        int signBit = speed < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
-        int absSpeed = Math.abs(speed);
-        if (absSpeed > MAX_MOTOR_POWER)
-            throw new IllegalArgumentException("Absolute value of speed parameter must be less than " + MAX_MOTOR_POWER);
+    private static short setRightMotorPower(short packet, short power){
+
+        short signBit = power < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
+        short absPower = (short)Math.abs(power);
+
+        if (absPower > MAX_MOTOR_POWER)
+            throw new IllegalArgumentException("Absolute value of power parameter must be less than " + MAX_MOTOR_POWER);
+
         packet = setValueAt(packet, signBit, RIGHT_MOTOR_START_BIT, 1);
-        packet = setValueAt(packet, absSpeed, RIGHT_MOTOR_START_BIT+1, MAX_MOTOR_POWER);
+        packet = setValueAt(packet, absPower, RIGHT_MOTOR_START_BIT+1, MOTOR_BIT_MASK);
+
         return packet;
     }
 
-    private static int setValueAt(int packet, int value, int bitIndex, int mask){
+    private static short setValueAt(short packet, short value, int bitIndex, int mask){
+
         packet &= ~(mask << bitIndex); // Clear the bits
         packet |= value << bitIndex;   // Set the value
+
         return packet;
     }
 }

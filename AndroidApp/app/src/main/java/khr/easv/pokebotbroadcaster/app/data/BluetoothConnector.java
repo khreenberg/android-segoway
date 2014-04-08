@@ -35,7 +35,7 @@ public class BluetoothConnector {
         _isReady = true;
     }
 
-    public void sendCommand( int command ) throws IOException {
+    public void sendCommand( short command ) throws IOException {
         DataOutputStream output = new DataOutputStream(_socket.getOutputStream());
         output.writeInt(command);
         output.flush();
