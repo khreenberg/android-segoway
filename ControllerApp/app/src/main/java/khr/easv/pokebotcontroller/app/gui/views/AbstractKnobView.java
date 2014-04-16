@@ -44,7 +44,6 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        listeners = new HashSet<KnobUpdateListener>();
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.KnobView, defStyle, 0);
@@ -186,11 +185,13 @@ public abstract class AbstractKnobView extends View {
     }
 
     public void addListener(KnobUpdateListener listener){
+        if( listeners == null ) listeners = new HashSet<KnobUpdateListener>();
         listeners.add(listener);
     }
 
     public void removeListener(KnobUpdateListener listener){
         listeners.remove(listener);
+        if( listeners.isEmpty() ) listeners = null;
     }
 
     private void notifyListeners(float x, float y){
