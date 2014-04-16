@@ -8,10 +8,16 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+
+import java.util.HashSet;
+
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.gui.Logger;
 
 public abstract class AbstractKnobView extends View {
+
+    private HashSet<KnobUpdateListener> listeners;
+
     protected float frameStrokeWidth;
     protected int radius;
     protected float knobSizeRatio;
@@ -38,6 +44,7 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+        listeners = new HashSet<KnobUpdateListener>();
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.KnobView, defStyle, 0);
@@ -167,11 +174,26 @@ public abstract class AbstractKnobView extends View {
         knobOffsetX = Math.abs(length) + knobRadius < radius ? getKnobX() : x * (radius - knobRadius);
         knobOffsetY = Math.abs(length) + knobRadius < radius ? getKnobY() : y * (radius - knobRadius);
 
-        // Save the calculated unit circle point
-        controlX = x * ratio;
-        controlY = y * ratio;
+        // Notify listeners of the calculated point
+        notifyListeners(x * ratio, y * ratio);
 
         // Refresh the view
         invalidate();
+    }
+
+    public interface KnobUpdateListener{
+        void onKnobUpdate(float x, float y);
+    }
+
+    public void addListener(KnobUpdateListener listener){
+        listeners.add(listener);
+    }
+
+    public void removeListener(KnobUpdateListener listener){
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners(float x, float y){
+        for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
     }
 }

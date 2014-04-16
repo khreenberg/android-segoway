@@ -4,8 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import khr.easv.pokebotcontroller.app.gui.Logger;
-
 public class OnScreenJoystickView extends AbstractKnobView {
 
     private int offsetX, offsetY;
@@ -45,4 +43,5 @@ public class OnScreenJoystickView extends AbstractKnobView {
     protected int getKnobY() {
         return offsetY;
     }
+
 }
