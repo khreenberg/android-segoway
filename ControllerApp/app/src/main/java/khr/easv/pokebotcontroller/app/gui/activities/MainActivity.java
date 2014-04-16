@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
+import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
@@ -57,13 +58,16 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void setupFragments(){
-//        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+        // TODO: Clean this up when done testing
+        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
         JoystickControlFragment joystickControlFragment = new JoystickControlFragment();
+        AccelerometerControlFragment accelerometerControlFragment = new AccelerometerControlFragment();
         LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
 //                .add(R.id.controllerFragmentContainer, buttonControlFragment)
-                .add(R.id.controllerFragmentContainer, joystickControlFragment)
+//                .add(R.id.controllerFragmentContainer, joystickControlFragment)
+                .add(R.id.controllerFragmentContainer, accelerometerControlFragment)
                 .add(R.id.logFragmentContainer, logFragment)
                 .commit();
     }

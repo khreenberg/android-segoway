@@ -154,7 +154,8 @@ public abstract class AbstractKnobView extends View {
     public void updateKnobPosition(){
         // Calculate the knob radius. TODO: Optimize this by caching a result.
         int knobRadius = (int) (radius * knobSizeRatio);
-
+        // The distance the knob can move from the center before hitting the frame
+        int availableRadius = radius - knobRadius;
         // Get the X & Y positions relative to the center of the view from the subclass
         float x = getKnobX();
         float y = getKnobY();
@@ -167,7 +168,7 @@ public abstract class AbstractKnobView extends View {
         y /= length != 0 ? length : 1;
 
         // Allow the length of the vector to be less than the radius
-        float ratio = length > radius ? 1 : length / radius;
+        float ratio = length > availableRadius ? 1 : length / availableRadius;
 
         // Set the offsets for the knob graphic.
         knobOffsetX = Math.abs(length) + knobRadius < radius ? getKnobX() : x * (radius - knobRadius);
@@ -181,7 +182,7 @@ public abstract class AbstractKnobView extends View {
     }
 
     protected int getDefaultKnobDrawableID(){
-        return R.drawable.joyknob;
+        return R.drawable.knob_red;
     }
 
     public interface KnobUpdateListener{
@@ -199,6 +200,7 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void notifyListeners(float x, float y){
+        Logger.debug(String.format("%d: (%.2f, %.2f)", getDefaultKnobDrawableID(), x, y));
         if( listeners != null )
             for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
     }

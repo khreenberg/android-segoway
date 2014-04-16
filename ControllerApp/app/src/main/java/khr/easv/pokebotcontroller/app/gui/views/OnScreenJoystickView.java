@@ -49,6 +49,6 @@ public class OnScreenJoystickView extends AbstractKnobView {
 
     @Override
     protected int getDefaultKnobDrawableID() {
-        return R.drawable.joyknob;
+        return R.drawable.knob_red;
     }
 }
