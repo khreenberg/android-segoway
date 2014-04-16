@@ -9,6 +9,7 @@ import android.widget.Toast;
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
 
@@ -56,17 +57,20 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void setupFragments(){
-        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+//        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+        JoystickControlFragment joystickControlFragment = new JoystickControlFragment();
         LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.controllerFragmentContainer, buttonControlFragment)
+//                .add(R.id.controllerFragmentContainer, buttonControlFragment)
+                .add(R.id.controllerFragmentContainer, joystickControlFragment)
                 .add(R.id.logFragmentContainer, logFragment)
                 .commit();
     }
 
     @Override
     public void onLogEntryClicked(LogEntry entry) {
-        Toast.makeText(this, entry.getTag() + ": " + entry.getTitle(), Toast.LENGTH_SHORT).show();
+        if( entry.getDetails().isEmpty() ) return;
+        Toast.makeText(this, entry.getDetails(), Toast.LENGTH_SHORT).show();
     }
 }

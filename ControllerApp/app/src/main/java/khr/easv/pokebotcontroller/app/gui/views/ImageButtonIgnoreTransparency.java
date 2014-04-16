@@ -1,4 +1,4 @@
-package khr.easv.pokebotcontroller.app.gui.customviews;
+package khr.easv.pokebotcontroller.app.gui.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;

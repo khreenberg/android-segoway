@@ -5,13 +5,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.gui.Logger;
-import khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency;
+import khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency;
 
 public class ButtonControlFragment extends Fragment {
 

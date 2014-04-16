@@ -5,63 +5,63 @@
     android:layout_height="match_parent"
     tools:context="khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment">
 
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlTurnLeft"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_turn_left" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlMoveForward"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_move_forward" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlTurnRight"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_turn_right" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlRotateLeft"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_rotate_left" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlCenter"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_center" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlRotateRight"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_rotate_right" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlBackLeft"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_back_left" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlMoveBack"
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:src="@drawable/selector_move_back" />
-    <khr.easv.pokebotcontroller.app.gui.customviews.ImageButtonIgnoreTransparency
+    <khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnControlBackRight"
