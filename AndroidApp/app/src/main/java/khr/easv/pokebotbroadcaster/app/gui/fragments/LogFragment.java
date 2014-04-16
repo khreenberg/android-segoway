@@ -9,11 +9,11 @@ import android.widget.ListView;
 import java.util.List;
 
 import khr.easv.pokebotbroadcaster.app.R;
-import khr.easv.pokebotbroadcaster.app.entities.LogEntry;
-import khr.easv.pokebotbroadcaster.app.gui.Logger;
+import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
+import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
 import khr.easv.pokebotbroadcaster.app.gui.adapters.LogListAdapter;
 
-import static khr.easv.pokebotbroadcaster.app.gui.Logger.*;
+import static khr.easv.pokebotbroadcaster.app.entities.logger.Logger.*;
 
 public class LogFragment extends ListFragment implements ILoggerListener {
 
@@ -58,6 +58,7 @@ public class LogFragment extends ListFragment implements ILoggerListener {
 
     @Override
     public void onLog(LogEntry entry) {
+        if(isVisible())
         setSelection(adapter.getCount()-1); // Scroll the view to the bottom
     }
 

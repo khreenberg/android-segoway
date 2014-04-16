@@ -21,8 +21,9 @@ import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
 import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
-import khr.easv.pokebotbroadcaster.app.entities.LogEntry;
-import khr.easv.pokebotbroadcaster.app.gui.Logger;
+import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
+import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
+import khr.easv.pokebotbroadcaster.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
@@ -141,11 +142,9 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     private void setupBluetooth(){
         _adapter = BluetoothAdapter.getDefaultAdapter();
-        if(!_adapter.isEnabled()){
-            Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
-            return;
-        }
+        if(_adapter.isEnabled()) return;
+        Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
     }
 
     private void bluetoothConnect() {
@@ -183,11 +182,20 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     @Override
     public void onLogEntryClicked(LogEntry entry) {
         if( entry.getDetails().isEmpty() ) return;
-        Toast.makeText(this, entry.getDetails(), Toast.LENGTH_SHORT).show();
+        LogEntryDetailsFragment detailsFragment = new LogEntryDetailsFragment();
+        Bundle fragmentExtras = new Bundle(1);
+        fragmentExtras.putSerializable(LogEntryDetailsFragment.BUNDLE_KEY_ENTRY, entry);
+        detailsFragment.setArguments(fragmentExtras);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.logFragmentContainer, detailsFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void updateLogList() {
-        _logFragment.getListView().invalidateViews();
+        if( _logFragment.isVisible() )
+            _logFragment.getListView().invalidateViews();
     }
 
     @Override

@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import khr.easv.pokebotbroadcaster.app.R;
-import khr.easv.pokebotbroadcaster.app.entities.LogEntry;
+import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
 
 public class LogListAdapter extends ArrayAdapter<LogEntry>{
 

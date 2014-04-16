@@ -1,12 +1,10 @@
-package khr.easv.pokebotbroadcaster.app.gui;
+package khr.easv.pokebotbroadcaster.app.entities.logger;
 
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import khr.easv.pokebotbroadcaster.app.entities.LogEntry;
 
 public class Logger {
 
