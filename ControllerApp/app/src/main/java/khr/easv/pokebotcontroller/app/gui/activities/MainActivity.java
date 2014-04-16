@@ -1,6 +1,7 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
+import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
@@ -28,7 +30,6 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         setup();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -42,8 +43,20 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.menu_exit) {
-            return true;
+        switch (id){
+            case R.id.menu_exit: return true;
+            case R.id.menu_controlButton:
+                switchControlFragment(new ButtonControlFragment());
+                break;
+            case R.id.menu_controlJoystick:
+                switchControlFragment(new JoystickControlFragment());
+                break;
+            case R.id.menu_controlAccelerometer:
+                switchControlFragment(new AccelerometerControlFragment());
+                break;
+            case R.id.menu_controlExternal:
+                Logger.warn("External control options not yet supported!", "");
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -58,17 +71,21 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void setupFragments(){
-        // TODO: Clean this up when done testing
         ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
-        JoystickControlFragment joystickControlFragment = new JoystickControlFragment();
-        AccelerometerControlFragment accelerometerControlFragment = new AccelerometerControlFragment();
         LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
 //                .add(R.id.controllerFragmentContainer, buttonControlFragment)
 //                .add(R.id.controllerFragmentContainer, joystickControlFragment)
-                .add(R.id.controllerFragmentContainer, accelerometerControlFragment)
+                .add(R.id.controllerFragmentContainer, buttonControlFragment)
                 .add(R.id.logFragmentContainer, logFragment)
+                .commit();
+    }
+
+    void switchControlFragment(Fragment newFragment){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.controllerFragmentContainer, newFragment)
                 .commit();
     }
 

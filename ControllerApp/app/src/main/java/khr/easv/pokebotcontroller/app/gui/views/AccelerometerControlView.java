@@ -6,8 +6,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.AttributeSet;
+import android.view.View;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.gui.Logger;
 
 public class AccelerometerControlView extends AbstractKnobView implements SensorEventListener{
 
@@ -62,5 +64,12 @@ public class AccelerometerControlView extends AbstractKnobView implements Sensor
     @Override
     protected int getDefaultKnobDrawableID() {
         return R.drawable.knob_green;
+    }
+
+    // This is run when the containing fragment is replaced by another
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        _sensorManager.unregisterListener(this);
     }
 }

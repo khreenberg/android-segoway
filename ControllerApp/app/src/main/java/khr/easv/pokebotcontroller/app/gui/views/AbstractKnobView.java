@@ -200,8 +200,16 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void notifyListeners(float x, float y){
-        Logger.debug(String.format("%d: (%.2f, %.2f)", getDefaultKnobDrawableID(), x, y));
+        Logger.info(String.format("Notify called. (%.2f, %.2f)", x, y), "");
         if( listeners != null )
             for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
+    }
+
+    /////////////////////////////////////////////////////////
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Logger.debug("onDetachedFromWindow");
     }
 }
