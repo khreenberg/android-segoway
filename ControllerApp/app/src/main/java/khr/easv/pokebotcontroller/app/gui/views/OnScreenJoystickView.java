@@ -4,9 +4,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import khr.easv.pokebotcontroller.app.R;
+
 public class OnScreenJoystickView extends AbstractKnobView {
 
     private int offsetX, offsetY;
+
     public OnScreenJoystickView(Context context) {
         super(context);
     }
@@ -44,4 +47,8 @@ public class OnScreenJoystickView extends AbstractKnobView {
         return offsetY;
     }
 
+    @Override
+    protected int getDefaultKnobDrawableID() {
+        return R.drawable.joyknob;
+    }
 }

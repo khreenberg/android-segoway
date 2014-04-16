@@ -52,7 +52,7 @@ public abstract class AbstractKnobView extends View {
         knobSizeRatio = a.getFloat(R.styleable.KnobView_knobRelativeSize, .25f);
         frameStrokeWidth = a.getFloat(R.styleable.KnobView_frameStrokeWidth, 2.5f);
         int knobID = a.hasValue(R.styleable.KnobView_knobGFX) ?
-                R.styleable.KnobView_knobGFX : R.drawable.joyknob;
+                R.styleable.KnobView_knobGFX : getDefaultKnobDrawableID();
         knob = getResources().getDrawable(knobID);
         joystickFrameColor = a.getColor(R.styleable.KnobView_frameColor, joystickFrameColor);
 
@@ -180,6 +180,10 @@ public abstract class AbstractKnobView extends View {
         invalidate();
     }
 
+    protected int getDefaultKnobDrawableID(){
+        return R.drawable.joyknob;
+    }
+
     public interface KnobUpdateListener{
         void onKnobUpdate(float x, float y);
     }
@@ -195,6 +199,7 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void notifyListeners(float x, float y){
-        for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
+        if( listeners != null )
+            for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
     }
 }
