@@ -9,7 +9,7 @@ public class Pilot {
 	Random rand;
 
 	public Pilot() {
-	    leftMotor = new NXTMotor( MotorPort.A );
+	    leftMotor = new NXTMotor( MotorPort.B );
 	    rightMotor = new NXTMotor( MotorPort.C );
 	}
 
