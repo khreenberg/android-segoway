@@ -1,45 +1,56 @@
 package khr.easv.pokebotbroadcaster.app.logic;
 
-import android.util.Log;
-
 import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 public class BalanceManager implements OrientationWrapper.OrientationListener {
 
-    HashSet<PIDListener> _listeners;
+    // Observer pattern related variables
+    HashSet<PIDListener>    _listeners;
 
-    float _pitch = 0; // initial pitch
-    final float OPTIMAL_PITCH = 0;
+    // PID related variables
+    double                   _input = 0; // initial pitch
+    final float             OPTIMAL_INPUT = 0; // optimal angle for the perfect balance
 
-    long lastCalled = -1; // for checking
-    double prev_pos;
+    long                    lastCalled; // last time the calculation was done in millis.
+    double                   _previousInput; // last input
 
-    final short MIN_POWER = 0;
-    final short MAX_POWER = 100;
+    final short             MIN_POWER = 0,
+                            MAX_POWER = 100;
 
+    // Thread related variables
     Thread _thread;
     boolean done = false;
 
+    /*
+        Constructor
+     */
     public BalanceManager() {
         _listeners = new HashSet<PIDListener>();
     }
 
+
+    // Thread start function
     public void start() {
-        _thread = new Thread(new Runnable() {
+        _thread = new Thread(new Runnable() { // Create new thread
             @Override
             public void run() {
-                loop();
+                loop(); // Call main function
             }
         });
-        _thread.start();
+        _thread.start(); // Start!
     }
 
+
+    // Main function
     public void loop() {
-        // Checking if it was ever called before, and because it most likely wasn't we set it to the current time to not get an imense delta time
+        // Checking if it was ever called before, and because it most likely wasn't we set it to the
+        // current time to not get an immense delta time.
         lastCalled = System.currentTimeMillis();
-        prev_pos = 0;
+
+        // Set to 0 in the first call;
+        _previousInput = 0;
 
         while (!done) {
             PID();
@@ -76,20 +87,20 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
         //
         //      Proportional - The product of gain and measured error (ε), where offset is inevitable
-        double  PFactor=0.5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
+        double  PFactor         = 0.5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
         //      Integral - Eliminate steady state offset, by collecting error (ε) until it's large enough.
-        double  IFactor=0.25;                    // The shorter the integral factor, the more aggressive the integral.
+        double  IFactor         = 0.25;                    // The shorter the integral factor, the more aggressive the integral.
         //      Derivative - Corrects present error (ε) compared to the error from last time we checked, a.k.a. the rate of change of the error Δε.
-        double  DFactor=-0.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
+        double  DFactor         = -0.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
 
         // Needed variables
         double
-                pos             = _pitch,         // The 'P' in PID
+                input           = _input,         // The 'P' in PID
                 integral_sum    = 0,              // The 'I'
                 differential,	                  // The 'D'
                 error;
 
-        double
+        long
                 currentTime = System.currentTimeMillis(),
                 deltaTime = currentTime - lastCalled;
 
@@ -97,25 +108,20 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         // The output
         short   motor_power     = 0;
 
-        int     counter         = 0;
-
         //
         if (deltaTime > 100){
 
-            //P
-            error = OPTIMAL_PITCH - pos;
+            error = OPTIMAL_INPUT - input;
 
-
-            //I
             integral_sum = integral_sum + error * IFactor;
+
             if (integral_sum > MAX_POWER) {
                 integral_sum = MAX_POWER;
             } else if (integral_sum < MIN_POWER){
                 integral_sum = MIN_POWER;
             }
 
-            //D
-            differential = pos - prev_pos;        // difference between current and previous angles for ex. 15-14
+            differential = input - _previousInput;
 
             // The actual algorithm
             motor_power = (short)((PFactor*error) + (integral_sum) - (DFactor*differential));
@@ -126,42 +132,39 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
                 motor_power = MIN_POWER;
             }
 
-            prev_pos = pos;
+            _previousInput = input;
 
-            // DEBUGGING
-            counter++;
 
-                Log.d("P", "Pout:" + PFactor*error);
-                Log.d("I", "Iout::" + integral_sum);
-                Log.d("D", "Dout:" + DFactor*differential);
-                Log.d("PID", "Power:" + motor_power);
-            
-
+            // Create packet and send output
             notifyListeners(PacketCreator.createPacket(motor_power, motor_power));
         }
     }
 
+    /* When the orientation changes on the device, update the stored input */
     @Override
     public void onOrientationChanged(float azimuth, float pitch, float roll) {
-        this._pitch = pitch;
+        this._input = pitch;
     }
 
-
-    public interface PIDListener {
-        void onPID(short packet);
-    }
-
+    /* For adding a new listener */
     public void addListener(PIDListener listener) {
         _listeners.add(listener);
     }
 
+    /* For removing listeners*/
     public void removeListener(PIDListener listener) {
         _listeners.remove(listener);
     }
 
+    // Observer pattern applied
     private void notifyListeners(short packet){
         for(PIDListener listener : _listeners) {
             listener.onPID(packet);
         }
+    }
+
+    /* INTERFACE */
+    public interface PIDListener {
+        void onPID(short packet);
     }
 }
