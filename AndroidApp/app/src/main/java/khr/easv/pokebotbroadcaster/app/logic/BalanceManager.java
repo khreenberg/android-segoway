@@ -1,5 +1,7 @@
 package khr.easv.pokebotbroadcaster.app.logic;
 
+import android.util.Log;
+
 import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
@@ -9,6 +11,13 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     HashSet<PIDListener> _listeners;
 
     float _pitch = 0; // initial pitch
+    final float OPTIMAL_PITCH = 0;
+
+    long lastCalled = -1; // for checking
+    double prev_pos;
+
+    final short MIN_POWER = 0;
+    final short MAX_POWER = 100;
 
     Thread _thread;
     boolean done = false;
@@ -28,6 +37,10 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     }
 
     public void loop() {
+        // Checking if it was ever called before, and because it most likely wasn't we set it to the current time to not get an imense delta time
+        lastCalled = System.currentTimeMillis();
+        prev_pos = 0;
+
         while (!done) {
             PID();
         }
@@ -57,13 +70,6 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
      */
     private void PID() {
-        // TODO remove this
-        notifyListeners(PacketCreator.createPacket((short)_pitch, (short)_pitch));
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {}
-
-        /*
 
 
         //      TODO: Fine-tune these values between (-1..1)
@@ -78,31 +84,61 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
         // Needed variables
         double
-                prev_pos,
-                pos             = 0,              // The 'P' in PID
+                pos             = _pitch,         // The 'P' in PID
                 integral_sum    = 0,              // The 'I'
-                differential;	                  // The 'D'
+                differential,	                  // The 'D'
+                error;
+
+        double
+                currentTime = System.currentTimeMillis(),
+                deltaTime = currentTime - lastCalled;
+
 
         // The output
         short   motor_power     = 0;
 
+        int     counter         = 0;
+
         //
-        while   (Math.abs(pos) < 15)              // TODO: Come up with a better angle after some experiments / or consider automating
-        {
-            prev_pos = pos;
-            pos = Math.ceil(_pitch);
+        if (deltaTime > 100){
+
+            //P
+            error = OPTIMAL_PITCH - pos;
+
+
+            //I
+            integral_sum = integral_sum + error * IFactor;
+            if (integral_sum > MAX_POWER) {
+                integral_sum = MAX_POWER;
+            } else if (integral_sum < MIN_POWER){
+                integral_sum = MIN_POWER;
+            }
+
+            //D
             differential = pos - prev_pos;        // difference between current and previous angles for ex. 15-14
-            integral_sum = integral_sum + pos;
 
             // The actual algorithm
-            motor_power = (short)(PFactor*pos + DFactor*differential + IFactor*integral_sum);
-            //motor_power = motor_power * 10  // increase precision
-            //Logger.debug("Power:" + motor_power);
+            motor_power = (short)((PFactor*error) + (integral_sum) - (DFactor*differential));
+
+            if (motor_power > MAX_POWER) {
+                motor_power = MAX_POWER;
+            } else if (motor_power < MIN_POWER){
+                motor_power = MIN_POWER;
+            }
+
+            prev_pos = pos;
+
+            // DEBUGGING
+            counter++;
+
+                Log.d("P", "Pout:" + PFactor*error);
+                Log.d("I", "Iout::" + integral_sum);
+                Log.d("D", "Dout:" + DFactor*differential);
+                Log.d("PID", "Power:" + motor_power);
+            
+
+            notifyListeners(PacketCreator.createPacket(motor_power, motor_power));
         }
-
-        notifyListeners(PacketCreator.createPacket(motor_power, motor_power));
-
-        */
     }
 
     @Override
