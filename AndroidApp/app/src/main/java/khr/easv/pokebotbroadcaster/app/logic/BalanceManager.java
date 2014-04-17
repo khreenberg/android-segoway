@@ -16,7 +16,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     long                    lastCalled; // last time the calculation was done in millis.
     double                   _previousInput; // last input
 
-    final short             MIN_POWER = 0,
+    final short             MIN_POWER = -100,
                             MAX_POWER = 100;
 
     // Thread related variables
@@ -87,11 +87,11 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
         //
         //      Proportional - The product of gain and measured error (ε), where offset is inevitable
-        double  PFactor         = 0.5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
+        double  PFactor         = 1.9;                     // Higher will overshoot, creating oscillation; lower creates negligible output
         //      Integral - Eliminate steady state offset, by collecting error (ε) until it's large enough.
-        double  IFactor         = 0.25;                    // The shorter the integral factor, the more aggressive the integral.
+        double  IFactor         = 0.1;                    // The shorter the integral factor, the more aggressive the integral.
         //      Derivative - Corrects present error (ε) compared to the error from last time we checked, a.k.a. the rate of change of the error Δε.
-        double  DFactor         = -0.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
+        double  DFactor         = 0.8;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
 
         // Needed variables
         double
