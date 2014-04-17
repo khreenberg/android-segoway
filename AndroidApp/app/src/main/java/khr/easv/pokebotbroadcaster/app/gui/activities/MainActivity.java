@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -36,7 +35,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 //    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
     public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
-    private static final long ORIENTATION_TEXT_UPDATE_DELAY = 100; // in millis
+    private static final long UI_TEXT_UPDATE_INTERVAL = 100; // in millis
 
     private LogEntry _ioErrorEntry = null;
     private int _ioErrorCount = 0;
@@ -47,7 +46,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     private OrientationWrapper _orientationWrapper;
     private DecimalFormat _orientationFormatter = new DecimalFormat("#.###");
-    private long _lastOrientationUpdate;
+    private long _lastUiTextUpdate;
 
     private LogFragment _logFragment;
 
@@ -55,8 +54,12 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     private BalanceManager _balanceManager;
 
-    private TextView _txtAzimuth, _txtPitch, _txtRoll;
+    private TextView _txtLeftMotor, _txtPitch, _txtRightMotor;
     private Button _btnClearLog, _btnConnect;
+
+    private float _lastPitch = 0;
+    private int _lastPowerLeft  = 0;
+    private int _lastPowerRight = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,9 +111,9 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     private void initializeViews(){
         // Orientation text views
-        _txtAzimuth = (TextView) findViewById(R.id.txtAzimuth);
         _txtPitch = (TextView) findViewById(R.id.txtPitch);
-        _txtRoll = (TextView) findViewById(R.id.txtRoll);
+        _txtLeftMotor = (TextView) findViewById(R.id.txtLeftMotor);
+        _txtRightMotor = (TextView) findViewById(R.id.txtRightMotor);
         // Buttons
         _btnClearLog = (Button) findViewById(R.id.btnClearLog);
         _btnConnect = (Button) findViewById(R.id.btnConnect);
@@ -198,25 +201,36 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
             _logFragment.getListView().invalidateViews();
     }
 
-    @Override
-    public void onOrientationChanged(final float azimuth, final float pitch, final float roll) {
+    private void updateUiText(){
         long time = System.currentTimeMillis();
-        long deltaTime = time - _lastOrientationUpdate;
-        if (deltaTime < ORIENTATION_TEXT_UPDATE_DELAY) return;
-        _lastOrientationUpdate = time;
+        long deltaTime = time - _lastUiTextUpdate;
+        if (deltaTime < UI_TEXT_UPDATE_INTERVAL) return;
+        _lastUiTextUpdate = time;
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                _txtAzimuth.setText(_orientationFormatter.format(azimuth));
-                _txtPitch.setText(_orientationFormatter.format(pitch));
-                _txtRoll.setText(_orientationFormatter.format(roll));
+                _txtPitch.setText(_orientationFormatter.format(_lastPitch));
+                _txtLeftMotor.setText(_orientationFormatter.format(_lastPowerLeft));
+                _txtRightMotor.setText(_orientationFormatter.format(_lastPowerRight));
             }
         });
     }
 
     @Override
+    public void onOrientationChanged(final float azimuth, final float pitch, final float roll) {
+        _lastPitch = pitch;
+        updateUiText();
+    }
+
+    @Override
     public void onPID(short packet) {
+        // Extract the motor powers from the packet
+        int powerLeftSign = (1 & packet >> 0) == 1 ? 1 : -1;
+        _lastPowerLeft = powerLeftSign * (127 & packet >> 1);
+        int powerRightSign = (1 & packet >> 0) == 1 ? 1 : -1;
+        _lastPowerRight = powerRightSign * (127 & packet >> 1);
+
         if(!_isConnected) return;
         try {
             _bluetooth.sendCommand(packet);

@@ -20,14 +20,6 @@
             android:layout_weight="75">
 
             <TableRow>
-                <TextView android:text="Azimuth: "/>
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="placeholder"
-                    android:id="@+id/txtAzimuth"/>
-            </TableRow>
-            <TableRow>
                 <TextView android:text="Pitch: "/>
                 <TextView
                     android:layout_width="fill_parent"
@@ -36,12 +28,20 @@
                     android:id="@+id/txtPitch"/>
             </TableRow>
             <TableRow>
-                <TextView android:text="Roll: "/>
+                <TextView android:text="Left motor: "/>
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="placeholder"
-                    android:id="@+id/txtRoll"/>
+                    android:id="@+id/txtLeftMotor"/>
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Right motor: "/>
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="placeholder"
+                    android:id="@+id/txtRightMotor"/>
             </TableRow>
 
         </TableLayout>
