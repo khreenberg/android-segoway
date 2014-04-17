@@ -109,7 +109,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         short   motor_power     = 0;
 
         //
-        if (deltaTime > 100){
+        if (deltaTime > 10){
 
             error = OPTIMAL_INPUT - input;
 
@@ -133,7 +133,10 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
             }
 
             _previousInput = input;
+            lastCalled = currentTime;
 
+            // Flip the motor powers to fit our model
+            motor_power *= -1;
 
             // Create packet and send output
             notifyListeners(PacketCreator.createPacket(motor_power, motor_power));
