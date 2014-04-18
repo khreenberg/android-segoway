@@ -20,6 +20,9 @@ public class BluetoothConnector {
     BluetoothSocket _socket;
     BluetoothDevice _device;
 
+    DataOutputStream _output;
+
+
     public BluetoothConnector( String deviceAddress, BluetoothAdapter adapter ){
         _adapter = adapter;
         _deviceAddress = deviceAddress;
@@ -29,12 +32,12 @@ public class BluetoothConnector {
     public void connect() throws IOException {
         _socket = _device.createRfcommSocketToServiceRecord(UUID.fromString(UUIDString));
         _socket.connect();
+        _output = new DataOutputStream(_socket.getOutputStream());
     }
 
     public void sendCommand( short command ) throws IOException {
-        DataOutputStream output = new DataOutputStream(_socket.getOutputStream());
-        output.writeInt(command);
-        output.flush();
+        _output.writeInt(command);
+        _output.flush();
     }
 
     public String readMessage() throws IOException {

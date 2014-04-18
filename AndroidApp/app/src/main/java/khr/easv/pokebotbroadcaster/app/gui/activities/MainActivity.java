@@ -278,6 +278,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
         }
     }
 
+    // TODO: Extract class to it's own file
     class OrientationReaderThread extends Thread{
 
         public static final int ORIENTATION_READ_INTERVAL = 100; // milliseconds
