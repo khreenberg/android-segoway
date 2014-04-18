@@ -6,18 +6,33 @@ import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 public class BalanceManager implements OrientationWrapper.OrientationListener {
 
+    private static final long PID_DELAY = 10;
     // Observer pattern related variables
     HashSet<PIDListener>    _listeners;
 
     // PID related variables
-    double                   _input = 0; // initial pitch
-    final float             OPTIMAL_INPUT = 0; // optimal angle for the perfect balance
+    double                  _input = 0; // initial pitch
+    final double             OPTIMAL_INPUT = 0.442; // optimal angle for the perfect balance
 
-    long                    lastCalled; // last time the calculation was done in millis.
-    double                   _previousInput; // last input
+    long                    _lastCalled; // last time the calculation was done in millis.
+    double                  _previousInput = OPTIMAL_INPUT, // last input
+                            _integralSum = 0, // The 'I'
+                            _differential = 0, // The 'D'
+                            _error = 0;
 
     final short             MIN_POWER = -100,
                             MAX_POWER = 100;
+
+    //      TODO: Fine-tune these values
+    //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
+    //
+    //      Proportional - The product of gain and measured _error (ε), where offset is inevitable
+    final double            K_P = .5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
+    //      Integral - Eliminate steady state offset, by collecting _error (ε) until it's large enough.
+    final double            K_I = .25;                    // The shorter the integral factor, the more aggressive the integral.
+    //      Derivative - Corrects present _error (ε) compared to the _error from last time we checked, a.k.a. the rate of change of the _error Δε.
+    final double            K_D = -.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
+
 
     // Thread related variables
     Thread _thread;
@@ -47,7 +62,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     public void loop() {
         // Checking if it was ever called before, and because it most likely wasn't we set it to the
         // current time to not get an immense delta time.
-        lastCalled = System.currentTimeMillis();
+        _lastCalled = System.currentTimeMillis();
 
         // Set to 0 in the first call;
         _previousInput = 0;
@@ -81,50 +96,34 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
      */
     private void PID() {
-
-
-        //      TODO: Fine-tune these values between (-1..1)
-        //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
-        //
-        //      Proportional - The product of gain and measured error (ε), where offset is inevitable
-        double  PFactor         = 10;                     // Higher will overshoot, creating oscillation; lower creates negligible output
-        //      Integral - Eliminate steady state offset, by collecting error (ε) until it's large enough.
-        double  IFactor         = 1.0;                    // The shorter the integral factor, the more aggressive the integral.
-        //      Derivative - Corrects present error (ε) compared to the error from last time we checked, a.k.a. the rate of change of the error Δε.
-        double  DFactor         = 1.0;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
-
         // Needed variables
-        double
-                input           = _input,         // The 'P' in PID
-                integral_sum    = 0,              // The 'I'
-                differential,	                  // The 'D'
-                error;
+        double  input = _input;         // The underscore input might change during calculations
 
         long
                 currentTime = System.currentTimeMillis(),
-                deltaTime = currentTime - lastCalled;
+                deltaTime = currentTime - _lastCalled;
 
 
         // The output
-        short   motor_power     = 0;
+        short motor_power     = 0;
 
         //
-        if (deltaTime > 20){
+        if (deltaTime > PID_DELAY){
 
-            error = OPTIMAL_INPUT - input;
+            _error = OPTIMAL_INPUT - input;
 
-            integral_sum = integral_sum + error * IFactor;
+            _integralSum = _integralSum + _error * K_I;
 
-            if (integral_sum > MAX_POWER) {
-                integral_sum = MAX_POWER;
-            } else if (integral_sum < MIN_POWER){
-                integral_sum = MIN_POWER;
+            if (_integralSum > MAX_POWER) {
+                _integralSum = MAX_POWER;
+            } else if (_integralSum < MIN_POWER){
+                _integralSum = MIN_POWER;
             }
 
-            differential = input - _previousInput;
+            _differential = input - _previousInput;
 
             // The actual algorithm
-            motor_power = (short)((PFactor*error) + (integral_sum) - (DFactor*differential));
+            motor_power = (short)((K_P * _error) + (_integralSum) - (K_D *_differential));
 
             if (motor_power > MAX_POWER) {
                 motor_power = MAX_POWER;
@@ -133,7 +132,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
             }
 
             _previousInput = input;
-            lastCalled = currentTime;
+            _lastCalled = currentTime;
 
             // Flip the motor powers to fit our model
             motor_power *= -1;

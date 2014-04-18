@@ -36,7 +36,7 @@ public class BluetoothConnector {
     }
 
     public void sendCommand( short command ) throws IOException {
-        _output.writeInt(command);
+        _output.writeShort(command);
         _output.flush();
     }
 
