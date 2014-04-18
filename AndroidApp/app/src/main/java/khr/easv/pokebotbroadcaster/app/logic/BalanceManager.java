@@ -6,7 +6,6 @@ import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 public class BalanceManager implements OrientationWrapper.OrientationListener {
 
-    private static final long PID_DELAY = 10;
     // Observer pattern related variables
     HashSet<PIDListener>    _listeners;
 
@@ -20,18 +19,29 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
                             _differential = 0, // The 'D'
                             _error = 0;
 
+    private static final long PID_DELAY = 10;
+
     final short             MIN_POWER = -100,
                             MAX_POWER = 100;
 
-    //      TODO: Fine-tune these values
-    //      Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and D gains are set to zero and then P gain is increased until the loop output starts to oscillate.
-    //
-    //      Proportional - The product of gain and measured _error (ε), where offset is inevitable
-    final double            K_P = .5;                     // Higher will overshoot, creating oscillation; lower creates negligible output
-    //      Integral - Eliminate steady state offset, by collecting _error (ε) until it's large enough.
-    final double            K_I = .25;                    // The shorter the integral factor, the more aggressive the integral.
-    //      Derivative - Corrects present _error (ε) compared to the _error from last time we checked, a.k.a. the rate of change of the _error Δε.
-    final double            K_D = -.3;                    // The larger the derivative factor, the longer the derivative time, but also dampens P and I.
+    //    TODO: Fine-tune these values
+    //    Mathematical gyrations occur during Ziegler-Nichols tuning. With this technique, I and
+    //    D gains are set to zero and then P gain is increased until the loop output starts to
+    //    oscillate.
+
+
+    //    Proportional - The product of gain and measured _error (ε), where offset is inevitable
+    final double            K_P = .5;               // Higher will overshoot, creating
+                                                    // oscillation; lower creates negligible output.
+
+    //    Integral - Eliminate steady state offset, by collecting _error (ε) until it's large enough.
+    final double            K_I = .25;              // The shorter the integral factor, the more
+                                                    // aggressive the integral.
+
+    //      Derivative - Corrects present _error (ε) compared to the _error from last time we
+    //      checked, a.k.a. the rate of change of the _error Δε.
+    final double            K_D = -.3;              // The larger the derivative factor, the longer
+                                                    // the derivative time, but also dampens P and I.
 
 
     // Thread related variables
@@ -73,11 +83,12 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     }
 
     /*
-    This algorithm calculates the required motor-power for brick to get into equilibrium by using the angle from the orientation sensors.
+    This algorithm calculates the required motor-power for brick to get into equilibrium by using
+    the angle from the orientation sensors.
     Note: PID stands for Proportional-Integral-Derivative controller
 
-    At a later point, we might want to tweak it a bit to take the pendulum more into account. Calculating the necessary acceleration for
-    the pendulum would be:
+    At a later point, we might want to tweak it a bit to take the pendulum more into account.
+    Calculating the necessary acceleration fo the pendulum would be:
 
     d2tetha / dt2 = 12 ( g * cos tetha - a * sin tetha ) / L
 
@@ -92,28 +103,31 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
     a = g cos tetha
 
-    Conclusion: required acceleration is the product between the gravity and the cosine value of the pitch.
+    Conclusion: The acceleration of the pendulum is the product between the gravity and the cosine
+    value of the pitch.
 
      */
     private void PID() {
+
         // Needed variables
-        double  input = _input;         // The underscore input might change during calculations
+        double input = _input;         // The underscore input might change during calculations
 
         long
                 currentTime = System.currentTimeMillis(),
                 deltaTime = currentTime - _lastCalled;
 
+        // The output variable
+        short motor_power = 0;
 
-        // The output
-        short motor_power     = 0;
-
-        //
+        // Due to high amount of packets were being sent to the brick which created lag, we limited
+        // the number of calculations done by the algorithm
         if (deltaTime > PID_DELAY){
 
             _error = OPTIMAL_INPUT - input;
 
             _integralSum = _integralSum + _error * K_I;
 
+            // Clamping the integral sum
             if (_integralSum > MAX_POWER) {
                 _integralSum = MAX_POWER;
             } else if (_integralSum < MIN_POWER){
@@ -125,16 +139,18 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
             // The actual algorithm
             motor_power = (short)((K_P * _error) + (_integralSum) - (K_D *_differential));
 
+            // Clamping the output
             if (motor_power > MAX_POWER) {
                 motor_power = MAX_POWER;
             } else if (motor_power < MIN_POWER){
                 motor_power = MIN_POWER;
             }
 
+            // Preparing for the next run
             _previousInput = input;
             _lastCalled = currentTime;
 
-            // Flip the motor powers to fit our model
+            // Flip the motor powers to fit our model / Direction fix
             motor_power *= -1;
 
             // Create packet and send output
