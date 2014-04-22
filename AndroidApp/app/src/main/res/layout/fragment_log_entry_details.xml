@@ -27,26 +27,45 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tag placeholder: "
-                android:textSize="20dp"
+                android:textSize="16dp"
                 android:id="@+id/txtLogEntryDetailsTag"/>
-            <TextView
+            <HorizontalScrollView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Title placeholder"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                android:id="@+id/txtLogEntryDetailsTitle"/>
+                android:layout_height="wrap_content">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title placeholder"
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    android:scrollbars="horizontal"
+                    android:scrollHorizontally="true"
+                    android:maxLines="1"
+                    android:paddingLeft="5dp"
+                    android:id="@+id/txtLogEntryDetailsTitle"/>
+
+            </HorizontalScrollView>
         </LinearLayout>
 
-        <!-- TODO: Possibly replace this TextView, or the entire activity with a WebView to enable text formatting -->
-        <TextView
+        <!-- TODO: Possibly replace this TextView, or the entire fragment with a WebView to enable text formatting -->
+        <ScrollView
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="Details placeholder text. So much text, omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg mg omg omg!!"
-            android:layout_marginTop="20dp"
-            android:id="@+id/txtLogEntryDetailsDetails"/>
+            android:layout_height="fill_parent">
 
+            <HorizontalScrollView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:typeface="monospace"
+                android:text="Details placeholder text. So much text, omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg mg omg omg!!"
+                android:layout_marginTop="20dp"
+                android:scrollHorizontally="true"
+                android:id="@+id/txtLogEntryDetailsDetails"/>
+            </HorizontalScrollView>
+        </ScrollView>
     </LinearLayout>
 
 </FrameLayout>

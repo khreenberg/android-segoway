@@ -4,6 +4,7 @@ package khr.easv.pokebotbroadcaster.app.gui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,8 @@ public class LogEntryDetailsFragment extends Fragment {
         _txtTitle = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTitle);
         _txtTag = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTag);
         _txtDetails = (TextView) _root.findViewById(R.id.txtLogEntryDetailsDetails);
+        _txtTitle.setMovementMethod(new ScrollingMovementMethod());
+        _txtDetails.setMovementMethod(new ScrollingMovementMethod());
     }
 
     private void populate(){
