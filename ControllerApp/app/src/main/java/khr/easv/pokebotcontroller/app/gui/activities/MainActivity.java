@@ -1,5 +1,7 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -7,19 +9,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.InputDeviceSelectionFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
 
 public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener {
 
-    // Device address MUST be uppercase hex.. :o
-    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1";
+    private boolean _isConnectedToBrain = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +78,11 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void setupFragments(){
-        ButtonControlFragment buttonControlFragment = new ButtonControlFragment();
+        InputDeviceSelectionFragment inputSelectionFragment = new InputDeviceSelectionFragment();
         LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-//                .add(R.id.controllerFragmentContainer, buttonControlFragment)
-//                .add(R.id.controllerFragmentContainer, joystickControlFragment)
-                .add(R.id.controllerFragmentContainer, buttonControlFragment)
+                .add(R.id.controllerFragmentContainer, inputSelectionFragment)
                 .add(R.id.logFragmentContainer, logFragment)
                 .commit();
     }

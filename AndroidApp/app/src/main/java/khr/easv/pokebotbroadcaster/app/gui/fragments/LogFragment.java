@@ -13,7 +13,7 @@ import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
 import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
 import khr.easv.pokebotbroadcaster.app.gui.adapters.LogListAdapter;
 
-import static khr.easv.pokebotbroadcaster.app.entities.logger.Logger.*;
+import static khr.easv.pokebotbroadcaster.app.entities.logger.Logger.ILoggerListener;
 
 public class LogFragment extends ListFragment implements ILoggerListener {
 
@@ -28,7 +28,7 @@ public class LogFragment extends ListFragment implements ILoggerListener {
         List<LogEntry> entries = Logger.getEntries();
         adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
         setListAdapter(adapter);
-        addObserver(this);
+        Logger.addObserver(this);
     }
 
     @Override

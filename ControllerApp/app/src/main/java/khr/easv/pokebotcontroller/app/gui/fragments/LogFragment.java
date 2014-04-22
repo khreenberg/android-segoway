@@ -15,93 +15,56 @@ import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
 
-/**
- * A fragment representing a list of Items.
- * <p />
- * <p />
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
- */
-public class LogFragment extends ListFragment implements Logger.LoggerListener{
+import static khr.easv.pokebotcontroller.app.gui.Logger.ILoggerListener;
 
-    private OnLogEntryClickedListener mListener;
+public class LogFragment extends ListFragment implements ILoggerListener {
+
+    private OnLogEntryClickedListener _listener;
     LogListAdapter adapter;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public LogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = new ArrayList<LogEntry>(); // createDummyData();
+        List<LogEntry> entries = Logger.getEntries();
         adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
         setListAdapter(adapter);
         Logger.addObserver(this);
     }
 
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnLogEntryClickedListener) activity;
+            _listener = (OnLogEntryClickedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                + " must implement OnLogEntryClickedListener");
+                    + " must implement OnLogEntryClickedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        _listener = null;
     }
-
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onLogEntryClicked(adapter.getItem(position));
-        }
+        if (_listener == null) return;
+        _listener.onLogEntryClicked(adapter.getItem(position));
     }
 
     @Override
     public void onLog(LogEntry entry) {
-        adapter.add(entry); // Add the entry to the log list
-        setSelection(adapter.getCount()-1); // Scroll the view to the bottom
+        if(isVisible())
+            setSelection(adapter.getCount()-1); // Scroll the view to the bottom
     }
 
     public interface OnLogEntryClickedListener {
-        // TODO: Update argument type and name
         public void onLogEntryClicked(LogEntry entry);
-    }
-
-    List<LogEntry> createDummyData(){
-        List<LogEntry> dummyList = new ArrayList<LogEntry>();
-        dummyList.add(new LogEntry("Sometitle", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("Some longer title", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("Some info title", LogEntry.LogTag.INFO));
-        dummyList.add(new LogEntry("Random warning", LogEntry.LogTag.WARNING));
-        dummyList.add(new LogEntry("FUCK! ERRORS!", LogEntry.LogTag.ERROR));
-        dummyList.add(new LogEntry("Just kidding. :D", LogEntry.LogTag.INFO));
-        dummyList.add(new LogEntry("Dum dee dum..", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("Moar info", LogEntry.LogTag.INFO));
-        dummyList.add(new LogEntry("Entries ahoy!", LogEntry.LogTag.WARNING));
-        dummyList.add(new LogEntry("This is just for testing. :D", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("More tests", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("Humungeolongusextremicus. That's latin and means \"a really long title\"", LogEntry.LogTag.INFO));
-        dummyList.add(new LogEntry("Just some more data", LogEntry.LogTag.ERROR));
-        dummyList.add(new LogEntry("Så testede man lige om den kunne skrive æø&å", LogEntry.LogTag.ERROR));
-        dummyList.add(new LogEntry("Moar titles", LogEntry.LogTag.DEBUG));
-        dummyList.add(new LogEntry("Even moar titles", LogEntry.LogTag.INFO));
-        dummyList.add(new LogEntry("Even, even more titles", LogEntry.LogTag.WARNING));
-        return dummyList;
     }
 }
