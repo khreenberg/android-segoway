@@ -15,13 +15,13 @@ import java.util.UUID;
 
 import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
 
-import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerHandler.ConnectionState.*;
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.ConnectionState.*;
 
 /**
  * Inspired by
  * https://android.googlesource.com/platform/development/+/25b6aed7b2e01ce7bdc0dfa1a79eaf009ad178fe/samples/BluetoothChat/src/com/example/android/BluetoothChat/BluetoothChatService.java
  */
-public class BluetoothControllerHandler {
+public class BluetoothControllerServer {
 
     public static enum ConnectionState{
         NONE,
@@ -43,8 +43,7 @@ public class BluetoothControllerHandler {
     // Random, and therefore, probably unique UUID -- Shouldn't matter much, as long as the controller uses the same UUID
     private static final UUID SERVICE_UUID = UUID.fromString("e3f67d60-ca60-11e3-a05a-0002a5d5c51b");
 
-    public BluetoothControllerHandler() {
-        _controllerListeners = new HashSet<IControllerInputListener>();
+    public BluetoothControllerServer() {
         _adapter = BluetoothAdapter.getDefaultAdapter();
         _state = NONE;
     }
@@ -66,11 +65,13 @@ public class BluetoothControllerHandler {
     }
 
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
+        Logger.info("Connecting to controller...");
         if( _connectedThread != null ) {_connectedThread.cancel(); _connectedThread = null; }
         if( _acceptThread != null ) {_acceptThread.cancel(); _acceptThread = null; }
 
         _connectedThread = new ConnectedThread(socket);
         _connectedThread.start();
+        Logger.info("Connected to controller!");
         setState(CONNECTED);
     }
 
@@ -114,7 +115,7 @@ public class BluetoothControllerHandler {
             BluetoothSocket socket = null;
             while( _state != CONNECTED ){
                 try {
-                    __serverSocket.accept();
+                    socket = __serverSocket.accept();
                 } catch (IOException e) {
                     Logger.exception("Could not accept Bluetooth connection!", e);
                     break;
@@ -122,10 +123,10 @@ public class BluetoothControllerHandler {
 
                 if( socket == null ) {
                     Logger.warn("Accepted controller socket is null!");
-                    return;
+                    continue;
                 }
 
-                synchronized (BluetoothControllerHandler.this){
+                synchronized (BluetoothControllerServer.this){
                     switch (_state){
                         case LISTENING:
                         case CONNECTING:
@@ -161,6 +162,7 @@ public class BluetoothControllerHandler {
         private final OutputStream __output;
 
         public ConnectedThread(BluetoothSocket socket) {
+            Logger.debug("Creating ConnectedThread...");
             __socket = socket;
             InputStream tmpInput = null;
             OutputStream tmpOutput = null;
@@ -169,21 +171,24 @@ public class BluetoothControllerHandler {
                 tmpInput = socket.getInputStream();
                 tmpOutput = socket.getOutputStream();
             } catch (IOException e) {
-                Logger.exception("Temporary sockets were not created!", e);
+                Logger.exception("Temporary streams were not created!", e);
             }
 
             __input = tmpInput;
             __output = tmpOutput;
+            Logger.debug("ConnectedThread created!", String.format("Input: %s\nOutput: %s", __input, __output));
         }
 
         @Override
         public void run() {
+            Logger.debug("ConnectedThread started!");
             byte[] buffer = new byte[8]; // Each float is 32bit (4 byte)
             while(true) {
                 try {
                     __input.read(buffer);
-                    float x = ByteBuffer.wrap(buffer, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                    float y = ByteBuffer.wrap(buffer, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    float x = ByteBuffer.wrap(buffer, 0, 4).getFloat();
+                    float y = ByteBuffer.wrap(buffer, 4, 4).getFloat();
+                    Logger.debug(String.format("ConnectedThread read: (%.3f, %.3f)", x, y), "byte[]: " + byteArrayToString(buffer));
                     notifyInputListeners(x, y);
                 } catch (IOException e) {
                     Logger.exception("Controller connection lost!", e);
@@ -191,6 +196,14 @@ public class BluetoothControllerHandler {
                     break;
                 }
             }
+        }
+
+        private String byteArrayToString(byte[] b) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i <b.length; i++) {
+                sb.append(b[i] + " ");
+            }
+            return sb.toString();
         }
 
         public void write(byte[] buffer) {
@@ -215,8 +228,20 @@ public class BluetoothControllerHandler {
     }
 
     void notifyInputListeners(float x, float y) {
+        if( _controllerListeners == null ) return;
         for (IControllerInputListener listener : _controllerListeners) {
             listener.OnInput(x,y);
         }
+    }
+
+    public void addControllerListener(IControllerInputListener listener) {
+        if( _controllerListeners == null ) _controllerListeners = new HashSet<IControllerInputListener>();
+        _controllerListeners.add(listener);
+    }
+
+    public void removeControllerListener(IControllerInputListener listener) {
+        if( _controllerListeners == null ) return;
+        _controllerListeners.remove(listener);
+        if( _controllerListeners.size() == 0 ) _controllerListeners = null;
     }
 }

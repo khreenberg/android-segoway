@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         app:frameStrokeWidth="3"
         app:knobRelativeSize=".35"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:id="@+id/jstkOnScreen"/>
 
 </FrameLayout>

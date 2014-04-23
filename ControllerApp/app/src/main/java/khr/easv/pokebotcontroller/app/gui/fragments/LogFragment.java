@@ -27,7 +27,7 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = Logger.getEntries();
+        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries()); // Make a copy to prevent illegal state exceptions
         adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
         setListAdapter(adapter);
         Logger.addObserver(this);
@@ -59,9 +59,15 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     }
 
     @Override
-    public void onLog(LogEntry entry) {
+    public void onLog(final LogEntry entry) {
         if(isVisible())
-            setSelection(adapter.getCount()-1); // Scroll the view to the bottom
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.add(entry);
+                    setSelection(adapter.getCount() - 1); // Scroll the view to the bottom
+                }
+            });
     }
 
     public interface OnLogEntryClickedListener {

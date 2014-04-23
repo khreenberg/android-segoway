@@ -175,7 +175,7 @@ public abstract class AbstractKnobView extends View {
         knobOffsetY = Math.abs(length) + knobRadius < radius ? getKnobY() : y * (radius - knobRadius);
 
         // Notify listeners of the calculated point
-        notifyListeners(x * ratio, y * ratio);
+        notifyListeners(x * ratio, -y * ratio); // Flip y to make up positive and down negative
 
         // Refresh the view
         invalidate();
@@ -200,16 +200,8 @@ public abstract class AbstractKnobView extends View {
     }
 
     private void notifyListeners(float x, float y){
-        Logger.info(String.format("Notify called. (%.2f, %.2f)", x, y), "");
         if( listeners != null )
             for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
     }
 
-    /////////////////////////////////////////////////////////
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        Logger.debug("onDetachedFromWindow");
-    }
 }

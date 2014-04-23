@@ -1,7 +1,7 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -9,24 +9,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.data.ControllerConnection;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.gui.Logger;
-import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.BluetoothDeviceSelectionFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
-import khr.easv.pokebotcontroller.app.gui.fragments.InputDeviceSelectionFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
+import khr.easv.pokebotcontroller.app.gui.views.AbstractKnobView;
 
 
-public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener {
+public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener, BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, AbstractKnobView.KnobUpdateListener {
 
-    private boolean _isConnectedToBrain = false;
+    private ControllerConnection _connection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,16 +71,17 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void setup(){
+        _connection = new ControllerConnection();
         setupFragments();
         setupActionBar();
     }
 
     void setupActionBar(){
-
+        // TODO: Use or remove!
     }
 
     void setupFragments(){
-        InputDeviceSelectionFragment inputSelectionFragment = new InputDeviceSelectionFragment();
+        BluetoothDeviceSelectionFragment inputSelectionFragment = new BluetoothDeviceSelectionFragment();
         LogFragment logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -97,6 +100,25 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     @Override
     public void onLogEntryClicked(LogEntry entry) {
         if( entry.getDetails().isEmpty() ) return;
-        Toast.makeText(this, entry.getDetails(), Toast.LENGTH_SHORT).show();
+        LogEntryDetailsFragment detailsFragment = new LogEntryDetailsFragment();
+        Bundle fragmentExtras = new Bundle(1);
+        fragmentExtras.putSerializable(LogEntryDetailsFragment.BUNDLE_KEY_ENTRY, entry);
+        detailsFragment.setArguments(fragmentExtras);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.logFragmentContainer, detailsFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void OnDeviceSelected(BluetoothDevice device) {
+        _connection.connect(device);
+    }
+
+    @Override
+    public void onKnobUpdate(float x, float y) {
+        Logger.debug(String.format("Input received: (%.3f, %.3f)", x, y));
+        _connection.write(x,y);
     }
 }

@@ -1,7 +1,5 @@
 package khr.easv.pokebotcontroller.app.gui.fragments;
 
-
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,25 +7,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.gui.views.AbstractKnobView;
+import khr.easv.pokebotcontroller.app.gui.views.OnScreenJoystickView;
 
-/**
- * A simple {@link android.support.v4.app.Fragment} subclass.
- *
- */
 public class JoystickControlFragment extends Fragment {
 
+    private View _root;
+    private OnScreenJoystickView _jstkOnScreen;
 
     public JoystickControlFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_joystick_control, container, false);
+        _root = inflater.inflate(R.layout.fragment_joystick_control, container, false);
+        _jstkOnScreen = (OnScreenJoystickView) _root.findViewById(R.id.jstkOnScreen);
+        _jstkOnScreen.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
+        return _root;
     }
-
-
 }

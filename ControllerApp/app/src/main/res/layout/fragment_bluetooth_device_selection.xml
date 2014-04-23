@@ -2,14 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="khr.easv.pokebotcontroller.app.gui.fragments.InputDeviceSelectionFragment">
+    tools:context="khr.easv.pokebotcontroller.app.gui.fragments.BluetoothDeviceSelectionFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Select external input device" />
+        android:text="Select a bluetooth device"
+        android:id="@+id/txtBluetoothSelectionFragmentTitle"/>
 
     <ListView
         android:layout_width="fill_parent"

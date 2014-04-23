@@ -27,7 +27,7 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         if (view == null) {
             LayoutInflater li = (LayoutInflater) getContext().getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
-            view = li.inflate(R.layout.list_item_log_entry, null);
+            view = li.inflate(R.layout.list_item_bluetooth_device, null);
         }
 
         BluetoothDevice device = _devices.get(index);

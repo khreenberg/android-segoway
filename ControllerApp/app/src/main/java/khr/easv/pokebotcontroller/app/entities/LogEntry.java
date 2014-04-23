@@ -1,6 +1,8 @@
 package khr.easv.pokebotcontroller.app.entities;
 
-public class LogEntry {
+import java.io.Serializable;
+
+public class LogEntry implements Serializable{
 
     public enum LogTag{
         DEBUG, INFO, ERROR, WARNING

@@ -6,6 +6,7 @@ import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import khr.easv.pokebotbroadcaster.app.R;
@@ -18,16 +19,16 @@ import static khr.easv.pokebotbroadcaster.app.entities.logger.Logger.ILoggerList
 public class LogFragment extends ListFragment implements ILoggerListener {
 
     private OnLogEntryClickedListener _listener;
-    LogListAdapter adapter;
+    LogListAdapter _adapter;
 
     public LogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = Logger.getEntries();
-        adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
-        setListAdapter(adapter);
+        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries()); // Create a copy to avoid illegal state exceptions
+        _adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
+        setListAdapter(_adapter);
         Logger.addObserver(this);
     }
 
@@ -53,13 +54,23 @@ public class LogFragment extends ListFragment implements ILoggerListener {
         super.onListItemClick(l, v, position, id);
 
         if (_listener == null) return;
-        _listener.onLogEntryClicked(adapter.getItem(position));
+        _listener.onLogEntryClicked(_adapter.getItem(position));
+    }
+
+    public void clear(){
+        _adapter.clear();
     }
 
     @Override
-    public void onLog(LogEntry entry) {
+    public void onLog(final LogEntry entry) {
         if(isVisible())
-        setSelection(adapter.getCount()-1); // Scroll the view to the bottom
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    _adapter.add(entry);
+                    setSelection(_adapter.getCount() - 1); // Scroll the view to the bottom
+                }
+            });
     }
 
     public interface OnLogEntryClickedListener {

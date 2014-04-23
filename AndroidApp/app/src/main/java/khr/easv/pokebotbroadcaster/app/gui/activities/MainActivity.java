@@ -18,6 +18,7 @@ import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
+import khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer;
 import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
@@ -26,10 +27,12 @@ import khr.easv.pokebotbroadcaster.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
-public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener, BalanceManager.PIDListener {
+public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener, BalanceManager.PIDListener, BluetoothControllerServer.IControllerInputListener {
 
+    // ID used when starting bluetooth activity for result
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
-    public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3; // Amount of IOExceptions allowed before the connection is considered broken
+    // Amount of IOExceptions allowed before the connection is considered broken
+    public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3;
 
     // Device address MUST be uppercase hex.. :o
 //    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
@@ -53,6 +56,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     private OrientationReaderThread _orientationReader;
 
     private BalanceManager _balanceManager;
+
+    private BluetoothControllerServer _controllerServer;
 
     private TextView _txtLeftMotor, _txtPitch, _txtRightMotor;
     private Button _btnClearLog, _btnConnect;
@@ -130,6 +135,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
             @Override
             public void onClick(View v) {
                 Logger.clearEntries();
+                _logFragment.clear();
                 updateLogList();
             }
         });
@@ -143,9 +149,13 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
                 .commit();
     }
 
+    // Should check if the device supports bluetooth, but we know it does, so there's no reason
+    // to spend time writing GUI for it.
+    // (if the device doesn't have a bluetooth adapter, BluetoothAdapter.getDefaultAdapter() would return null)
     private void setupBluetooth(){
         _adapter = BluetoothAdapter.getDefaultAdapter();
-        if(_adapter.isEnabled()) return;
+        _controllerServer = new BluetoothControllerServer();
+        if(_adapter.isEnabled()) { _controllerServer.start(); return; }
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
     }
@@ -162,7 +172,7 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
         if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
         if( resultCode != RESULT_OK ) {finish(); return;}
         bluetoothConnect();
-
+        _controllerServer.start();
     }
 
     private void handlePacketIOException(IOException e){
@@ -242,6 +252,16 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
                 }
             });
         }
+    }
+
+    @Override
+    public void OnInput(final float x, final float y) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Logger.debug(String.format("Input received: (%.3f, %.3f)", x, y));
+            }
+        });
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
