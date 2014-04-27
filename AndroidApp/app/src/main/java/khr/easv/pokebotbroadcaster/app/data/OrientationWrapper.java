@@ -40,7 +40,7 @@ public class OrientationWrapper implements SensorEventListener{
         _rotationMatrix = new float[9];
     }
 
-    void setupSensors(Activity activity){
+    private void setupSensors(Activity activity){
         _sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         _rotationVector = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
@@ -73,23 +73,16 @@ public class OrientationWrapper implements SensorEventListener{
         _sensorManager.unregisterListener(this);
     }
 
-    public float[] getOrientation(){
-        return _orientation;
-    }
+    /** Returns the orientation as a float[] with azimuth, pitch & roll in radians */
+    public float[] getOrientation(){ return _orientation; }
 
     public interface OrientationListener{
         void onOrientationChanged(float azimuth, float pitch, float roll);
     }
+    public void addListener(OrientationListener listener){ _listeners.add(listener); }
+    public void removeListener(OrientationListener listener){ _listeners.remove(listener); }
 
-    public void addListener(OrientationListener listener){
-        _listeners.add(listener);
-    }
-
-    public void removeListener(OrientationListener listener){
-        _listeners.remove(listener);
-    }
-
-    // also converts values from radians to degrees.
+    /** Notifies listeners of the new orientation in degrees */
     private void notifyListeners(){
         float azimuth = (float) Math.toDegrees(_orientation[0]);
         float pitch = (float) Math.toDegrees(_orientation[1]);
