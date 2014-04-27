@@ -2,15 +2,15 @@ package khr.easv.pokebotbroadcaster.app.logic;
 
 public class PacketCreator {
 
-    static final short
+    private static final short
             MOTOR_BIT_MASK         =  127, // 2^7-1
             MAX_MOTOR_POWER        =  100; // See: http://www.lejos.org/nxt/nxj/api/lejos/robotics/DCMotor.html#setPower(int)
 
-    static final short
+    private static final short
             LEFT_MOTOR_START_BIT   =    0, // [|--------------]
             RIGHT_MOTOR_START_BIT  =    8; // [-------|-------]
 
-    static final short
+    private static final short
             POSITIVE_BIT           =    1, // +
             NEGATIVE_BIT           =    0; // -
 
