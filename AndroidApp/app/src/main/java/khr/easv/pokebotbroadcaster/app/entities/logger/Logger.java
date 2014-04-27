@@ -8,52 +8,51 @@ import java.util.List;
 
 public class Logger {
 
-    static HashSet<ILoggerListener> observers = new HashSet<ILoggerListener>();
-    static List<LogEntry> entries = new ArrayList<LogEntry>(32);
+    private static HashSet<ILoggerListener> _observers = new HashSet<ILoggerListener>();
+    private static List<LogEntry> _entries = new ArrayList<LogEntry>(32);
 
     public static synchronized void log(LogEntry entry){
-        entries.add(entry);
+        _entries.add(entry);
         notify(entry);
         Log.d(entry.getTag().toString(), entry.getTitle());
     }
 
-    public static void log(String title, String details, LogEntry.LogTag tag){
+    public static LogEntry log(String title, String details, LogEntry.LogTag tag){
         LogEntry entry = new LogEntry(title, details, tag);
         log(entry);
+        return entry;
     }
 
-    public static void exception(String title, Exception e){
-        String t = String.format("%s (%s)", title, e.toString());
-        error(t, convertStackTraceToDetails(e.getStackTrace()));
+    public static LogEntry exception(String title, Exception e){
+        return error(title, convertExceptionToDetails(e));
     }
 
-    public static void exception(Exception e){
-        error(e.toString(), convertStackTraceToDetails(e.getStackTrace()));
+    public static LogEntry exception(Exception e){
+        return error(convertExceptionToTitle(e),
+                     convertStackTraceToDetails(e.getStackTrace()));
     }
 
-    public static void debug(String title){
-        debug(title, "");
-    }
-    public static void debug(String title, String details){
-        log(title, details, LogEntry.LogTag.DEBUG);
+    public static LogEntry debug(String title){ return debug(title, ""); }
+    public static LogEntry debug(String title, String details){
+        return log(title, details, LogEntry.LogTag.DEBUG);
     }
 
-    public static void info(String title){ info(title, ""); }
-    public static void info(String title, String details){
-        log(title, details, LogEntry.LogTag.INFO);
+    public static LogEntry info(String title){ return info(title, ""); }
+    public static LogEntry info(String title, String details){
+        return log(title, details, LogEntry.LogTag.INFO);
     }
 
-    public static void warn(String title){ warn(title, ""); }
-    public static void warn(String title, String details){
-        log(title, details, LogEntry.LogTag.WARNING);
+    public static LogEntry warn(String title){ return warn(title, ""); }
+    public static LogEntry warn(String title, String details){
+        return log(title, details, LogEntry.LogTag.WARNING);
     }
 
-    public static void error(String title){ error(title, ""); }
-    public static void error(String title, String details){
-        log(title, details, LogEntry.LogTag.ERROR);
+    public static LogEntry error(String title){ return error(title, ""); }
+    public static LogEntry error(String title, String details){
+        return log(title, details, LogEntry.LogTag.ERROR);
     }
 
-    static String convertStackTraceToDetails(StackTraceElement[] stack){
+    private static String convertStackTraceToDetails(StackTraceElement[] stack){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < stack.length; i++){
             StackTraceElement element = stack[i];
@@ -63,28 +62,26 @@ public class Logger {
         return sb.toString();
     }
 
-    public static interface ILoggerListener {
-        void onLog(LogEntry entry);
+    private static String convertExceptionToTitle(Exception e) {
+        return String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage());
     }
 
-    public static void addObserver(ILoggerListener observer){
-        observers.add(observer);
+    private static String convertExceptionToDetails(Exception e){
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Exception: %s\nCause:     %s\n\n", e.getClass().getName(), e.getMessage()));
+        sb.append(convertStackTraceToDetails(e.getStackTrace()));
+        return sb.toString();
     }
 
-    public static void removeObserver(ILoggerListener observer){
-        observers.remove(observer);
-    }
+    public static interface ILoggerListener { void onLog(LogEntry entry); }
+    public static void addObserver(ILoggerListener observer){ _observers.add(observer); }
+    public static void removeObserver(ILoggerListener observer){ _observers.remove(observer); }
 
     private static void notify(LogEntry entry){
-        for( ILoggerListener observer : observers ) observer.onLog(entry);
+        for( ILoggerListener observer : _observers) observer.onLog(entry);
     }
 
-    public static List<LogEntry> getEntries() {
-        return entries;
-    }
-
-    public static void clearEntries() {
-        entries.clear();
-    }
+    public static List<LogEntry> getEntries() { return _entries; }
+    public static void clearEntries() { _entries.clear(); }
 
 }
