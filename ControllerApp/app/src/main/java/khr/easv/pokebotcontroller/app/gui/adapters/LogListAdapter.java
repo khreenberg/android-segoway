@@ -15,15 +15,15 @@ import khr.easv.pokebotcontroller.app.entities.LogEntry;
 
 public class LogListAdapter extends ArrayAdapter<LogEntry>{
 
-    public static final int
+    private static final int
             EVEN_ALPHA = 75,
             ODD_ALPHA  = 60;
 
-    protected List<LogEntry> entries;
+    private List<LogEntry> _entries;
 
     public LogListAdapter(Context context, int resource, List<LogEntry> entries) {
         super(context, resource, entries);
-        this.entries = entries;
+        _entries = entries;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class LogListAdapter extends ArrayAdapter<LogEntry>{
             view = li.inflate(R.layout.list_item_log_entry, null);
         }
 
-        LogEntry entry = entries.get(index);
+        LogEntry entry = _entries.get(index);
 
         TextView txtLogTitle = (TextView) view.findViewById(R.id.txtLogTitle);
         txtLogTitle.setText(entry.getTitle());
@@ -45,7 +45,7 @@ public class LogListAdapter extends ArrayAdapter<LogEntry>{
         return view;
     }
 
-    int getBackgroundColor(View view, int index, LogEntry entry){
+    private int getBackgroundColor(View view, int index, LogEntry entry){
         int colorID;
         switch (entry.getTag()){
             case DEBUG:
