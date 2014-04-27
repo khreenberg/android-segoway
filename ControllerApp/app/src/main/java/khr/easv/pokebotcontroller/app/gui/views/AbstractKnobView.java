@@ -15,17 +15,21 @@ import khr.easv.pokebotcontroller.app.R;
 
 public abstract class AbstractKnobView extends View {
 
-    private HashSet<KnobUpdateListener> listeners;
+    // Default values
+    protected static final int   DEFAULT_RADIUS             =   200;
+    protected static final float DEFAULT_KNOB_SIZE_RATIO    = 0.25f;
+    protected static final float DEFAULT_FRAME_STROKE_WIDTH = 2.50f;
 
-    protected float frameStrokeWidth;
-    protected int radius;
-    protected float knobSizeRatio;
+    private HashSet<KnobUpdateListener> _listeners;
 
-    private float knobOffsetX, knobOffsetY;
-    private float controlX, controlY;
+    protected float _frameStrokeWidth;
+    protected int _radius;
+    protected float _knobSizeRatio;
 
-    private Drawable knob;
-    private int joystickFrameColor = Color.WHITE;
+    private float _knobOffsetX, _knobOffsetY;
+
+    private Drawable _knob;
+    private int _joystickFrameColor = Color.WHITE;
 
     public AbstractKnobView(Context context) {
         super(context);
@@ -47,13 +51,13 @@ public abstract class AbstractKnobView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.KnobView, defStyle, 0);
 
-        radius = a.getInt(R.styleable.KnobView_radius, 200);
-        knobSizeRatio = a.getFloat(R.styleable.KnobView_knobRelativeSize, .25f);
-        frameStrokeWidth = a.getFloat(R.styleable.KnobView_frameStrokeWidth, 2.5f);
+        _radius = a.getInt(R.styleable.KnobView_radius, DEFAULT_RADIUS);
+        _knobSizeRatio = a.getFloat(R.styleable.KnobView_knobRelativeSize, DEFAULT_KNOB_SIZE_RATIO);
+        _frameStrokeWidth = a.getFloat(R.styleable.KnobView_frameStrokeWidth, DEFAULT_FRAME_STROKE_WIDTH);
         int knobID = a.hasValue(R.styleable.KnobView_knobGFX) ?
                 R.styleable.KnobView_knobGFX : getDefaultKnobDrawableID();
-        knob = getResources().getDrawable(knobID);
-        joystickFrameColor = a.getColor(R.styleable.KnobView_frameColor, joystickFrameColor);
+        _knob = getResources().getDrawable(knobID);
+        _joystickFrameColor = a.getColor(R.styleable.KnobView_frameColor, _joystickFrameColor);
 
         a.recycle();
     }
@@ -65,27 +69,26 @@ public abstract class AbstractKnobView extends View {
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
 
-        // Calculate the knob radius. TODO: Optimize this by caching a result.
-        int knobRadius = (int) (radius * knobSizeRatio);
+        int knobRadius = (int) (_radius * _knobSizeRatio);
 
         // Draw the frame of the joystick
-        drawFrame(paddingLeft + radius, paddingTop + radius, canvas);
+        drawFrame(paddingLeft + _radius, paddingTop + _radius, canvas);
         // Calculate the center position for the knob
-        int knobXZero = (int) (paddingLeft + radius - knobRadius);
-        int knobYZero = (int) (paddingTop + radius - knobRadius);
+        int knobXZero = (int) (paddingLeft + _radius - knobRadius);
+        int knobYZero = (int) (paddingTop + _radius - knobRadius);
         // Draw the knob
-        drawKnob(knobXZero, knobYZero, canvas);
+        drawKnob(knobXZero, knobYZero, knobRadius, canvas);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int widthMode  = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize  = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        int desiredDimension = (int) (radius * 2 + frameStrokeWidth * 2);
+        int desiredDimension = (int) (_radius * 2 + _frameStrokeWidth * 2);
 
         int width;
         int height;
@@ -115,7 +118,7 @@ public abstract class AbstractKnobView extends View {
         }
 
         int dim = Math.min(width, height);
-        radius = (int) (dim / 2 - frameStrokeWidth);
+        _radius = (int) (dim / 2 - _frameStrokeWidth);
 
         setMeasuredDimension(dim, dim);
     }
@@ -123,38 +126,37 @@ public abstract class AbstractKnobView extends View {
     private Paint joystickFramePaint;
     protected void drawFrame(int x, int y, Canvas canvas){
         if( joystickFramePaint == null ) initFramePaint();
-        joystickFramePaint.setStrokeWidth(frameStrokeWidth);
-        x += frameStrokeWidth;
-        y += frameStrokeWidth;
-        canvas.drawCircle(x,y,radius,joystickFramePaint);
+        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
+        x += _frameStrokeWidth;
+        y += _frameStrokeWidth;
+        canvas.drawCircle(x,y, _radius,joystickFramePaint);
     }
 
-    protected void drawKnob(int x, int y, Canvas canvas){
-        // Calculate the knob radius. TODO: Optimize this by caching a result.
-        int knobRadius = (int) (radius * knobSizeRatio);
-        x += frameStrokeWidth + knobOffsetX;
-        y += frameStrokeWidth + knobOffsetY;
-        knob.setBounds(x, y, x+knobRadius * 2, y+knobRadius * 2);
-        knob.draw(canvas);
+    protected void drawKnob(int x, int y, int knobRadius, Canvas canvas){
+        x += _frameStrokeWidth + _knobOffsetX;
+        y += _frameStrokeWidth + _knobOffsetY;
+        _knob.setBounds(x, y, x + knobRadius * 2, y + knobRadius * 2);
+        _knob.draw(canvas);
     }
 
     protected void initFramePaint(){
         joystickFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         joystickFramePaint.setStyle(Paint.Style.STROKE);
-        joystickFramePaint.setColor(joystickFrameColor);
-        joystickFramePaint.setStrokeWidth(frameStrokeWidth);
+        joystickFramePaint.setColor(_joystickFrameColor);
+        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
     }
 
-    /** Should return a relative X position, relative to the center of the view */
+    /** Should return a difference in X position, relative to the center of the view */
     protected abstract int getKnobX();
-    /** Should return a relative Y position, relative to the center of the view */
+    /** Should return a difference in Y position, relative to the center of the view */
     protected abstract int getKnobY();
 
+    /** Call this to update the actual graphics */
     public void updateKnobPosition(){
-        // Calculate the knob radius. TODO: Optimize this by caching a result.
-        int knobRadius = (int) (radius * knobSizeRatio);
+        // Calculate the knob radius.
+        int knobRadius = (int) (_radius * _knobSizeRatio);
         // The distance the knob can move from the center before hitting the frame
-        int availableRadius = radius - knobRadius;
+        int availableRadius = _radius - knobRadius;
         // Get the X & Y positions relative to the center of the view from the subclass
         float x = getKnobX();
         float y = getKnobY();
@@ -170,8 +172,8 @@ public abstract class AbstractKnobView extends View {
         float ratio = length > availableRadius ? 1 : length / availableRadius;
 
         // Set the offsets for the knob graphic.
-        knobOffsetX = Math.abs(length) + knobRadius < radius ? getKnobX() : x * (radius - knobRadius);
-        knobOffsetY = Math.abs(length) + knobRadius < radius ? getKnobY() : y * (radius - knobRadius);
+        _knobOffsetX = Math.abs(length) + knobRadius < _radius ? getKnobX() : x * (_radius - knobRadius);
+        _knobOffsetY = Math.abs(length) + knobRadius < _radius ? getKnobY() : y * (_radius - knobRadius);
 
         // Notify listeners of the calculated point
         notifyListeners(x * ratio, -y * ratio); // Flip y to make up positive and down negative
@@ -180,27 +182,22 @@ public abstract class AbstractKnobView extends View {
         invalidate();
     }
 
-    protected int getDefaultKnobDrawableID(){
-        return R.drawable.knob_red;
-    }
+    protected int getDefaultKnobDrawableID(){ return R.drawable.knob_red; }
 
-    public interface KnobUpdateListener{
-        void onKnobUpdate(float x, float y);
-    }
+    public interface KnobUpdateListener{ void onKnobUpdate(float x, float y); }
 
     public void addListener(KnobUpdateListener listener){
-        if( listeners == null ) listeners = new HashSet<KnobUpdateListener>();
-        listeners.add(listener);
+        if( _listeners == null ) _listeners = new HashSet<KnobUpdateListener>();
+        _listeners.add(listener);
     }
 
     public void removeListener(KnobUpdateListener listener){
-        listeners.remove(listener);
-        if( listeners.isEmpty() ) listeners = null;
+        _listeners.remove(listener);
+        if( _listeners.isEmpty() ) _listeners = null;
     }
 
     private void notifyListeners(float x, float y){
-        if( listeners != null )
-            for( KnobUpdateListener listener : listeners ) listener.onKnobUpdate(x, y);
+        if( _listeners != null )
+            for( KnobUpdateListener listener : _listeners) listener.onKnobUpdate(x, y);
     }
-
 }
