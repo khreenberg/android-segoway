@@ -1,7 +1,6 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
 import android.bluetooth.BluetoothDevice;
-import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -73,7 +72,6 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     void setupActionBar(){
         // TODO: Use or remove!
-        Logger.exception(new SQLiteBindOrColumnIndexOutOfRangeException());
     }
 
     void setupFragments(){
@@ -108,9 +106,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     @Override
-    public void OnDeviceSelected(BluetoothDevice device) {
-        _connection.connect(device);
-    }
+    public void OnDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
 
     @Override
     public void onKnobUpdate(float x, float y) {
