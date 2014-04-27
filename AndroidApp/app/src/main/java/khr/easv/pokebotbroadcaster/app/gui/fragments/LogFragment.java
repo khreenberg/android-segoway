@@ -19,16 +19,15 @@ import static khr.easv.pokebotbroadcaster.app.entities.logger.Logger.ILoggerList
 public class LogFragment extends ListFragment implements ILoggerListener {
 
     private OnLogEntryClickedListener _listener;
-    LogListAdapter _adapter;
+    private LogListAdapter _adapter;
 
+    /** Default constructor */
     public LogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries()); // Create a copy to avoid illegal state exceptions
-        _adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
-        setListAdapter(_adapter);
+        setupList();
         Logger.addObserver(this);
     }
 
@@ -36,6 +35,7 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
+            // Setup the callback to the activity
             _listener = (OnLogEntryClickedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
@@ -46,15 +46,21 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     @Override
     public void onDetach() {
         super.onDetach();
-        _listener = null;
+        _listener = null;   // Detach the callback
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-
         if (_listener == null) return;
         _listener.onLogEntryClicked(_adapter.getItem(position));
+    }
+
+    private void setupList(){
+        // Create a copy to avoid illegal state exceptions
+        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries());
+        _adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
+        setListAdapter(_adapter);
     }
 
     public void clear(){
@@ -62,15 +68,22 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     }
 
     @Override
-    public void onLog(final LogEntry entry) {
-        if(isVisible())
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    _adapter.add(entry);
-                    setSelection(_adapter.getCount() - 1); // Scroll the view to the bottom
-                }
-            });
+    public void onLog(LogEntry entry) {
+        if(isVisible()) addEntryToList(entry);
+    }
+
+    private void addEntryToList(final LogEntry newEntry){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                _adapter.add(newEntry);
+                scrollViewToBottomOfList();
+            }
+        });
+    }
+
+    private void scrollViewToBottomOfList() {
+        setSelection(_adapter.getCount() - 1);
     }
 
     public interface OnLogEntryClickedListener {
