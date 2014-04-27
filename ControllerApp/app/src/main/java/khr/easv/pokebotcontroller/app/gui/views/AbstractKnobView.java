@@ -12,7 +12,6 @@ import android.view.View;
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.gui.Logger;
 
 public abstract class AbstractKnobView extends View {
 

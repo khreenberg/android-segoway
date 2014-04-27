@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
 
 public class BluetoothDeviceSelectionFragment extends Fragment {

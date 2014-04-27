@@ -12,10 +12,10 @@ import java.util.List;
 import khr.easv.pokebotcontroller.app.R;
 
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
 
-import static khr.easv.pokebotcontroller.app.gui.Logger.ILoggerListener;
+import static khr.easv.pokebotcontroller.app.entities.Logger.ILoggerListener;
 
 public class LogFragment extends ListFragment implements ILoggerListener {
 

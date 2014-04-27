@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.UUID;
 
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 
 public class ControllerConnection {
 

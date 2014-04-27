@@ -6,10 +6,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.AttributeSet;
-import android.view.View;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.gui.Logger;
 
 public class AccelerometerControlView extends AbstractKnobView implements SensorEventListener{
 

@@ -4,44 +4,23 @@ import java.io.Serializable;
 
 public class LogEntry implements Serializable{
 
-    public enum LogTag{
-        DEBUG, INFO, ERROR, WARNING
-    }
+    public enum LogTag{ DEBUG, INFO, ERROR, WARNING }
 
-    LogTag tag;
-    String title, details;
-
-    public LogEntry(String title, LogTag tag) {
-        this(title, "", tag);
-    }
+    private LogTag _tag;
+    private String _title, _details;
 
     public LogEntry(String title, String details, LogTag tag) {
-        this.title = title;
-        this.details = details;
-        this.tag = tag;
+        _tag = tag;
+        _title = title;
+        _details = details;
     }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return _title; }
+    public void setTitle(String title) { _title = title; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getDetails() { return _details; }
+    public void setDetails(String details) { _details = details; }
 
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public LogTag getTag() {
-        return tag;
-    }
-
-    public void setTag(LogTag tag) {
-        this.tag = tag;
-    }
+    public LogTag getTag() { return _tag; }
+    public void setTag(LogTag tag) { _tag = tag; }
 }

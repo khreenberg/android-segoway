@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency;
 
 public class ButtonControlFragment extends Fragment {

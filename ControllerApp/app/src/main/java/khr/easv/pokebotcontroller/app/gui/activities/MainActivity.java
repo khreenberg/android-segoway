@@ -1,22 +1,17 @@
 package khr.easv.pokebotcontroller.app.gui.activities;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.UUID;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.data.ControllerConnection;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.BluetoothDeviceSelectionFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
@@ -78,6 +73,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     void setupActionBar(){
         // TODO: Use or remove!
+        Logger.exception(new SQLiteBindOrColumnIndexOutOfRangeException());
     }
 
     void setupFragments(){
