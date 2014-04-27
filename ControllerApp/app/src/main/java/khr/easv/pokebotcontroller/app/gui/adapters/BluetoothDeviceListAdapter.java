@@ -14,7 +14,7 @@ import khr.easv.pokebotcontroller.app.R;
 
 public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
-    List<BluetoothDevice> _devices;
+    private List<BluetoothDevice> _devices;
 
     public BluetoothDeviceListAdapter(Context context, int resource, List<BluetoothDevice> devices) {
         super(context, resource, devices);
