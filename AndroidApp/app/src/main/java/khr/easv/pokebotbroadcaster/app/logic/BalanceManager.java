@@ -34,11 +34,11 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
 
     /** Proportional - The product of gain and measured _error (ε), where offset is inevitable.
       * Higher will overshoot, creating oscillation; lower creates negligible output. */
-    private final double    K_P = .5;
+    private final double    K_P = 0.3;
 
     /** Integral - Eliminate steady state offset, by collecting _error (ε) until it's large
       * enough. The shorter the integral factor, the more aggressive the integral. */
-    private final double    K_I = .25;
+    private final double    K_I = 0;
 
     /** Derivative - Corrects present _error (ε) compared to the _error from last time we checked,
       * a.k.a. the rate of change of the _error Δε. The larger the derivative factor, the longer
@@ -121,8 +121,10 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
         // D
         _differential = input - _previousInput;
 
+        double P_total = (K_P * _error) * Math.abs(K_P * _error);
+
         // The actual algorithm
-        motorPower = (short)((K_P * _error) + (_integralSum) - (K_D *_differential));
+        motorPower = (short)(P_total + (_integralSum) - (K_D *_differential));
 
         // Clamping the output
         motorPower = clamp(motorPower, MIN_POWER, MAX_POWER);
