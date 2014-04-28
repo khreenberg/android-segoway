@@ -6,49 +6,36 @@ import android.view.MotionEvent;
 
 import khr.easv.pokebotcontroller.app.R;
 
+/** Knob view controlled by touch events */
 public class OnScreenJoystickView extends AbstractKnobView {
 
-    private int offsetX, offsetY;
+    private int _offsetX, _offsetY;
 
-    public OnScreenJoystickView(Context context) {
-        super(context);
-    }
-
-    public OnScreenJoystickView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public OnScreenJoystickView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+    public OnScreenJoystickView(Context context) { super(context); }
+    public OnScreenJoystickView(Context context, AttributeSet attrs) { super(context, attrs); }
+    public OnScreenJoystickView(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_UP){
-            offsetX = offsetY = 0;
-            updateKnobPosition();
-            return true;
-        }
+        if (touchReleased(event)) return true;
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
-        offsetX = (int) event.getX() - centerX;
-        offsetY = (int) event.getY() - centerY;
+        _offsetX = (int) event.getX() - centerX;
+        _offsetY = (int) event.getY() - centerY;
         updateKnobPosition();
         return true;
     }
 
-    @Override
-    protected int getKnobX() {
-        return offsetX;
+    private boolean touchReleased(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            _offsetX = _offsetY = 0;
+            updateKnobPosition();
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    protected int getKnobY() {
-        return offsetY;
-    }
-
-    @Override
-    protected int getDefaultKnobDrawableID() {
-        return R.drawable.knob_red;
-    }
+    @Override protected int getKnobX() { return _offsetX; }
+    @Override protected int getKnobY() { return _offsetY; }
+    @Override protected int getDefaultKnobDrawableID() { return R.drawable.knob_red; }
 }
