@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 
 import khr.easv.pokebotcontroller.app.R;
 
+/** Knob view controlled by accelerometer */
 public class AccelerometerControlView extends AbstractKnobView implements SensorEventListener{
 
     private static final float GRAVITY_CONSTANT = 9.8f;
@@ -39,15 +40,9 @@ public class AccelerometerControlView extends AbstractKnobView implements Sensor
         _sensorManager.registerListener(this, _accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
-    @Override
-    protected int getKnobX() {
-        return (int) (_x * (_radius / GRAVITY_CONSTANT));
-    }
-
-    @Override
-    protected int getKnobY() {
-        return (int) (_y * (_radius / GRAVITY_CONSTANT));
-    }
+    // Knob control
+    @Override protected int getKnobX() { return (int) (_x * (_radius / GRAVITY_CONSTANT)); }
+    @Override protected int getKnobY() { return (int) (_y * (_radius / GRAVITY_CONSTANT)); }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -56,16 +51,11 @@ public class AccelerometerControlView extends AbstractKnobView implements Sensor
         updateKnobPosition();
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { /* Do nothing */ }
+    // Misc.
+    @Override public void onAccuracyChanged(Sensor sensor, int accuracy) { /* Do nothing */ }
+    @Override protected int getDefaultKnobDrawableID() { return R.drawable.knob_green; }
 
-    @Override
-    protected int getDefaultKnobDrawableID() {
-        return R.drawable.knob_green;
-    }
-
-    // This is run when the containing fragment is replaced by another
-    @Override
+    @Override // This is run when the containing fragment is replaced by another
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         _sensorManager.unregisterListener(this);
