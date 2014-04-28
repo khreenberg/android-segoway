@@ -41,8 +41,8 @@ public class AccelerometerControlView extends AbstractKnobView implements Sensor
     }
 
     // Knob control
-    @Override protected int getKnobX() { return (int) (_x * (_radius / GRAVITY_CONSTANT)); }
-    @Override protected int getKnobY() { return (int) (_y * (_radius / GRAVITY_CONSTANT)); }
+    @Override protected float getKnobX() { return _x * (_radius / GRAVITY_CONSTANT); }
+    @Override protected float getKnobY() { return _y * (_radius / GRAVITY_CONSTANT); }
 
     @Override
     public void onSensorChanged(SensorEvent event) {

@@ -14,10 +14,12 @@ import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.BluetoothDeviceSelectionFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.ButtonControlFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.ExternalDeviceControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 import khr.easv.pokebotcontroller.app.gui.views.AbstractKnobView;
+import khr.easv.pokebotcontroller.app.gui.views.ExternalDeviceControlView;
 
 
 public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener, BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, AbstractKnobView.KnobUpdateListener {
@@ -58,7 +60,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
                 switchControlFragment(new AccelerometerControlFragment());
                 break;
             case R.id.menu_controlExternal:
-                Logger.warn("External control options not yet supported!", "");
+                switchControlFragment(new ExternalDeviceControlFragment());
                 break;
         }
         return super.onOptionsItemSelected(item);

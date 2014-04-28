@@ -8,23 +8,23 @@ import android.view.ViewGroup;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.gui.views.AbstractKnobView;
-import khr.easv.pokebotcontroller.app.gui.views.OnScreenJoystickView;
+import khr.easv.pokebotcontroller.app.gui.views.ExternalDeviceControlView;
 
-public class JoystickControlFragment extends Fragment {
+public class ExternalDeviceControlFragment extends Fragment {
 
     private View _root;
-    private OnScreenJoystickView _jstkOnScreen;
+    private ExternalDeviceControlView _externalDeviceControlView;
 
     /** Required empty constructor */
-    public JoystickControlFragment() {}
+    public ExternalDeviceControlFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        _root = inflater.inflate(R.layout.fragment_joystick_control, container, false);
-        _jstkOnScreen = (OnScreenJoystickView) _root.findViewById(R.id.jstkOnScreen);
-        _jstkOnScreen.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
+        _root = inflater.inflate(R.layout.fragment_external_device_control, container, false);
+        _externalDeviceControlView = (ExternalDeviceControlView) _root.findViewById(R.id.externalDeviceControl);
+        _externalDeviceControlView.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
         return _root;
     }
 }

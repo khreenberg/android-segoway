@@ -147,9 +147,9 @@ public abstract class AbstractKnobView extends View {
     }
 
     /** Should return a difference in X position, relative to the center of the view */
-    protected abstract int getKnobX();
+    protected abstract float getKnobX();
     /** Should return a difference in Y position, relative to the center of the view */
-    protected abstract int getKnobY();
+    protected abstract float getKnobY();
 
     /** Call this to update the actual graphics */
     public void updateKnobPosition(){

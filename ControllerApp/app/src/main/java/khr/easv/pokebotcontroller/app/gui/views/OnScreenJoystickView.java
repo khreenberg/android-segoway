@@ -9,7 +9,7 @@ import khr.easv.pokebotcontroller.app.R;
 /** Knob view controlled by touch events */
 public class OnScreenJoystickView extends AbstractKnobView {
 
-    private int _offsetX, _offsetY;
+    private float _offsetX, _offsetY;
 
     public OnScreenJoystickView(Context context) { super(context); }
     public OnScreenJoystickView(Context context, AttributeSet attrs) { super(context, attrs); }
@@ -20,8 +20,8 @@ public class OnScreenJoystickView extends AbstractKnobView {
         if (touchReleased(event)) return true;
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
-        _offsetX = (int) event.getX() - centerX;
-        _offsetY = (int) event.getY() - centerY;
+        _offsetX = event.getX() - centerX;
+        _offsetY = event.getY() - centerY;
         updateKnobPosition();
         return true;
     }
@@ -35,7 +35,7 @@ public class OnScreenJoystickView extends AbstractKnobView {
         return false;
     }
 
-    @Override protected int getKnobX() { return _offsetX; }
-    @Override protected int getKnobY() { return _offsetY; }
+    @Override protected float getKnobX() { return _offsetX; }
+    @Override protected float getKnobY() { return _offsetY; }
     @Override protected int getDefaultKnobDrawableID() { return R.drawable.knob_red; }
 }
