@@ -1,7 +1,5 @@
 package khr.easv.pokebotbroadcaster.app.gui.fragments;
 
-
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
@@ -12,12 +10,7 @@ import android.widget.TextView;
 
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
-import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
 
-/**
- * A simple {@link android.support.v4.app.Fragment} subclass.
- *
- */
 public class LogEntryDetailsFragment extends Fragment {
 
     public static final String BUNDLE_KEY_ENTRY = "entry";
@@ -37,17 +30,17 @@ public class LogEntryDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         _root = inflater.inflate(R.layout.fragment_log_entry_details, container, false);
         _entry = (LogEntry) getArguments().getSerializable(BUNDLE_KEY_ENTRY);
-        initialize();populate();
-        // Inflate the layout for this fragment
+        initialize();
+        populate();
         return _root;
     }
 
     private void initialize(){
-        _txtTitle = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTitle);
         _txtTag = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTag);
+        _txtTitle = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTitle);
         _txtDetails = (TextView) _root.findViewById(R.id.txtLogEntryDetailsDetails);
-        _txtTitle.setMovementMethod(new ScrollingMovementMethod());
         _txtDetails.setMovementMethod(new ScrollingMovementMethod());
+        _txtTitle.setMovementMethod(new ScrollingMovementMethod());
     }
 
     private void populate(){
@@ -55,5 +48,4 @@ public class LogEntryDetailsFragment extends Fragment {
         _txtTitle.setText(_entry.getTitle());
         _txtDetails.setText(_entry.getDetails());
     }
-
 }

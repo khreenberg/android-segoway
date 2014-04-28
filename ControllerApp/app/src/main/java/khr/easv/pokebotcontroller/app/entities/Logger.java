@@ -1,4 +1,4 @@
-package khr.easv.pokebotbroadcaster.app.entities.logger;
+package khr.easv.pokebotcontroller.app.entities;
 
 import android.util.Log;
 

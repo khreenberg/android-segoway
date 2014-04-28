@@ -1,6 +1,5 @@
 package khr.easv.pokebotbroadcaster.app.gui.activities;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -14,12 +13,10 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.R;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothConnector;
 import khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer;
-import khr.easv.pokebotbroadcaster.app.data.IOrientationListener;
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 import khr.easv.pokebotbroadcaster.app.entities.logger.LogEntry;
 import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
@@ -27,37 +24,39 @@ import khr.easv.pokebotbroadcaster.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
-public class MainActivity extends ActionBarActivity implements LogFragment.OnLogEntryClickedListener, OrientationWrapper.OrientationListener, BalanceManager.PIDListener, BluetoothControllerServer.IControllerInputListener {
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.*;
+import static khr.easv.pokebotbroadcaster.app.data.OrientationWrapper.*;
+import static khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment.OnLogEntryClickedListener;
+import static khr.easv.pokebotbroadcaster.app.logic.BalanceManager.*;
+
+public class MainActivity extends ActionBarActivity implements  OnLogEntryClickedListener,
+                                                                OrientationListener,
+                                                                PIDListener,
+                                                                IControllerInputListener {
 
     // ID used when starting bluetooth activity for result
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
-    // Amount of IOExceptions allowed before the connection is considered broken
-    public static final int MAX_BLUETOOTH_FAILURE_COUNT = 3;
 
-    // Device address MUST be uppercase hex.. :o
-//    public static final String DEVICE_ADDRESS = "00:16:53:1A:05:C1"; // John
+    // Device address must be UPPERCASE hex!
+    // (Hardcoded because we know exactly what we want to connect to)
     public static final String DEVICE_ADDRESS = "00:16:53:1A:D8:44"; // Bob
 
+    // Only update the TextViews every X milliseconds to prevent crashing
     private static final long UI_TEXT_UPDATE_INTERVAL = 100; // in millis
 
-    private LogEntry _ioErrorEntry = null;
-    private int _ioErrorCount = 0;
-    private boolean _isConnected = false;
+    private boolean _isConnectedToBrick = false;
 
     private BluetoothAdapter _adapter;
     private BluetoothConnector _bluetooth;
 
-    private OrientationWrapper _orientationWrapper;
+    private BluetoothControllerServer _controllerServer;
+
     private DecimalFormat _orientationFormatter = new DecimalFormat("#.###");
     private long _lastUiTextUpdate;
 
     private LogFragment _logFragment;
 
-    private OrientationReaderThread _orientationReader;
-
     private BalanceManager _balanceManager;
-
-    private BluetoothControllerServer _controllerServer;
 
     private TextView _txtLeftMotor, _txtPitch, _txtRightMotor;
     private Button _btnClearLog, _btnConnect;
@@ -102,10 +101,10 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     }
 
     private void setupOrientation() {
-        _orientationWrapper = new OrientationWrapper(this);
-        _orientationWrapper.addListener(this);
-        _orientationWrapper.addListener(_balanceManager);
-        _orientationWrapper.startListening();
+        OrientationWrapper orientationWrapper = new OrientationWrapper(this);
+        orientationWrapper.addListener(this);
+        orientationWrapper.addListener(_balanceManager);
+        orientationWrapper.startListening();
     }
 
     private void setupBalanceManager() {
@@ -120,8 +119,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
         _txtLeftMotor = (TextView) findViewById(R.id.txtLeftMotor);
         _txtRightMotor = (TextView) findViewById(R.id.txtRightMotor);
         // Buttons
-        _btnClearLog = (Button) findViewById(R.id.btnClearLog);
         _btnConnect = (Button) findViewById(R.id.btnConnect);
+        _btnClearLog = (Button) findViewById(R.id.btnClearLog);
     }
 
     private void setupButtons(){
@@ -176,19 +175,9 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
     }
 
     private void handlePacketIOException(IOException e){
-        if( _ioErrorEntry == null ) {
-            _ioErrorEntry = new LogEntry("Couldn't send packet. Attempts: ", "", LogEntry.LogTag.ERROR );
-            Logger.log(_ioErrorEntry);
-        }
-//        Logger.exception("Couldn't send packet", e);
-        _ioErrorCount++;
-        _ioErrorEntry.setTitle("Couldn't send packet. Lost packets: " + _ioErrorCount);
-        if( _ioErrorCount >= MAX_BLUETOOTH_FAILURE_COUNT ){
-            _isConnected = false;
-            _ioErrorEntry = null;
-            Logger.warn("Max lost packets allowed count reached!", "Packets lost: " + _ioErrorCount);
-        }
-        _btnConnect.setEnabled(!_isConnected);
+        Logger.exception("Connection lost!", e);
+        _isConnectedToBrick = false;
+        _btnConnect.setEnabled(true);
         updateLogList();
     }
 
@@ -235,13 +224,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
 
     @Override
     public void onPID(short packet) {
-        // Extract the motor powers from the packet
-        int powerLeftSign = (1 & packet >> 0) == 1 ? 1 : -1;
-        _lastPowerLeft = powerLeftSign * (127 & packet >> 1);
-        int powerRightSign = (1 & packet >> 0) == 1 ? 1 : -1;
-        _lastPowerRight = powerRightSign * (127 & packet >> 1);
-
-        if(!_isConnected) return;
+        updateLastMotorPowerVariables(packet);
+        if(!_isConnectedToBrick) return;
         try {
             _bluetooth.sendCommand(packet);
         } catch (final IOException e) {
@@ -254,11 +238,19 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
         }
     }
 
+    private void updateLastMotorPowerVariables(short packet) {
+        int powerLeftSign = (1 & packet) == 1 ? 1 : -1;
+        _lastPowerLeft = powerLeftSign * (127 & packet >> 1);
+        int powerRightSign = (1 & packet) == 1 ? 1 : -1;
+        _lastPowerRight = powerRightSign * (127 & packet >> 1);
+    }
+
     @Override
     public void OnInput(final float x, final float y) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                // TODO: Make TextViews instead of logging.
                 Logger.debug(String.format("Input received: (%.3f, %.3f)", x, y));
             }
         });
@@ -292,84 +284,8 @@ public class MainActivity extends ActionBarActivity implements LogFragment.OnLog
         protected void onPostExecute(Boolean wasSuccess) {
             if( wasSuccess ) Logger.info("Successfully connected to " + DEVICE_ADDRESS);
             else Logger.exception("Could not connect to " + DEVICE_ADDRESS, e);
-            _isConnected = wasSuccess;
-            _ioErrorCount = 0;
-            _btnConnect.setEnabled(!_isConnected);
+            _isConnectedToBrick = wasSuccess;
+            _btnConnect.setEnabled(!_isConnectedToBrick);
         }
-    }
-
-    // TODO: Extract class to it's own file
-    class OrientationReaderThread extends Thread{
-
-        public static final int ORIENTATION_READ_INTERVAL = 100; // milliseconds
-
-        private OrientationWrapper _wrapper;
-
-        private boolean _isEnabled;
-        private boolean _isAlive;
-
-        private HashSet<IOrientationListener> _listeners;
-
-        public OrientationReaderThread(Activity activity){
-            _isEnabled = false;
-            _isAlive = false;
-            _wrapper = new OrientationWrapper(activity);
-        }
-
-        @Override
-        public synchronized void start() {
-            _isAlive = true;
-            enable();
-            super.start();
-        }
-
-        @Override
-        public void run() {
-            while(_isAlive){
-                while( !_isEnabled ) yield();
-                notifyListeners(_wrapper.getOrientation());
-                try {
-                    Thread.sleep(ORIENTATION_READ_INTERVAL);
-                } catch (InterruptedException e) {
-                    continue;
-                }
-            }
-        }
-
-        public void kill(){
-            _isAlive = false;
-        }
-
-        public void enable(){
-            if( _isEnabled ) return;
-            _isEnabled = true;
-            _wrapper.startListening();
-        }
-
-        public void disable(){
-            if( !_isEnabled ) return;
-            _isEnabled = false;
-            _wrapper.stopListening();
-        }
-
-        public void addListener(IOrientationListener listener){
-            if( _listeners == null ) _listeners = new HashSet<IOrientationListener>();
-            _listeners.add(listener);
-        }
-
-        public void removeListener(IOrientationListener listener){
-            if( _listeners == null ) return;
-            _listeners.remove(listener);
-            if( _listeners.isEmpty() ) _listeners = null; // Try to conserve memory
-        }
-
-        private void notifyListeners(float[] orientation){
-            double azimuth = Math.toDegrees(orientation[0]);
-            double pitch = Math.toDegrees(orientation[1]);
-            double roll = Math.toDegrees(orientation[2]);
-            for( IOrientationListener l : _listeners )
-                l.onOrientationRead(azimuth, pitch, roll);
-        }
-
     }
 }

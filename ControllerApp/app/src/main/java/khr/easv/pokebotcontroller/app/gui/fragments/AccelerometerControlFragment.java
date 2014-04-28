@@ -1,6 +1,5 @@
 package khr.easv.pokebotcontroller.app.gui.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -16,9 +15,8 @@ public class AccelerometerControlFragment extends Fragment {
     private View _root;
     private AccelerometerControlView _jstkAccelerometer;
 
-    public AccelerometerControlFragment() {
-        // Required empty public constructor
-    }
+    /** Required empty constructor */
+    public AccelerometerControlFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,20 +26,5 @@ public class AccelerometerControlFragment extends Fragment {
         _jstkAccelerometer = (AccelerometerControlView) _root.findViewById(R.id.jstkAccelerometer);
         _jstkAccelerometer.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
         return _root;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if( !(activity instanceof AbstractKnobView.KnobUpdateListener)) return;
-//        _jstkAccelerometer.addListener((AbstractKnobView.KnobUpdateListener) activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Activity activity = getActivity();
-        if (!(activity instanceof AbstractKnobView.KnobUpdateListener)) return;
-//        _jstkAccelerometer.removeListener((AbstractKnobView.KnobUpdateListener) activity);
     }
 }

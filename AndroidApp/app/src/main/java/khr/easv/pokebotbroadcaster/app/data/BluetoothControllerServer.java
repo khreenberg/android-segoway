@@ -9,13 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashSet;
 import java.util.UUID;
 
 import khr.easv.pokebotbroadcaster.app.entities.logger.Logger;
 
-import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.ConnectionState.*;
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.ConnectionState.CONNECTED;
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.ConnectionState.LISTENING;
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.ConnectionState.NONE;
 
 /**
  * Inspired by
@@ -26,11 +27,10 @@ public class BluetoothControllerServer {
     public static enum ConnectionState{
         NONE,
         LISTENING,
-        CONNECTING,
         CONNECTED
     }
 
-    HashSet<IControllerInputListener> _controllerListeners;
+    private HashSet<IControllerInputListener> _controllerListeners;
 
     private BluetoothAdapter _adapter;
     private ConnectionState _state;
@@ -48,13 +48,8 @@ public class BluetoothControllerServer {
         _state = NONE;
     }
 
-    private synchronized void setState(ConnectionState state){
-        _state = state;
-    }
-
-    public synchronized ConnectionState getState(){
-        return _state;
-    }
+    private synchronized void setState(ConnectionState state){ _state = state; }
+    public synchronized ConnectionState getState(){ return _state; }
 
     public synchronized void start(){
         if( _connectedThread != null ){ _connectedThread.cancel(); _connectedThread = null; }
@@ -79,9 +74,11 @@ public class BluetoothControllerServer {
         if( _connectedThread != null ) {_connectedThread.cancel(); _connectedThread = null; }
         if( _acceptThread != null ) {_acceptThread.cancel(); _acceptThread = null; }
         setState(NONE);
+        Logger.info("Disconnected from controller.");
     }
 
-    public synchronized void connectionLost(){
+    public synchronized void connectionLost() {
+        Logger.warn("Connection to controller lost.");
         setState(NONE);
         start();
     }
@@ -129,7 +126,6 @@ public class BluetoothControllerServer {
                 synchronized (BluetoothControllerServer.this){
                     switch (_state){
                         case LISTENING:
-                        case CONNECTING:
                             connected(socket, socket.getRemoteDevice());
                             break;
                         case NONE:

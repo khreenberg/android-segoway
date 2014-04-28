@@ -5,10 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer.DrawableContainerState;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
-import android.graphics.drawable.DrawableContainer.*;
 
 /**
  * Simple extension of ImageButton, that ignores touch events triggered on transparent parts
@@ -17,33 +17,21 @@ import android.graphics.drawable.DrawableContainer.*;
 public class ImageButtonIgnoreTransparency extends ImageButton {
     public static final int ALPHA_THRESHOLD = 5;
 
-    public ImageButtonIgnoreTransparency(Context context) {
-        super(context);
-    }
-
-    public ImageButtonIgnoreTransparency(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public ImageButtonIgnoreTransparency(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+    public ImageButtonIgnoreTransparency(Context context) { super(context); }
+    public ImageButtonIgnoreTransparency(Context context, AttributeSet attrs) { super(context, attrs); }
+    public ImageButtonIgnoreTransparency(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Bitmap bitmap = getBitmapFromStateListDrawable();
-        if( bitmap == null ){
-            setPressed(false);
-            return false;
-        }
+        if( bitmap == null ){ setPressed(false); return false; }
         int x = (int) event.getX(), y = (int) event.getY();
-        int alpha;
+        int alpha = 0;
         try{
             alpha = getBitmapAlphaAtPoint(bitmap, x,y);
         }catch (IllegalArgumentException e){
             // This is thrown if the user clicks, holds and drags outside of the image bounds
-            setPressed(false);
-            return false;
+            /* Do nothing - It's handled after the next if-statement */
         }
         if( alpha > ALPHA_THRESHOLD) return super.onTouchEvent(event);
         setPressed(false);
@@ -56,8 +44,7 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
     }
 
     private Bitmap getBitmapFromStateListDrawable(){
-        DrawableContainerState state =
-                (DrawableContainerState) getDrawable().getConstantState();
+        DrawableContainerState state = (DrawableContainerState) getDrawable().getConstantState();
         for(Drawable drawable : state.getChildren() ){
             if( drawable instanceof BitmapDrawable ){
                 return ((BitmapDrawable) drawable).getBitmap();

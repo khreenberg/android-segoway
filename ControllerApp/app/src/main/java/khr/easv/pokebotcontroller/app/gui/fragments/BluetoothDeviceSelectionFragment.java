@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import khr.easv.pokebotcontroller.app.R;
-import khr.easv.pokebotcontroller.app.gui.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
 
 public class BluetoothDeviceSelectionFragment extends Fragment {
@@ -30,17 +29,22 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     private ListView _lstExternalInputDevices;
     private TextView _txtFragmentTitle;
 
-    public BluetoothDeviceSelectionFragment() {
-        // Required empty public constructor
-    }
+    /** Required empty constructor */
+    public BluetoothDeviceSelectionFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         _root = inflater.inflate(R.layout.fragment_bluetooth_device_selection, container, false);
-
         _txtFragmentTitle = (TextView) _root.findViewById(R.id.txtBluetoothSelectionFragmentTitle);
+        initializeList();
 
+        // Inflate the layout for this fragment
+        return _root;
+    }
+
+    private void initializeList() {
         Set<BluetoothDevice> deviceSet = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
         List<BluetoothDevice> deviceList = new ArrayList<BluetoothDevice>(deviceSet);
 
@@ -49,9 +53,6 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         _lstExternalInputDevices.setAdapter(adapter);
 
         _lstExternalInputDevices.setOnItemClickListener(new DeviceClickedListener());
-
-        // Inflate the layout for this fragment
-        return _root;
     }
 
     @Override
@@ -71,9 +72,7 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         _listener = null;
     }
 
-    public String getTitle(){
-        return _txtFragmentTitle.getText().toString();
-    }
+    public String getTitle(){ return _txtFragmentTitle.getText().toString(); }
 
     public void setTitle(final String title){
         getActivity().runOnUiThread(new Runnable() {
@@ -92,7 +91,6 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         }
     }
 
-    public interface OnDeviceSelectedListener{
-        void OnDeviceSelected(BluetoothDevice device);
-    }
+    /** Callback interface */
+    public interface OnDeviceSelectedListener{ void OnDeviceSelected(BluetoothDevice device); }
 }

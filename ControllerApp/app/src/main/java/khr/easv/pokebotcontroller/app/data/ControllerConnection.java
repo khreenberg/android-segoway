@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.UUID;
 
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 
 public class ControllerConnection {
 
@@ -39,8 +39,6 @@ public class ControllerConnection {
 
     private synchronized void connected(BluetoothSocket socket, BluetoothDevice device){
         Logger.info("Connected to brain!", device.toString());
-//        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
-//        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
         _connectedThread = new ConnectedThread(socket);
         _connectedThread.start();
     }
@@ -64,9 +62,6 @@ public class ControllerConnection {
 
         private final BluetoothDevice __device;
         private final BluetoothSocket __socket;
-
-        private ConnectThread _connectThread;
-        private ConnectedThread _connectedThread;
 
         public ConnectThread(BluetoothDevice device){
             __device = device;

@@ -10,26 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import khr.easv.pokebotcontroller.app.R;
-
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
-import khr.easv.pokebotcontroller.app.gui.Logger;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
 
-import static khr.easv.pokebotcontroller.app.gui.Logger.ILoggerListener;
-
-public class LogFragment extends ListFragment implements ILoggerListener {
+public class LogFragment extends ListFragment implements Logger.ILoggerListener {
 
     private OnLogEntryClickedListener _listener;
-    LogListAdapter adapter;
+    private LogListAdapter _adapter;
 
+    /** Default constructor */
     public LogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries()); // Make a copy to prevent illegal state exceptions
-        adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
-        setListAdapter(adapter);
+        setupList();
         Logger.addObserver(this);
     }
 
@@ -37,37 +33,55 @@ public class LogFragment extends ListFragment implements ILoggerListener {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
+            // Setup the callback to the activity
             _listener = (OnLogEntryClickedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnLogEntryClickedListener");
+                + " must implement OnLogEntryClickedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        _listener = null;
+        _listener = null;   // Detach the callback
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-
         if (_listener == null) return;
-        _listener.onLogEntryClicked(adapter.getItem(position));
+        _listener.onLogEntryClicked(_adapter.getItem(position));
+    }
+
+    private void setupList(){
+        // Create a copy to avoid illegal state exceptions
+        List<LogEntry> entries = new ArrayList<LogEntry>(Logger.getEntries());
+        _adapter = new LogListAdapter(getActivity(), R.layout.list_item_log_entry, entries);
+        setListAdapter(_adapter);
+    }
+
+    public void clear(){
+        _adapter.clear();
     }
 
     @Override
-    public void onLog(final LogEntry entry) {
-        if(isVisible())
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.add(entry);
-                    setSelection(adapter.getCount() - 1); // Scroll the view to the bottom
-                }
-            });
+    public void onLog(LogEntry entry) {
+        if(isVisible()) addEntryToList(entry);
+    }
+
+    private void addEntryToList(final LogEntry newEntry){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                _adapter.add(newEntry);
+                scrollViewToBottomOfList();
+            }
+        });
+    }
+
+    private void scrollViewToBottomOfList() {
+        setSelection(_adapter.getCount() - 1);
     }
 
     public interface OnLogEntryClickedListener {
