@@ -47,12 +47,12 @@ public class OrientationWrapper implements SensorEventListener{
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if( event.sensor.getType() != Sensor.TYPE_ROTATION_VECTOR) return;
         updateOrientation(event);
         notifyListeners();
     }
 
     private void updateOrientation(SensorEvent event){
-        if( event.sensor.getType() != Sensor.TYPE_ROTATION_VECTOR) return;
         SensorManager.getRotationMatrixFromVector(_rawRotation, event.values);
         SensorManager.remapCoordinateSystem(_rawRotation, SensorManager.AXIS_X, SensorManager.AXIS_Z, _rotationMatrix);
         SensorManager.getOrientation(_rotationMatrix, _orientation);
