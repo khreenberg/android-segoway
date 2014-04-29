@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
 
     private BluetoothControllerServer _controllerServer;
 
-    private DecimalFormat _orientationFormatter = new DecimalFormat("#.###");
+    private final DecimalFormat _numberFormatter = new DecimalFormat("#.###");
     private long _lastUiTextUpdate;
 
     private LogFragment _logFragment;
@@ -59,11 +59,15 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
     private BalanceManager _balanceManager;
 
     private TextView _txtLeftMotor, _txtPitch, _txtRightMotor;
+    private TextView _txtInputX, _txtInputY;
+
     private Button _btnClearLog, _btnConnect;
 
     private float _lastPitch = 0;
     private int _lastPowerLeft  = 0;
     private int _lastPowerRight = 0;
+
+    private float _lastInputX, _lastInputY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +122,9 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
         _txtPitch = (TextView) findViewById(R.id.txtPitch);
         _txtLeftMotor = (TextView) findViewById(R.id.txtLeftMotor);
         _txtRightMotor = (TextView) findViewById(R.id.txtRightMotor);
+        // Input text views
+        _txtInputX = (TextView) findViewById(R.id.txtInputX);
+        _txtInputY = (TextView) findViewById(R.id.txtInputY);
         // Buttons
         _btnConnect = (Button) findViewById(R.id.btnConnect);
         _btnClearLog = (Button) findViewById(R.id.btnClearLog);
@@ -154,6 +161,7 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
     private void setupBluetooth(){
         _adapter = BluetoothAdapter.getDefaultAdapter();
         _controllerServer = new BluetoothControllerServer();
+        _controllerServer.addControllerListener(this);
         if(_adapter.isEnabled()) { _controllerServer.start(); return; }
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
@@ -209,11 +217,25 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                _txtPitch.setText(_orientationFormatter.format(_lastPitch));
-                _txtLeftMotor.setText(_orientationFormatter.format(_lastPowerLeft));
-                _txtRightMotor.setText(_orientationFormatter.format(_lastPowerRight));
+                updatePitchTextView();
+                updateMotorTextViews();
+                updateInputTextViews();
             }
         });
+    }
+
+    private void updatePitchTextView() {
+        _txtPitch.setText(_numberFormatter.format(_lastPitch));
+    }
+
+    private void updateMotorTextViews() {
+        _txtLeftMotor.setText(_numberFormatter.format(_lastPowerLeft));
+        _txtRightMotor.setText(_numberFormatter.format(_lastPowerRight));
+    }
+
+    private void updateInputTextViews() {
+        _txtInputX.setText(_numberFormatter.format(_lastInputX));
+        _txtInputY.setText(_numberFormatter.format(_lastInputY));
     }
 
     @Override
@@ -247,13 +269,9 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
 
     @Override
     public void OnInput(final float x, final float y) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO: Make TextViews instead of logging.
-                Logger.debug(String.format("Input received: (%.3f, %.3f)", x, y));
-            }
-        });
+        _lastInputX = x;
+        _lastInputY = y;
+        updateUiText();
     }
 
     class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {

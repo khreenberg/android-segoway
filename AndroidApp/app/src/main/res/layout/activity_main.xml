@@ -15,37 +15,72 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TableLayout
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="75">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <TableRow>
-                <TextView android:text="Pitch: "/>
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="placeholder"
-                    android:id="@+id/txtPitch"/>
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Left motor: "/>
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="placeholder"
-                    android:id="@+id/txtLeftMotor"/>
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Right motor: "/>
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="placeholder"
-                    android:id="@+id/txtRightMotor"/>
-            </TableRow>
+            <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="75">
 
-        </TableLayout>
+                <TableRow>
+                    <TextView android:text="Pitch: "/>
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="placeholder"
+                        android:id="@+id/txtPitch"/>
+                </TableRow>
+                <TableRow>
+                    <TextView android:text="Left motor: "/>
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="placeholder"
+                        android:id="@+id/txtLeftMotor"/>
+                </TableRow>
+                <TableRow>
+                    <TextView android:text="Right motor: "/>
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="placeholder"
+                        android:id="@+id/txtRightMotor"/>
+                </TableRow>
+
+            </TableLayout>
+
+            <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="75"
+                android:paddingLeft="5dp"
+                android:gravity="right">
+
+                <TableRow>
+                    <TextView android:text="Input X: " />
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0.000"
+                        android:layout_gravity="right"
+                        android:id="@+id/txtInputX"/>
+                </TableRow>
+                <TableRow>
+                    <TextView android:text="Input Y: "/>
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0.000"
+                        android:layout_gravity="right"
+                        android:id="@+id/txtInputY"/>
+                </TableRow>
+
+            </TableLayout>
+
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="fill_parent"

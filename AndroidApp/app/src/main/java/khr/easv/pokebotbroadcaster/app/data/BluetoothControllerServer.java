@@ -184,7 +184,6 @@ public class BluetoothControllerServer {
                     __input.read(buffer);
                     float x = ByteBuffer.wrap(buffer, 0, 4).getFloat();
                     float y = ByteBuffer.wrap(buffer, 4, 4).getFloat();
-                    Logger.debug(String.format("ConnectedThread read: (%.3f, %.3f)", x, y), "byte[]: " + byteArrayToString(buffer));
                     notifyInputListeners(x, y);
                 } catch (IOException e) {
                     Logger.exception("Controller connection lost!", e);
