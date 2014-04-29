@@ -2,6 +2,7 @@ package khr.easv.pokebotcontroller.app.gui.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,6 +12,8 @@ import khr.easv.pokebotcontroller.app.R;
 public class ExternalDeviceControlView extends AbstractKnobView{
 
     private static final float AXIS_MULTIPLIER = 333;
+    private static final float AXIS_THRESHOLD = 0.01f;
+
     private float _leftX, _leftY, _rightX, _rightY, _dpadX, _dpadY;
 
     public ExternalDeviceControlView(Context context) {
@@ -54,11 +57,14 @@ public class ExternalDeviceControlView extends AbstractKnobView{
     }
 
 
-    private float getAxis(MotionEvent event, int axis) { return event.getAxisValue(axis); }
+    private float getAxis(MotionEvent event, int axis) {
+        float axisValue = event.getAxisValue(axis);
+        return Math.abs(axisValue) < AXIS_THRESHOLD  ? 0 : axisValue * AXIS_MULTIPLIER;
+    }
 
     // Return input
-    @Override protected float getKnobX() { return (_leftX + _rightX + _dpadX) * AXIS_MULTIPLIER; }
-    @Override protected float getKnobY() { return (_leftY + _rightY + _dpadY) * AXIS_MULTIPLIER; }
+    @Override protected float getKnobX() { return _leftX + _rightX + _dpadX; }
+    @Override protected float getKnobY() { return _leftY + _rightY + _dpadY; }
 
     // Make the knob blue by default
     @Override protected int getDefaultKnobDrawableID() { return R.drawable.knob_blue; }

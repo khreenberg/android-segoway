@@ -41,15 +41,15 @@ public class ButtonControlFragment extends Fragment {
 
     private void initializeButtons(){
         _buttons = new HashSet<ImageButtonIgnoreTransparency>(9);
-        _buttons.add(_btnTurnLeft = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnLeft));
-        _buttons.add(_btnMoveForward = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveForward));
-        _buttons.add(_btnTurnRight = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnRight));
-        _buttons.add(_btnRotateLeft = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateLeft));
-        _buttons.add(_btnCenter = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlCenter));
-        _buttons.add(_btnRotateRight = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateRight));
-        _buttons.add(_btnBackLeft = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackLeft));
-        _buttons.add(_btnMoveBack = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveBack));
-        _buttons.add(_btnBackRight = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackRight));
+        _buttons.add(_btnTurnLeft       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnLeft));
+        _buttons.add(_btnMoveForward    = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveForward));
+        _buttons.add(_btnTurnRight      = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnRight));
+        _buttons.add(_btnRotateLeft     = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateLeft));
+        _buttons.add(_btnCenter         = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlCenter));
+        _buttons.add(_btnRotateRight    = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateRight));
+        _buttons.add(_btnBackLeft       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackLeft));
+        _buttons.add(_btnMoveBack       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveBack));
+        _buttons.add(_btnBackRight      = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackRight));
     }
 
     private void attachClickListener(){
