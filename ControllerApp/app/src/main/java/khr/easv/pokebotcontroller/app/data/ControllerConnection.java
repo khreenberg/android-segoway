@@ -86,6 +86,7 @@ public class ControllerConnection {
                     __socket.close();
                 } catch (IOException e1) {
                     Logger.exception("Could not close socket after failed connection!", e1);
+                    return;
                 }
             }
             synchronized (ControllerConnection.this){

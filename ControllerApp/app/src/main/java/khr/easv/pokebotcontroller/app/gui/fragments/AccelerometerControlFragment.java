@@ -12,19 +12,19 @@ import khr.easv.pokebotcontroller.app.gui.views.AccelerometerControlView;
 
 public class AccelerometerControlFragment extends Fragment {
 
-    private View _root;
-    private AccelerometerControlView _jstkAccelerometer;
-
     /** Required empty constructor */
     public AccelerometerControlFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        _root =  inflater.inflate(R.layout.fragment_accelerometer_control, container, false);
-        _jstkAccelerometer = (AccelerometerControlView) _root.findViewById(R.id.jstkAccelerometer);
+
+        View _root = inflater.inflate(R.layout.fragment_accelerometer_control, container, false);
+
+        AccelerometerControlView _jstkAccelerometer =
+                (AccelerometerControlView) _root.findViewById(R.id.jstkAccelerometer);
         _jstkAccelerometer.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
+
         return _root;
     }
 }

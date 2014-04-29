@@ -12,19 +12,19 @@ import khr.easv.pokebotcontroller.app.gui.views.OnScreenJoystickView;
 
 public class JoystickControlFragment extends Fragment {
 
-    private View _root;
-    private OnScreenJoystickView _jstkOnScreen;
-
     /** Required empty constructor */
     public JoystickControlFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        _root = inflater.inflate(R.layout.fragment_joystick_control, container, false);
-        _jstkOnScreen = (OnScreenJoystickView) _root.findViewById(R.id.jstkOnScreen);
+
+        View _root = inflater.inflate(R.layout.fragment_joystick_control, container, false);
+
+        OnScreenJoystickView _jstkOnScreen =
+                (OnScreenJoystickView) _root.findViewById(R.id.jstkOnScreen);
         _jstkOnScreen.addListener((AbstractKnobView.KnobUpdateListener) getActivity());
+
         return _root;
     }
 }

@@ -26,6 +26,8 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     private ControllerConnection _connection;
 
+    private LogFragment _logFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +51,9 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id){
-            case R.id.menu_exit: return true;
+            case R.id.menu_exit:
+                System.runFinalization();
+                System.exit(0);
             case R.id.menu_controlButton:
                 switchControlFragment(new ButtonControlFragment());
                 break;
@@ -61,6 +65,10 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
                 break;
             case R.id.menu_controlExternal:
                 switchControlFragment(new ExternalDeviceControlFragment());
+                break;
+            case R.id.menu_clearLog:
+                Logger.clearEntries();
+                _logFragment.clear();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -78,11 +86,11 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     void setupFragments(){
         BluetoothDeviceSelectionFragment inputSelectionFragment = new BluetoothDeviceSelectionFragment();
-        LogFragment logFragment = new LogFragment();
+        _logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.controllerFragmentContainer, inputSelectionFragment)
-                .add(R.id.logFragmentContainer, logFragment)
+                .add(R.id.logFragmentContainer, _logFragment)
                 .commit();
     }
 
