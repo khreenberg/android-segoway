@@ -268,7 +268,17 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
     }
 
     @Override
-    public void OnInput(final float x, final float y) {
+    public void OnInput(float x, float y) {
+
+        // Calculate the length of the vector
+        float length = (float) Math.sqrt(x*x + y*y);
+
+        // If length is greater than 1, normalize the vector
+        if( length > 1 ) {
+            x /= length;
+            y /= length;
+        }
+
         _lastInputX = x;
         _lastInputY = y;
         updateUiText();
