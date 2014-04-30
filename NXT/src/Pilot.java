@@ -1,5 +1,6 @@
-import java.util.Random;
+package src;
 
+import java.util.Random;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 
