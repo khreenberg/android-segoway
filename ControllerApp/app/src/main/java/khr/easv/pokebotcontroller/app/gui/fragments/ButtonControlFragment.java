@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.data.IInputListener;
 import khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency;
 
 public class ButtonControlFragment extends Fragment {
@@ -28,7 +29,7 @@ public class ButtonControlFragment extends Fragment {
             _btnBackLeft,       _btnMoveBack,       _btnBackRight;
 
     private HashSet<ImageButtonIgnoreTransparency> _buttons;
-    private HashSet<IButtonControlListener> _listeners;
+    private HashSet<IInputListener> _listeners;
 
     private float[] _xValues, _yValues;
 
@@ -52,7 +53,7 @@ public class ButtonControlFragment extends Fragment {
     }
 
     private void makeActivityListen() {
-        try{ addListener((IButtonControlListener) getActivity()); }
+        try{ addListener((IInputListener) getActivity()); }
         catch (ClassCastException e) { /* We could handle this, but we won't */ }
     }
 
@@ -108,16 +109,12 @@ public class ButtonControlFragment extends Fragment {
         }
     }
 
-    public interface IButtonControlListener{
-        void onButtonControl(float x, float y);
-    }
-
-    public void addListener(IButtonControlListener listener){
-        if( _listeners == null ) _listeners = new HashSet<IButtonControlListener>();
+    public void addListener(IInputListener listener){
+        if( _listeners == null ) _listeners = new HashSet<IInputListener>();
         _listeners.add(listener);
     }
 
-    public void removeListener(IButtonControlListener listener) {
+    public void removeListener(IInputListener listener) {
         _listeners.remove(listener);
         if( _listeners.isEmpty() ) _listeners = null;
     }
@@ -125,7 +122,7 @@ public class ButtonControlFragment extends Fragment {
     private void notifyListeners() {
         float x = getArraySum(_xValues);
         float y = getArraySum(_yValues);
-        for (IButtonControlListener listener : _listeners)  listener.onButtonControl(x,y);
+        for (IInputListener listener : _listeners)  listener.onInput(x,y);
     }
 
     private float getArraySum(float[] b) {

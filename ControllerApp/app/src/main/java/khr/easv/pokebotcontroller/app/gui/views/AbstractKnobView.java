@@ -12,15 +12,16 @@ import android.view.View;
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.data.IInputListener;
 
 public abstract class AbstractKnobView extends View {
 
     // Default values
     protected static final int   DEFAULT_RADIUS             =   200;
-    protected static final float DEFAULT_KNOB_SIZE_RATIO    = 0.25f;
-    protected static final float DEFAULT_FRAME_STROKE_WIDTH = 2.50f;
+    protected static final float DEFAULT_KNOB_SIZE_RATIO    = 0.35f;
+    protected static final float DEFAULT_FRAME_STROKE_WIDTH = 3.00f;
 
-    private HashSet<KnobUpdateListener> _listeners;
+    private HashSet<IInputListener> _listeners;
 
     protected float _frameStrokeWidth;
     protected int _radius;
@@ -184,20 +185,28 @@ public abstract class AbstractKnobView extends View {
 
     protected int getDefaultKnobDrawableID(){ return R.drawable.knob_red; }
 
-    public interface KnobUpdateListener{ void onKnobUpdate(float x, float y); }
+    public float getFrameStrokeWidth() { return _frameStrokeWidth; }
+    public void setFrameStrokeWidth(float frameStrokeWidth) { _frameStrokeWidth = frameStrokeWidth; }
 
-    public void addListener(KnobUpdateListener listener){
-        if( _listeners == null ) _listeners = new HashSet<KnobUpdateListener>();
+    public int getRadius() { return _radius; }
+    public void setRadius(int radius) { _radius = radius; }
+
+    public float getKnobSizeRatio() { return _knobSizeRatio; }
+    public void setKnobSizeRatio(float knobSizeRatio) { _knobSizeRatio = knobSizeRatio; }
+
+    // Observable input
+    public void addListener(IInputListener listener){
+        if( _listeners == null ) _listeners = new HashSet<IInputListener>();
         _listeners.add(listener);
     }
 
-    public void removeListener(KnobUpdateListener listener){
+    public void removeListener(IInputListener listener){
         _listeners.remove(listener);
         if( _listeners.isEmpty() ) _listeners = null;
     }
 
     private void notifyListeners(float x, float y){
         if( _listeners != null )
-            for( KnobUpdateListener listener : _listeners) listener.onKnobUpdate(x, y);
+            for( IInputListener listener : _listeners) listener.onInput(x, y);
     }
 }

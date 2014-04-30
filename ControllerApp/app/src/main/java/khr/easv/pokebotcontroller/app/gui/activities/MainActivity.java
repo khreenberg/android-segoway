@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.data.ControllerConnection;
+import khr.easv.pokebotcontroller.app.data.IInputListener;
 import khr.easv.pokebotcontroller.app.entities.LogEntry;
 import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.fragments.AccelerometerControlFragment;
@@ -18,11 +19,13 @@ import khr.easv.pokebotcontroller.app.gui.fragments.ExternalDeviceControlFragmen
 import khr.easv.pokebotcontroller.app.gui.fragments.JoystickControlFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
+import khr.easv.pokebotcontroller.app.gui.fragments.TestJoystickFragment;
 import khr.easv.pokebotcontroller.app.gui.views.AbstractKnobView;
 import khr.easv.pokebotcontroller.app.gui.views.ExternalDeviceControlView;
 
 
-public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener, BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, AbstractKnobView.KnobUpdateListener {
+public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener,
+        BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, IInputListener{
 
     private ControllerConnection _connection;
 
@@ -119,8 +122,9 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     public void OnDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
 
     @Override
-    public void onKnobUpdate(float x, float y) {
-        Logger.debug(String.format("Input received: (%.3f, %.3f)", x, y));
+    public void onInput(float x, float y) {
+        // Send the input to the brain
+        Logger.debug(String.format("Still works! (%.3f, %.3f)", x, y));
         _connection.write(x,y);
     }
 }
