@@ -1,3 +1,5 @@
+package src;
+
 public class CommandParser{
 
     static final int LEFT_MOTOR_START_BIT   = 	0,
