@@ -1,6 +1,5 @@
 package khr.easv.pokebotcontroller.app.gui.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,9 +11,12 @@ import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.data.IInputListener;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency;
 
-public class ButtonControlFragment extends Fragment {
+import static khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency.IButtonControlListener;
+
+public class ButtonControlFragment extends Fragment implements IButtonControlListener {
 
     // Constants for assigning values to the buttons
     private static final float NO_INPUT = 0.000f;
@@ -71,42 +73,38 @@ public class ButtonControlFragment extends Fragment {
     }
 
     private void attachClickListener(){
-        ControlClickListener listener = new ControlClickListener();
-        for( ImageButtonIgnoreTransparency b : _buttons) b.setOnTouchListener(listener);
+        for( ImageButtonIgnoreTransparency b : _buttons) b.addListener(this);
     }
 
-    private class ControlClickListener implements View.OnTouchListener{
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if( event.getAction() == MotionEvent.ACTION_DOWN ) setValues(v);
-            if( event.getAction() == MotionEvent.ACTION_UP)  clearValues(v);
-            notifyListeners();
-            return true;
-        }
+    @Override
+    public void onButtonEvent(ImageButtonIgnoreTransparency button, boolean isPressed) {
+        if( isPressed ) setValues(button);
+        else clearValues(button);
+        notifyListeners();
+    }
 
-        public void setValues(View v) {
-            if( v == _btnTurnLeft )     {_xValues[0] = -DIAGONAL; _yValues[0] =  DIAGONAL;}
-            if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  STRAIGHT;}
-            if( v == _btnTurnRight )    {_xValues[2] =  DIAGONAL; _yValues[2] =  DIAGONAL;}
-            if( v == _btnRotateLeft )   {_xValues[3] = -STRAIGHT; _yValues[3] =  NO_INPUT;}
-            if( v == _btnCenter )       {_xValues[4] =  NO_INPUT; _yValues[4] =  NO_INPUT;}
-            if( v == _btnRotateRight )  {_xValues[5] =  STRAIGHT; _yValues[5] =  NO_INPUT;}
-            if( v == _btnBackLeft )     {_xValues[6] = -DIAGONAL; _yValues[6] = -DIAGONAL;}
-            if( v == _btnMoveBack )     {_xValues[7] =  NO_INPUT; _yValues[7] = -STRAIGHT;}
-            if( v == _btnBackRight )    {_xValues[8] =  DIAGONAL; _yValues[8] = -DIAGONAL;}
-        }
+    public void setValues(View v) {
+        if( v == _btnTurnLeft )     {_xValues[0] = -DIAGONAL; _yValues[0] =  DIAGONAL;}
+        if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  STRAIGHT;}
+        if( v == _btnTurnRight )    {_xValues[2] =  DIAGONAL; _yValues[2] =  DIAGONAL;}
+        if( v == _btnRotateLeft )   {_xValues[3] = -STRAIGHT; _yValues[3] =  NO_INPUT;}
+        if( v == _btnCenter )       {_xValues[4] =  NO_INPUT; _yValues[4] =  NO_INPUT;}
+        if( v == _btnRotateRight )  {_xValues[5] =  STRAIGHT; _yValues[5] =  NO_INPUT;}
+        if( v == _btnBackLeft )     {_xValues[6] = -DIAGONAL; _yValues[6] = -DIAGONAL;}
+        if( v == _btnMoveBack )     {_xValues[7] =  NO_INPUT; _yValues[7] = -STRAIGHT;}
+        if( v == _btnBackRight )    {_xValues[8] =  DIAGONAL; _yValues[8] = -DIAGONAL;}
+    }
 
-        private void clearValues(View v) {
-            if( v == _btnTurnLeft )     {_xValues[0] = -NO_INPUT; _yValues[0] =  NO_INPUT;}
-            if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  NO_INPUT;}
-            if( v == _btnTurnRight )    {_xValues[2] =  NO_INPUT; _yValues[2] =  NO_INPUT;}
-            if( v == _btnRotateLeft )   {_xValues[3] = -NO_INPUT; _yValues[3] =  NO_INPUT;}
-            if( v == _btnCenter )       {_xValues[4] =  NO_INPUT; _yValues[4] =  NO_INPUT;}
-            if( v == _btnRotateRight )  {_xValues[5] =  NO_INPUT; _yValues[5] =  NO_INPUT;}
-            if( v == _btnBackLeft )     {_xValues[6] = -NO_INPUT; _yValues[6] = -NO_INPUT;}
-            if( v == _btnMoveBack )     {_xValues[7] =  NO_INPUT; _yValues[7] = -NO_INPUT;}
-            if( v == _btnBackRight )    {_xValues[8] =  NO_INPUT; _yValues[8] = -NO_INPUT;}
-        }
+    private void clearValues(View v) {
+        if( v == _btnTurnLeft )     {_xValues[0] = -NO_INPUT; _yValues[0] =  NO_INPUT;}
+        if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  NO_INPUT;}
+        if( v == _btnTurnRight )    {_xValues[2] =  NO_INPUT; _yValues[2] =  NO_INPUT;}
+        if( v == _btnRotateLeft )   {_xValues[3] = -NO_INPUT; _yValues[3] =  NO_INPUT;}
+        if( v == _btnCenter )       {_xValues[4] =  NO_INPUT; _yValues[4] =  NO_INPUT;}
+        if( v == _btnRotateRight )  {_xValues[5] =  NO_INPUT; _yValues[5] =  NO_INPUT;}
+        if( v == _btnBackLeft )     {_xValues[6] = -NO_INPUT; _yValues[6] = -NO_INPUT;}
+        if( v == _btnMoveBack )     {_xValues[7] =  NO_INPUT; _yValues[7] = -NO_INPUT;}
+        if( v == _btnBackRight )    {_xValues[8] =  NO_INPUT; _yValues[8] = -NO_INPUT;}
     }
 
     public void addListener(IInputListener listener){
