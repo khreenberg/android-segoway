@@ -170,7 +170,6 @@ public class BluetoothControllerServer {
         private final OutputStream __output;
 
         public ConnectedThread(BluetoothSocket socket) {
-            Logger.debug("Creating ConnectedThread...");
             __socket = socket;
             InputStream tmpInput = null;
             OutputStream tmpOutput = null;
@@ -184,12 +183,10 @@ public class BluetoothControllerServer {
 
             __input = tmpInput;
             __output = tmpOutput;
-            Logger.debug("ConnectedThread created!", String.format("Input: %s\nOutput: %s", __input, __output));
         }
 
         @Override
         public void run() {
-            Logger.debug("ConnectedThread started!");
             byte[] buffer = new byte[8]; // Each float is 32bit (4 byte)
             while(true) {
                 try {
@@ -198,7 +195,6 @@ public class BluetoothControllerServer {
                     float y = ByteBuffer.wrap(buffer, 4, 4).getFloat();
                     notifyInputListeners(x, y);
                 } catch (IOException e) {
-                    Logger.exception("Controller connection lost!", e);
                     connectionLost();
                     break;
                 }
@@ -213,11 +209,16 @@ public class BluetoothControllerServer {
             return sb.toString();
         }
 
+        /** Prevent flooding of the log */
+        private boolean _didLog = false;
         public void write(byte[] buffer) {
             try {
                 __output.write(buffer);
+                _didLog = false;
             } catch (IOException e) {
+                if( _didLog ) return;
                 Logger.exception("Could not write to controller!", e);
+                _didLog = true;
             }
         }
 
