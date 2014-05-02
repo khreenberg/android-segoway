@@ -12,9 +12,6 @@ import android.widget.ImageButton;
 
 import java.util.HashSet;
 
-import khr.easv.pokebotcontroller.app.data.IInputListener;
-import khr.easv.pokebotcontroller.app.entities.Logger;
-
 /**
  * Simple extension of ImageButton, that ignores touch events triggered on transparent parts
  * of the button. Probably requires the button uses a selector for it's images.

@@ -7,5 +7,6 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txtBluetoothDeviceName"/>
+        android:id="@+id/txtBluetoothDeviceName"
+        android:textSize="48sp"/>
 </LinearLayout>

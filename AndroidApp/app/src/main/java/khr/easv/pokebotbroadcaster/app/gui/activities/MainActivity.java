@@ -51,7 +51,9 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
 
     private BluetoothControllerServer _controllerServer;
 
-    private final DecimalFormat _numberFormatter = new DecimalFormat("#.###");
+    private final DecimalFormat _inputNumberFormatter = new DecimalFormat("0.000");
+    private final DecimalFormat _powerNumberFormatter = new DecimalFormat("#");
+
     private long _lastUiTextUpdate;
 
     private LogFragment _logFragment;
@@ -225,17 +227,17 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
     }
 
     private void updatePitchTextView() {
-        _txtPitch.setText(_numberFormatter.format(_lastPitch));
+        _txtPitch.setText(_inputNumberFormatter.format(_lastPitch));
     }
 
     private void updateMotorTextViews() {
-        _txtLeftMotor.setText(_numberFormatter.format(_lastPowerLeft));
-        _txtRightMotor.setText(_numberFormatter.format(_lastPowerRight));
+        _txtLeftMotor.setText(_powerNumberFormatter.format(_lastPowerLeft));
+        _txtRightMotor.setText(_powerNumberFormatter.format(_lastPowerRight));
     }
 
     private void updateInputTextViews() {
-        _txtInputX.setText(_numberFormatter.format(_lastInputX));
-        _txtInputY.setText(_numberFormatter.format(_lastInputY));
+        _txtInputX.setText(_inputNumberFormatter.format(_lastInputX));
+        _txtInputY.setText(_inputNumberFormatter.format(_lastInputY));
     }
 
     @Override
@@ -262,9 +264,9 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
 
     private void updateLastMotorPowerVariables(short packet) {
         int powerLeftSign = (1 & packet) == 1 ? 1 : -1;
-        _lastPowerLeft = powerLeftSign * (127 & packet >> 1);
-        int powerRightSign = (1 & packet) == 1 ? 1 : -1;
-        _lastPowerRight = powerRightSign * (127 & packet >> 1);
+        _lastPowerLeft = powerLeftSign * (127 & (packet >> 1));
+        int powerRightSign = (1 & packet >> 8) == 1 ? 1 : -1;
+        _lastPowerRight = powerRightSign * (127 & (packet >> 9));
     }
 
     @Override
