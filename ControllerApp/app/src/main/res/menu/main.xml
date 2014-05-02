@@ -37,6 +37,12 @@
         android:menuCategory="container"
         android:orderInCategory="200">
 
+        <item
+            android:id="@+id/menu_select_brain_device"
+            android:title="Select controllable device"
+            app:showAsAction="never"
+            android:orderInCategory="2" />
+
         <item android:id="@+id/menu_clearLog"
             android:title="@string/menu_clearLog"
             android:icon="@drawable/icon_log_clear"

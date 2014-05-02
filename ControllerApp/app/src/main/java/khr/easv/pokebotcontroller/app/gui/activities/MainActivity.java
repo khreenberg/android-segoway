@@ -66,6 +66,9 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
             case R.id.menu_controlExternal:
                 switchControlFragment(new ExternalDeviceControlFragment());
                 break;
+            case R.id.menu_select_brain_device:
+                switchControlFragment(new BluetoothDeviceSelectionFragment());
+                break;
             case R.id.menu_clearLog:
                 Logger.clearEntries();
                 _logFragment.clear();
@@ -80,9 +83,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         setupActionBar();
     }
 
-    void setupActionBar(){
-        // TODO: Use or remove!
-    }
+    void setupActionBar(){ /* TODO: Use or remove! */ }
 
     void setupFragments(){
         BluetoothDeviceSelectionFragment inputSelectionFragment = new BluetoothDeviceSelectionFragment();

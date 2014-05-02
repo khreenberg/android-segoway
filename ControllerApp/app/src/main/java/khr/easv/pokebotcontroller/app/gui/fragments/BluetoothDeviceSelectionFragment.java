@@ -3,6 +3,10 @@ package khr.easv.pokebotcontroller.app.gui.fragments;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,14 +21,18 @@ import java.util.List;
 import java.util.Set;
 
 import khr.easv.pokebotcontroller.app.R;
+import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
 
 public class BluetoothDeviceSelectionFragment extends Fragment {
+
+    public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
 
     public static final String BUNDLE_KEY_DEVICES = "bundle key external input devices";
     private View _root;
 
     private OnDeviceSelectedListener _listener;
+    private BluetoothDeviceListAdapter _adapter;
 
     private ListView _lstExternalInputDevices;
     private TextView _txtFragmentTitle;
@@ -45,14 +53,20 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     }
 
     private void initializeList() {
+        requestBluetoothIfNotEnabled();
         Set<BluetoothDevice> deviceSet = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
         List<BluetoothDevice> deviceList = new ArrayList<BluetoothDevice>(deviceSet);
 
-        BluetoothDeviceListAdapter adapter = new BluetoothDeviceListAdapter(_root.getContext(), R.id.lstExternalInputDevices, deviceList);
+        _adapter = new BluetoothDeviceListAdapter(_root.getContext(), R.id.lstExternalInputDevices, deviceList);
         _lstExternalInputDevices = (ListView) _root.findViewById(R.id.lstExternalInputDevices);
-        _lstExternalInputDevices.setAdapter(adapter);
+        _lstExternalInputDevices.setAdapter(_adapter);
 
         _lstExternalInputDevices.setOnItemClickListener(new DeviceClickedListener());
+    }
+
+    private void setupBluetoothChangeListener() {
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        getActivity().registerReceiver(_broadcastReceiver, filter);
     }
 
     @Override
@@ -64,13 +78,46 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnDeviceSelectedListener");
         }
+        setupBluetoothChangeListener();
+    }
+
+    private void requestBluetoothIfNotEnabled(){
+        if( BluetoothAdapter.getDefaultAdapter().isEnabled() ) return;
+        Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
+        if( resultCode != Activity.RESULT_OK ) {
+            Logger.warn("You must activate Bluetooth to use controller features!");
+            return;
+        }
+        initializeList();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        getActivity().unregisterReceiver(_broadcastReceiver);
         _listener = null;
     }
+
+    /** This receiver handles the event that the user disables Bluetooth while the list of devices is visible */
+    private final BroadcastReceiver _broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if( action != BluetoothAdapter.ACTION_STATE_CHANGED ) return;
+            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+            if( state != BluetoothAdapter.STATE_OFF ) return;
+            _adapter.clear();
+            Logger.warn("Bluetooth was turned off!");
+            requestBluetoothIfNotEnabled();
+        }
+    };
 
     public String getTitle(){ return _txtFragmentTitle.getText().toString(); }
 

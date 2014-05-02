@@ -78,7 +78,6 @@ public class ControllerConnection {
         public void run() {
             _adapter.cancelDiscovery();
             try{
-                Logger.debug("Connecting socket...");
                 __socket.connect();
             }catch (IOException e){
                 Logger.exception("Connection failed!",e);
@@ -127,7 +126,6 @@ public class ControllerConnection {
 
         @Override
         public void run() {
-            Logger.debug("ConnectedThread running...");
             byte[] buffer = new byte[1024];
             int bytes;
             while(true) {
