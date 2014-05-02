@@ -108,6 +108,9 @@ public class BluetoothControllerServer {
 
         @Override
         public void run() {
+            if( __serverSocket == null ){
+                Logger.error("Cannot connect controller. Click for more details.", "This error is typically caused by ")
+            }
             Logger.info("Waiting for controller...", this.toString());
             BluetoothSocket socket = null;
             while( _state != CONNECTED ){
