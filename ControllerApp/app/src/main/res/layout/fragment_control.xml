@@ -5,4 +5,5 @@
     android:layout_height="match_parent"
     tools:context="khr.easv.pokebotcontroller.app.gui.fragments.AbstractKnobControlFragment"
     android:id="@+id/controlLayout">
+
 </FrameLayout>

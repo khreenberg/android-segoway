@@ -26,6 +26,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     private ControllerConnection _connection;
 
+    private Class _currentControlFragment;
     private LogFragment _logFragment;
 
     @Override
@@ -87,6 +88,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
     void setupFragments(){
         BluetoothDeviceSelectionFragment inputSelectionFragment = new BluetoothDeviceSelectionFragment();
+        _currentControlFragment = ((Object)inputSelectionFragment).getClass();
         _logFragment = new LogFragment();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -96,6 +98,11 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
     }
 
     void switchControlFragment(Fragment newFragment){
+        // Check that the user is not trying to switch to the current fragment..
+        Class newFragmentClass = ((Object)newFragment).getClass();
+        if( _currentControlFragment == newFragmentClass ) return;
+        _currentControlFragment = newFragmentClass;
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.controllerFragmentContainer, newFragment)
