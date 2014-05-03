@@ -16,7 +16,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textSize="8dp"
             android:layout_gravity="center"
-            android:text="@string/press_back_button_to_return_to_log_list"/>
+            android:text="Press back button to return to log list"/>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
