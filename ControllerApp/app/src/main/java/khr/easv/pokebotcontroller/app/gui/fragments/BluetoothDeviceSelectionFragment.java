@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import khr.easv.pokebotcontroller.app.App;
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.adapters.BluetoothDeviceListAdapter;
@@ -32,14 +31,11 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     public static final String BUNDLE_KEY_DEVICES = "bundle key external input devices";
     private View _root;
 
-    private IDeviceSelectedListener _listener;
+    private OnDeviceSelectedListener _listener;
     private BluetoothDeviceListAdapter _adapter;
 
     private ListView _lstExternalInputDevices;
     private TextView _txtFragmentTitle;
-
-    /** This instance variable is used to access String resources from strings.xml */
-    private Context _ctx = App.getContext();
 
     /** Required empty constructor */
     public BluetoothDeviceSelectionFragment() {}
@@ -77,10 +73,10 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            _listener = (IDeviceSelectedListener) activity;
+            _listener = (OnDeviceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + _ctx.getString(R.string.must_implement_interface_device_selected_listener));
+                    + " must implement OnDeviceSelectedListener");
         }
         setupBluetoothChangeListener();
     }
@@ -96,7 +92,7 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if( requestCode != INTENT_ID_ENABLE_BLUETOOTH )  return;
         if( resultCode != Activity.RESULT_OK ) {
-            Logger.warn(_ctx.getString(R.string.must_activate_blueooth_to_use_controller_features));
+            Logger.warn("You must activate Bluetooth to use controller features!");
             return;
         }
         initializeList();
@@ -118,7 +114,7 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
             if( state != BluetoothAdapter.STATE_OFF ) return;
             _adapter.clear();
-            Logger.warn(_ctx.getString(R.string.bluetooth_was_turned_off));
+            Logger.warn("Bluetooth was turned off!");
             requestBluetoothIfNotEnabled();
         }
     };
@@ -143,5 +139,5 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     }
 
     /** Callback interface */
-    public interface IDeviceSelectedListener { void OnDeviceSelected(BluetoothDevice device); }
+    public interface OnDeviceSelectedListener{ void OnDeviceSelected(BluetoothDevice device); }
 }

@@ -16,7 +16,7 @@ import khr.easv.pokebotcontroller.app.gui.adapters.LogListAdapter;
 
 public class LogFragment extends ListFragment implements Logger.ILoggerListener {
 
-    private ILogEntryClickedListener _listener;
+    private OnLogEntryClickedListener _listener;
     private LogListAdapter _adapter;
 
     /** Default constructor */
@@ -34,10 +34,10 @@ public class LogFragment extends ListFragment implements Logger.ILoggerListener 
         super.onAttach(activity);
         try {
             // Setup the callback to the activity
-            _listener = (ILogEntryClickedListener) activity;
+            _listener = (OnLogEntryClickedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                + activity.getString(R.string.must_implement_interface_log_entry_clicked_listener));
+                + " must implement OnLogEntryClickedListener");
         }
     }
 
@@ -84,7 +84,7 @@ public class LogFragment extends ListFragment implements Logger.ILoggerListener 
         setSelection(_adapter.getCount() - 1);
     }
 
-    public interface ILogEntryClickedListener {
+    public interface OnLogEntryClickedListener {
         public void onLogEntryClicked(LogEntry entry);
     }
 }
