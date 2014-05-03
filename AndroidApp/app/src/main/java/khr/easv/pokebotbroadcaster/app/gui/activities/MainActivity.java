@@ -286,7 +286,7 @@ public class MainActivity extends ActionBarActivity implements  OnLogEntryClicke
         updateUiText();
     }
 
-    class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
+    private class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
 
         Exception e;
 
