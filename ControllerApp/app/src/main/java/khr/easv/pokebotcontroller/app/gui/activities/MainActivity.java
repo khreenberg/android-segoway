@@ -21,8 +21,8 @@ import khr.easv.pokebotcontroller.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
 
-public class MainActivity extends FragmentActivity implements LogFragment.OnLogEntryClickedListener,
-        BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, IInputListener{
+public class MainActivity extends FragmentActivity implements LogFragment.ILogEntryClickedListener,
+        BluetoothDeviceSelectionFragment.IDeviceSelectedListener, IInputListener{
 
     private ControllerConnection _connection;
 

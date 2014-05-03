@@ -38,7 +38,7 @@ public abstract class AbstractKnobControlFragment extends Fragment {
         try {
             knobView.addListener((IInputListener) activity);
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement the interface IInputListener!");
+            throw new ClassCastException(activity.toString() + activity.getString(R.string.must_implement_interface_inputlistener));
         }
     }
 

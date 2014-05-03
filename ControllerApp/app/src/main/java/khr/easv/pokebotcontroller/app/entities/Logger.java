@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import khr.easv.pokebotcontroller.app.App;
+import khr.easv.pokebotcontroller.app.R;
+
 public class Logger {
 
     private static HashSet<ILoggerListener> _observers = new HashSet<ILoggerListener>();
@@ -68,7 +71,7 @@ public class Logger {
 
     private static String convertExceptionToDetails(Exception e){
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Exception: %s\nCause:     %s\n\n", e.getClass().getName(), e.getMessage()));
+        sb.append(String.format(App.getContext().getString(R.string.exception_details_template), e.getClass().getName(), e.getMessage()));
         sb.append(convertStackTraceToDetails(e.getStackTrace()));
         return sb.toString();
     }
