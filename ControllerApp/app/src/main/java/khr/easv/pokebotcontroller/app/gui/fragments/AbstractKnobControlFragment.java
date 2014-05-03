@@ -22,9 +22,9 @@ public abstract class AbstractKnobControlFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View _root = inflater.inflate(R.layout.fragment_abstract_knob_control, container, false);
+        View _root = inflater.inflate(R.layout.fragment_control, container, false);
 
-        ViewGroup abstractKnobViewContainer = (ViewGroup) _root.findViewById(R.id.abstractKnobViewContainer);
+        ViewGroup abstractKnobViewContainer = (ViewGroup) _root.findViewById(R.id.controlLayout);
 
         AbstractKnobView knobView = createKnobView(_root.getContext());
         applyStyling(knobView);

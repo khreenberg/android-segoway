@@ -1,17 +1,18 @@
 package khr.easv.pokebotcontroller.app.gui.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import java.util.HashSet;
 
 import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.data.IInputListener;
-import khr.easv.pokebotcontroller.app.entities.Logger;
 import khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency;
 
 import static khr.easv.pokebotcontroller.app.gui.views.ImageButtonIgnoreTransparency.IButtonControlListener;
@@ -24,6 +25,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
     private static final float DIAGONAL = 0.707f;
 
     private View _root;
+    private FrameLayout _layout;
 
     private ImageButtonIgnoreTransparency
             _btnTurnLeft,       _btnMoveForward,    _btnTurnRight,
@@ -40,7 +42,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        _root = inflater.inflate(R.layout.fragment_button_control, container, false);
+        _root = inflater.inflate(R.layout.fragment_control, container, false);
         initialize();
         // Inflate the layout for this fragment
         return _root;
@@ -49,6 +51,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
     private void initialize(){
         _xValues = new float[9];
         _yValues = new float[9];
+        _layout = (FrameLayout) _root.findViewById(R.id.btnControlLayout);
         initializeButtons();
         attachClickListener();
         makeActivityListen();
@@ -60,16 +63,63 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
     }
 
     private void initializeButtons(){
+        createButtons();
+        addButtonsToSet();
+        addButtonsToLayout();
+    }
+
+    private void addButtonsToSet() {
         _buttons = new HashSet<ImageButtonIgnoreTransparency>(9);
-        _buttons.add(_btnTurnLeft       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnLeft));
-        _buttons.add(_btnMoveForward    = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveForward));
-        _buttons.add(_btnTurnRight      = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlTurnRight));
-        _buttons.add(_btnRotateLeft     = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateLeft));
-        _buttons.add(_btnCenter         = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlCenter));
-        _buttons.add(_btnRotateRight    = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlRotateRight));
-        _buttons.add(_btnBackLeft       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackLeft));
-        _buttons.add(_btnMoveBack       = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlMoveBack));
-        _buttons.add(_btnBackRight      = (ImageButtonIgnoreTransparency) _root.findViewById(R.id.btnControlBackRight));
+        _buttons.add(_btnTurnLeft);
+        _buttons.add(_btnMoveForward);
+        _buttons.add(_btnTurnRight);
+        _buttons.add(_btnRotateLeft);
+        _buttons.add(_btnCenter);
+        _buttons.add(_btnRotateRight);
+        _buttons.add(_btnBackLeft);
+        _buttons.add(_btnMoveBack);
+        _buttons.add(_btnBackRight);
+    }
+
+    /** This method also does minor styling to the buttons. */
+    private void addButtonsToLayout() {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for( ImageButtonIgnoreTransparency button : _buttons ){
+            button.setLayoutParams(layoutParams);
+            button.setBackgroundColor(Color.TRANSPARENT);
+            _layout.addView(button);
+        }
+    }
+
+    private void createButtons() {
+        // Top left
+        _btnTurnLeft = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnTurnLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_turn_left));
+        // Top center
+        _btnMoveForward = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnMoveForward.setImageDrawable(getResources().getDrawable(R.drawable.selector_move_forward));
+        // Top right
+        _btnTurnRight = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnTurnRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_turn_right));
+        // Middle left
+        _btnRotateLeft = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnRotateLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_rotate_left));
+        // Middle center
+        _btnCenter = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnCenter.setImageDrawable(getResources().getDrawable(R.drawable.selector_center));
+        // Middle right
+        _btnRotateRight = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnRotateRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_rotate_right));
+        // Bottom left
+        _btnBackLeft = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnBackLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_back_left));
+        // Bottom center
+        _btnMoveBack = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnMoveBack.setImageDrawable(getResources().getDrawable(R.drawable.selector_move_back));
+        // Bottom right
+        _btnBackRight = new ImageButtonIgnoreTransparency(_root.getContext());
+        _btnBackRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_back_right));
     }
 
     private void attachClickListener(){
