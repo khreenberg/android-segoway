@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import java.util.HashSet;
@@ -66,10 +67,11 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
 
     /** This method also does minor styling to the buttons. */
     private void addButtonsToLayout() {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.gravity = Gravity.CENTER;
         for( ImageButtonIgnoreTransparency button : _buttons ){
             button.setLayoutParams(layoutParams);
+            button.setScaleType(ImageView.ScaleType.FIT_CENTER);
             button.setBackgroundColor(Color.TRANSPARENT);
             _layout.addView(button);
         }
