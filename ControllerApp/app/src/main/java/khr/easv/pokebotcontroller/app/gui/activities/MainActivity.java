@@ -102,6 +102,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
 
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.controllerFragmentContainer, newFragment)
                 .commit();
     }
