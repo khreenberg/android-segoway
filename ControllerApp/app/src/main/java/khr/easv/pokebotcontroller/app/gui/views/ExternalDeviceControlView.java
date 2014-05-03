@@ -2,7 +2,6 @@ package khr.easv.pokebotcontroller.app.gui.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;

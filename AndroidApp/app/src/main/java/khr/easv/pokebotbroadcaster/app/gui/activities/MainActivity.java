@@ -24,10 +24,10 @@ import khr.easv.pokebotbroadcaster.app.gui.fragments.LogEntryDetailsFragment;
 import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
-import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.*;
-import static khr.easv.pokebotbroadcaster.app.data.OrientationWrapper.*;
+import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.IControllerInputListener;
+import static khr.easv.pokebotbroadcaster.app.data.OrientationWrapper.OrientationListener;
 import static khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment.OnLogEntryClickedListener;
-import static khr.easv.pokebotbroadcaster.app.logic.BalanceManager.*;
+import static khr.easv.pokebotbroadcaster.app.logic.BalanceManager.PIDListener;
 
 public class MainActivity extends ActionBarActivity implements  OnLogEntryClickedListener,
                                                                 OrientationListener,
