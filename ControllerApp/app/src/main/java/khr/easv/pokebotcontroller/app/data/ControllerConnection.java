@@ -3,6 +3,7 @@ package khr.easv.pokebotcontroller.app.data;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,8 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.UUID;
 
+import khr.easv.pokebotcontroller.app.App;
+import khr.easv.pokebotcontroller.app.R;
 import khr.easv.pokebotcontroller.app.entities.Logger;
 
 public class ControllerConnection {
@@ -25,12 +28,15 @@ public class ControllerConnection {
     private ConnectThread _connectThread;
     private ConnectedThread _connectedThread;
 
+    /** This instance variable is used to access String resources from strings.xml */
+    private Context _ctx = App.getContext();
+
     public ControllerConnection(){
         _adapter = BluetoothAdapter.getDefaultAdapter();
     }
 
     public synchronized void connect(BluetoothDevice device){
-        Logger.info("Connecting to brain!", device.toString());
+        Logger.info(_ctx.getString(R.string.connecting_to_brain), device.toString());
         if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
         if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
         _connectThread = new ConnectThread(device);
@@ -38,7 +44,7 @@ public class ControllerConnection {
     }
 
     private synchronized void connected(BluetoothSocket socket, BluetoothDevice device){
-        Logger.info("Connected to brain!", device.toString());
+        Logger.info(_ctx.getString(R.string.connected_to_brain), device.toString());
         _connectedThread = new ConnectedThread(socket);
         _connectedThread.start();
     }
@@ -46,7 +52,7 @@ public class ControllerConnection {
     public synchronized void stop(){
         if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
         if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
-        Logger.info("Disconnected from Brain.");
+        Logger.info(_ctx.getString(R.string.disconnected_from_brain));
     }
 
     public void write(float x, float y){
@@ -69,7 +75,7 @@ public class ControllerConnection {
             try {
                 tmpSocket = device.createRfcommSocketToServiceRecord(SERVICE_UUID);
             }catch (IOException e){
-                Logger.exception("Could not create socket to Brain!", e);
+                Logger.exception(_ctx.getString(R.string.could_not_create_socket), e);
             }
             __socket = tmpSocket;
         }
@@ -80,11 +86,11 @@ public class ControllerConnection {
             try{
                 __socket.connect();
             }catch (IOException e){
-                Logger.exception("Connection failed!",e);
+                Logger.exception(_ctx.getString(R.string.connection_failed),e);
                 try {
                     __socket.close();
                 } catch (IOException e1) {
-                    Logger.exception("Could not close socket after failed connection!", e1);
+                    Logger.exception(_ctx.getString(R.string.could_not_close_socket_after_fail), e1);
                     return;
                 }
             }
@@ -98,7 +104,7 @@ public class ControllerConnection {
             try {
                 __socket.close();
             } catch (IOException e) {
-                Logger.exception("Could not close connect socket!", e);
+                Logger.exception(_ctx.getString(R.string.could_not_close_socket), e);
             }
         }
     }
@@ -117,7 +123,7 @@ public class ControllerConnection {
                 tmpInput = socket.getInputStream();
                 tmpOutput = socket.getOutputStream();
             } catch (IOException e) {
-                Logger.exception("Temporary streams were not created!", e);
+                Logger.exception(_ctx.getString(R.string.temporary_streams_could_not_be_created), e);
             }
 
             __input = tmpInput;
@@ -133,7 +139,7 @@ public class ControllerConnection {
                     bytes = __input.read(buffer);
                     notifyListeners(ByteBuffer.wrap(buffer, 0, bytes).array());
                 } catch (IOException e) {
-                    Logger.exception("Connection lost!", e);
+                    Logger.exception(_ctx.getString(R.string.connection_lost), e);
                     break;
                 }
             }
@@ -146,7 +152,7 @@ public class ControllerConnection {
                 ByteBuffer.wrap(buffer, 4, 4).putFloat(y);
                 __output.write(buffer);
             }catch (IOException e){
-                Logger.exception("Could not send to Brain!", e);
+                Logger.exception(_ctx.getString(R.string.could_not_send_data), e);
             }
         }
 
@@ -154,7 +160,7 @@ public class ControllerConnection {
             try{
                 __socket.close();
             }catch (IOException e){
-                Logger.exception("Could not close connected socket!", e);
+                Logger.exception(_ctx.getString(R.string.could_not_close_socket), e);
             }
         }
     }

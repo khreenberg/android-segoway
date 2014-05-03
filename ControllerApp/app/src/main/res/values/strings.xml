@@ -9,6 +9,15 @@
     <string name="menu_exit">Exit</string>
     <string name="menu_clearLog">Clear Log</string>
     <string name="menu_about">About</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="connecting_to_brain">Connecting to brain!</string>
+    <string name="connected_to_brain">Connected to brain!</string>
+    <string name="disconnected_from_brain">Disconnected from Brain.</string>
+    <string name="could_not_create_socket">Could not create socket to Brain!</string>
+    <string name="connection_failed">Connection failed!</string>
+    <string name="could_not_close_socket_after_fail">Could not close socket after failed connection!</string>
+    <string name="could_not_close_socket">Could not close socket!</string>
+    <string name="temporary_streams_could_not_be_created">Temporary streams were not created!</string>
+    <string name="connection_lost">Connection lost!</string>
+    <string name="could_not_send_data">Could not send to Brain!</string>
 
 </resources>
