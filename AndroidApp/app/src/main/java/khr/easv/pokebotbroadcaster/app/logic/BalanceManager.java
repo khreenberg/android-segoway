@@ -4,10 +4,10 @@ import java.util.HashSet;
 
 import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
-public class BalanceManager implements OrientationWrapper.OrientationListener {
+public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
     // Observer pattern related variables
-    private HashSet<PIDListener> _listeners;
+    private HashSet<IPidListener> _listeners;
 
     // Timing and delay
     private long                _lastCalled;
@@ -50,7 +50,7 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     private boolean _done = false;
 
     /* Constructor */
-    public BalanceManager() { _listeners = new HashSet<PIDListener>(); }
+    public BalanceManager() { _listeners = new HashSet<IPidListener>(); }
 
     // Thread start function
     public void start() {
@@ -160,24 +160,24 @@ public class BalanceManager implements OrientationWrapper.OrientationListener {
     }
 
     /** Adds a listener to the PID update subscription list */
-    public void addListener(PIDListener listener) {
+    public void addListener(IPidListener listener) {
         _listeners.add(listener);
     }
 
     /** Removes a listener from the PID update subscription list */
-    public void removeListener(PIDListener listener) {
+    public void removeListener(IPidListener listener) {
         _listeners.remove(listener);
     }
 
     /** Notifies all listeners of a PID result */
     private void notifyListeners(short packet){
-        for(PIDListener listener : _listeners) {
+        for(IPidListener listener : _listeners) {
             listener.onPID(packet);
         }
     }
 
     /* INTERFACE */
-    public interface PIDListener {
+    public interface IPidListener {
         void onPID(short packet);
     }
 }

@@ -25,13 +25,11 @@ import khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment;
 import khr.easv.pokebotbroadcaster.app.logic.BalanceManager;
 
 import static khr.easv.pokebotbroadcaster.app.data.BluetoothControllerServer.IControllerInputListener;
-import static khr.easv.pokebotbroadcaster.app.data.OrientationWrapper.OrientationListener;
-import static khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment.OnLogEntryClickedListener;
-import static khr.easv.pokebotbroadcaster.app.logic.BalanceManager.PIDListener;
+import static khr.easv.pokebotbroadcaster.app.gui.fragments.LogFragment.ILogEntryClickedListener;
 
-public class MainActivity extends ActionBarActivity implements  OnLogEntryClickedListener,
-                                                                OrientationListener,
-                                                                PIDListener,
+public class MainActivity extends ActionBarActivity implements ILogEntryClickedListener,
+        OrientationWrapper.IOrientationListener,
+        BalanceManager.IPidListener,
                                                                 IControllerInputListener {
 
     // ID used when starting bluetooth activity for result
