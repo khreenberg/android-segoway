@@ -16,7 +16,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textSize="8dp"
             android:layout_gravity="center"
-            android:text="Press the back button on your phone to return to the log list"/>
+            android:text="@string/press_back_button_to_return_to_log_list"/>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -26,7 +26,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tag placeholder: "
                 android:textSize="16dp"
                 android:id="@+id/txtLogEntryDetailsTag"/>
             <HorizontalScrollView
@@ -36,7 +35,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Title placeholder"
                     android:textSize="16dp"
                     android:textStyle="bold"
                     android:scrollbars="horizontal"
@@ -60,7 +58,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:typeface="monospace"
-                android:text="Details placeholder text. So much text, omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg omg mg omg omg!!"
                 android:layout_marginTop="20dp"
                 android:scrollHorizontally="true"
                 android:id="@+id/txtLogEntryDetailsDetails"/>

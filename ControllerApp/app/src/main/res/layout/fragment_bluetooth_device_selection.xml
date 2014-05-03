@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Select a bluetooth device"
+        android:text="@string/select_a_bluetooth_device"
         android:id="@+id/txtBluetoothSelectionFragmentTitle"/>
 
     <ListView

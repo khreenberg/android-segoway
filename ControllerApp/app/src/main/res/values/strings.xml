@@ -27,5 +27,7 @@ Cause:     %s
     <string name="must_implement_interface_device_selected_listener"> must implement OnDeviceSelectedListener</string>
     <string name="bluetooth_was_turned_off">Bluetooth was turned off!</string>
     <string name="must_implement_interface_log_entry_clicked_listener"> must implement OnLogEntryClickedListener</string>
+    <string name="select_a_bluetooth_device">Select a bluetooth device</string>
+    <string name="press_back_button_to_return_to_log_list">Press the back button on your phone to return to the log list</string>
 
 </resources>
