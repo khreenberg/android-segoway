@@ -78,15 +78,12 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
         return super.onOptionsItemSelected(item);
     }
 
-    void setup(){
+    private void setup(){
         _connection = new ControllerConnection();
         setupFragments();
-        setupActionBar();
     }
 
-    void setupActionBar(){ /* TODO: Use or remove! */ }
-
-    void setupFragments(){
+    private void setupFragments(){
         BluetoothDeviceSelectionFragment inputSelectionFragment = new BluetoothDeviceSelectionFragment();
         _currentControlFragment = ((Object)inputSelectionFragment).getClass();
         _logFragment = new LogFragment();
@@ -97,7 +94,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.OnLogE
                 .commit();
     }
 
-    void switchControlFragment(Fragment newFragment){
+    private void switchControlFragment(Fragment newFragment){
         // Check that the user is not trying to switch to the current fragment..
         Class newFragmentClass = ((Object)newFragment).getClass();
         if( _currentControlFragment == newFragmentClass ) return;
