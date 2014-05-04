@@ -139,13 +139,18 @@ public class ControllerConnection {
             }
         }
 
+        /** Prevent flooding the log */
+        private boolean _didLog = false;
         public void write(float x, float y){
             try {
                 byte[] buffer = new byte[8];
                 ByteBuffer.wrap(buffer, 0, 4).putFloat(x);
                 ByteBuffer.wrap(buffer, 4, 4).putFloat(y);
                 __output.write(buffer);
+                _didLog = false;
             }catch (IOException e){
+                if( _didLog ) return;
+                _didLog = true;
                 Logger.exception("Could not send to Brain!", e);
             }
         }
