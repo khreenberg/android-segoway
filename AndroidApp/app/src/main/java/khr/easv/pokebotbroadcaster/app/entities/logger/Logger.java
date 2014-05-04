@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Logger {
 
-    private static HashSet<ILoggerListener> _observers = new HashSet<ILoggerListener>();
+    private static HashSet<ILoggerListener> _listeners = new HashSet<ILoggerListener>();
     private static List<LogEntry> _entries = new ArrayList<LogEntry>(32);
 
     public static synchronized void log(LogEntry entry){
@@ -74,11 +74,11 @@ public class Logger {
     }
 
     public static interface ILoggerListener { void onLog(LogEntry entry); }
-    public static void addObserver(ILoggerListener observer){ _observers.add(observer); }
-    public static void removeObserver(ILoggerListener observer){ _observers.remove(observer); }
+    public static void addObserver(ILoggerListener observer){ _listeners.add(observer); }
+    public static void removeObserver(ILoggerListener observer){ _listeners.remove(observer); }
 
     private static void notify(LogEntry entry){
-        for( ILoggerListener observer : _observers) observer.onLog(entry);
+        for( ILoggerListener observer : _listeners) observer.onLog(entry);
     }
 
     public static List<LogEntry> getEntries() { return _entries; }
