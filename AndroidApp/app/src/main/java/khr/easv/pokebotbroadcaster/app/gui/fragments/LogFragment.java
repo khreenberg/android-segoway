@@ -63,15 +63,6 @@ public class LogFragment extends ListFragment implements ILoggerListener {
         setListAdapter(_adapter);
     }
 
-    public void clear(){
-        _adapter.clear();
-    }
-
-    @Override
-    public void onLog(LogEntry entry) {
-        if(isVisible()) addEntryToList(entry);
-    }
-
     private void addEntryToList(final LogEntry newEntry){
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -82,11 +73,8 @@ public class LogFragment extends ListFragment implements ILoggerListener {
         });
     }
 
-    private void scrollViewToBottomOfList() {
-        setSelection(_adapter.getCount() - 1);
-    }
-
-    public interface ILogEntryClickedListener {
-        public void onLogEntryClicked(LogEntry entry);
-    }
+    public void clear(){ _adapter.clear(); }
+    private void scrollViewToBottomOfList() { setSelection(_adapter.getCount() - 1); }
+    public interface ILogEntryClickedListener { public void onLogEntryClicked(LogEntry entry); }
+    @Override public void onLog(LogEntry entry) { if(isVisible()) addEntryToList(entry); }
 }
