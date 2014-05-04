@@ -18,13 +18,13 @@ public class PacketCreator {
 
         short packet = 0;
 
-        packet = setLeftMotorPower(packet, leftMotorPower);
-        packet = setRightMotorPower(packet, rightMotorPower);
+        packet = setMotorPower(LEFT_MOTOR_START_BIT, packet, leftMotorPower);
+        packet = setMotorPower(RIGHT_MOTOR_START_BIT, packet, leftMotorPower);
 
         return packet;
     }
 
-    private static short setLeftMotorPower(short packet, short power){
+    private static short setMotorPower(short startBit, short packet, short power){
 
         short signBit = power < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
         short absPower = (short)Math.abs(power);
@@ -33,23 +33,8 @@ public class PacketCreator {
         if (absPower > MAX_MOTOR_POWER)
             throw new IllegalArgumentException("Absolute value of speed parameter must be less than " + MAX_MOTOR_POWER);
 
-        packet = setValueAt(packet, signBit, LEFT_MOTOR_START_BIT, 1);
-        packet = setValueAt(packet, absPower, LEFT_MOTOR_START_BIT+1, MOTOR_BIT_MASK);
-
-        return packet;
-    }
-
-    private static short setRightMotorPower(short packet, short power){
-
-        short signBit = power < 0 ? NEGATIVE_BIT : POSITIVE_BIT;
-        short absPower = (short)Math.abs(power);
-
-        // If the absolute value of the motor power is bigger than the constant, throw an exception
-        if (absPower > MAX_MOTOR_POWER)
-            throw new IllegalArgumentException("Absolute value of power parameter must be less than " + MAX_MOTOR_POWER);
-
-        packet = setValueAt(packet, signBit, RIGHT_MOTOR_START_BIT, 1);
-        packet = setValueAt(packet, absPower, RIGHT_MOTOR_START_BIT+1, MOTOR_BIT_MASK);
+        packet = setValueAt(packet, signBit, startBit, 1);
+        packet = setValueAt(packet, absPower, startBit+1, MOTOR_BIT_MASK);
 
         return packet;
     }
