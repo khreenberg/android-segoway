@@ -53,8 +53,8 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
         int id = item.getItemId();
         switch (id){
             case R.id.menu_exit:
-                System.runFinalization();
-                System.exit(0);
+                killApp();
+                break;
             case R.id.menu_controlButton:
                 switchControlFragment(new ButtonControlFragment());
                 break;
@@ -71,11 +71,20 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
                 switchControlFragment(new BluetoothDeviceSelectionFragment());
                 break;
             case R.id.menu_clearLog:
-                Logger.clearEntries();
-                _logFragment.clear();
+                clearLog();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void clearLog() {
+        Logger.clearEntries();
+        _logFragment.clear();
+    }
+
+    private void killApp() {
+        System.runFinalization();
+        System.exit(0);
     }
 
     private void setup(){
@@ -96,15 +105,19 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
 
     private void switchControlFragment(Fragment newFragment){
         // Check that the user is not trying to switch to the current fragment..
-        Class newFragmentClass = ((Object)newFragment).getClass();
-        if( _currentControlFragment == newFragmentClass ) return;
-        _currentControlFragment = newFragmentClass;
-
+        if (!shouldReplaceFragment(newFragment)) return;
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.controllerFragmentContainer, newFragment)
                 .commit();
+    }
+
+    private boolean shouldReplaceFragment(Object newFragment) {
+        Class newFragmentClass = newFragment.getClass();
+        if( _currentControlFragment == newFragmentClass ) return false;
+        _currentControlFragment = newFragmentClass;
+        return true;
     }
 
     @Override
