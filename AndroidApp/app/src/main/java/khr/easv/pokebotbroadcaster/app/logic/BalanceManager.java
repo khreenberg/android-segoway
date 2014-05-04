@@ -13,7 +13,7 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
     private long                _lastCalled;
     private static final long   PID_DELAY       = 10;
 
-    // The pitch at which the robot is in perfect balance. (Depends on the robot)
+    // The pitch at which the robot is in perfect balance. (Depends on the robot design)
     private final double        OPTIMAL_INPUT   = 0.442;
 
     // Maximum and minimum possible outputs
@@ -34,16 +34,16 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
     /** Proportional - The product of gain and measured _error (ε), where offset is inevitable.
       * Higher will overshoot, creating oscillation; lower creates negligible output. */
-    private final double    K_P = 0.3;
+    private final double        K_P             = 0.3;
 
     /** Integral - Eliminate steady state offset, by collecting _error (ε) until it's large
       * enough. The shorter the integral factor, the more aggressive the integral. */
-    private final double    K_I = 0;
+    private final double        K_I             = 0;
 
     /** Derivative - Corrects present _error (ε) compared to the _error from last time we checked,
       * a.k.a. the rate of change of the _error Δε. The larger the derivative factor, the longer
       * the derivative time, but also dampens P and I. */
-    private final double    K_D = -.3;
+    private final double        K_D             = -.3;
 
     // Thread related variables
     private Thread _thread;
@@ -85,27 +85,8 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
     /**
         This algorithm calculates the required motor-power for brick to get into equilibrium by
-        using the angle from the orientation sensors.
-        Note: PID stands for Proportional-Integral-Derivative controller
-
-        At a later point, we might want to tweak it a bit to take the pendulum more into account.
-        Calculating the necessary acceleration fo the pendulum would be:
-
-        d2tetha / dt2 = 12 ( g * cos tetha - a * sin tetha ) / L
-
-        where   tetha = pitch
-                g     = gravity
-                a     = acceleration
-                L     = pendulum length
-                t     = time
-                d     = shorthand for delta
-
-        then we set d2tetha / dt2 to 0 (zero ), and we get the following formula:
-
-        a = g cos tetha
-
-        Conclusion: The acceleration of the pendulum is the product between the gravity and the
-        cosine value of the pitch.
+        using the angle from the orientation sensor.
+        Note: PID stands for Proportional-Integral-Derivative controller.
      */
     private void PID() {
 
