@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -83,18 +82,6 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        // if (id == R.id.action_settings) {
-        //    return true;
-        // }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void initialize(){
         initializeViews();
         setupButtons();
@@ -140,11 +127,15 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
         _btnClearLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Logger.clearEntries();
-                _logFragment.clear();
+                clearLoggerAndFragment();
                 updateLogList();
             }
         });
+    }
+
+    private void clearLoggerAndFragment() {
+        Logger.clearEntries();
+        _logFragment.clear();
     }
 
     private void setupLogFragment(){
@@ -163,13 +154,16 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
         _controllerServer = new BluetoothControllerServer();
         _controllerServer.addControllerListener(this);
         if(_adapter.isEnabled()) { _controllerServer.start(); return; }
+        requestEnableBluetooth();
+    }
+
+    private void requestEnableBluetooth() {
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
     }
 
     private void bluetoothConnect() {
-        if( _bluetooth == null )
-            _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
+        if( _bluetooth == null ) _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
         new BluetoothConnectionTask().execute(_bluetooth);
     }
 
@@ -204,15 +198,11 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
     }
 
     private void updateLogList() {
-        if( _logFragment.isVisible() )
-            _logFragment.getListView().invalidateViews();
+        if(_logFragment.isVisible()) _logFragment.getListView().invalidateViews();
     }
 
     private void updateUiText(){
-        long time = System.currentTimeMillis();
-        long deltaTime = time - _lastUiTextUpdate;
-        if (deltaTime < UI_TEXT_UPDATE_INTERVAL) return;
-        _lastUiTextUpdate = time;
+        if (!shouldUpdateuiText()) return;
 
         runOnUiThread(new Runnable() {
             @Override
@@ -222,6 +212,14 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
                 updateInputTextViews();
             }
         });
+    }
+
+    private boolean shouldUpdateuiText() {
+        long time = System.currentTimeMillis();
+        long deltaTime = time - _lastUiTextUpdate;
+        if (deltaTime < UI_TEXT_UPDATE_INTERVAL) return false;
+        _lastUiTextUpdate = time;
+        return true;
     }
 
     private void updatePitchTextView() {
@@ -286,7 +284,7 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
 
     private class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
 
-        Exception e;
+        private Exception e;
 
         @Override
         protected void onPreExecute() {
@@ -298,6 +296,7 @@ public class MainActivity extends ActionBarActivity implements ILogEntryClickedL
         protected Boolean doInBackground(BluetoothConnector... connectors) {
             if( connectors.length == 0 )
                 throw new IllegalArgumentException("You must supply the BluetoothConnection task with a BluetoothConnector object!");
+
             try {
                 connectors[0].connect();
             }
