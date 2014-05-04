@@ -67,14 +67,19 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
 
     /** This method also does minor styling to the buttons. */
     private void addButtonsToLayout() {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.CENTER;
+        FrameLayout.LayoutParams layoutParams = createLayoutParams();
         for( ImageButtonIgnoreTransparency button : _buttons ){
             button.setLayoutParams(layoutParams);
             button.setScaleType(ImageView.ScaleType.FIT_CENTER);
             button.setBackgroundColor(Color.TRANSPARENT);
             _layout.addView(button);
         }
+    }
+
+    private FrameLayout.LayoutParams createLayoutParams() {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER;
+        return layoutParams;
     }
 
     @Override
@@ -84,6 +89,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         notifyListeners();
     }
 
+    // This could easily have been done in a prettier way...
     public void setValues(View v) {
         if( v == _btnTurnLeft )     {_xValues[0] = -DIAGONAL; _yValues[0] =  DIAGONAL;}
         if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  STRAIGHT;}
@@ -127,11 +133,15 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         }
 
         private void initialize(){
-            _xValues = new float[9];
-            _yValues = new float[9];
+            initializeFloatArrays();
             initializeButtons();
             attachClickListener();
             makeActivityListen();
+        }
+
+        private void initializeFloatArrays() {
+            _xValues = new float[9];
+            _yValues = new float[9];
         }
 
         private void makeActivityListen() {
