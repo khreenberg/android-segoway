@@ -23,9 +23,9 @@ public abstract class AbstractKnobView extends View {
 
     private HashSet<IInputListener> _listeners;
 
-    protected float _frameStrokeWidth;
     protected int _radius;
     protected float _knobSizeRatio;
+    protected float _frameStrokeWidth;
 
     private float _knobOffsetX, _knobOffsetY;
 
@@ -34,30 +34,27 @@ public abstract class AbstractKnobView extends View {
 
     public AbstractKnobView(Context context) {
         super(context);
-        init(null, 0);
+        loadAttributes(null, 0);
     }
 
     public AbstractKnobView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(attrs, 0);
+        loadAttributes(attrs, 0);
     }
 
     public AbstractKnobView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(attrs, defStyle);
+        loadAttributes(attrs, defStyle);
     }
 
-    private void init(AttributeSet attrs, int defStyle) {
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.KnobView, defStyle, 0);
+    private void loadAttributes(AttributeSet attrs, int defStyle) {
+        final TypedArray a = getContext().obtainStyledAttributes( attrs, R.styleable.KnobView, defStyle, 0);
+        int knobID = a.hasValue(R.styleable.KnobView_knobGFX) ? R.styleable.KnobView_knobGFX : getDefaultKnobDrawableID();
 
+        _knob = getResources().getDrawable(knobID);
         _radius = a.getInt(R.styleable.KnobView_radius, DEFAULT_RADIUS);
         _knobSizeRatio = a.getFloat(R.styleable.KnobView_knobRelativeSize, DEFAULT_KNOB_SIZE_RATIO);
         _frameStrokeWidth = a.getFloat(R.styleable.KnobView_frameStrokeWidth, DEFAULT_FRAME_STROKE_WIDTH);
-        int knobID = a.hasValue(R.styleable.KnobView_knobGFX) ?
-                R.styleable.KnobView_knobGFX : getDefaultKnobDrawableID();
-        _knob = getResources().getDrawable(knobID);
         _joystickFrameColor = a.getColor(R.styleable.KnobView_frameColor, _joystickFrameColor);
 
         a.recycle();
@@ -75,8 +72,8 @@ public abstract class AbstractKnobView extends View {
         // Draw the frame of the joystick
         drawFrame(paddingLeft + _radius, paddingTop + _radius, canvas);
         // Calculate the center position for the knob
-        int knobXZero = (int) (paddingLeft + _radius - knobRadius);
-        int knobYZero = (int) (paddingTop + _radius - knobRadius);
+        int knobXZero = paddingLeft + _radius - knobRadius;
+        int knobYZero = paddingTop + _radius - knobRadius;
         // Draw the knob
         drawKnob(knobXZero, knobYZero, knobRadius, canvas);
     }
@@ -95,33 +92,30 @@ public abstract class AbstractKnobView extends View {
         int height;
 
         //Measure Width
-        if (widthMode == MeasureSpec.EXACTLY) {
-            //Must be this size
-            width = widthSize;
-        } else if (widthMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
-            width = Math.min(desiredDimension, widthSize);
-        } else {
-            //Be whatever you want
-            width = desiredDimension;
-        }
+        width = measureDimension(widthMode, widthSize, desiredDimension);
 
         //Measure Height
-        if (heightMode == MeasureSpec.EXACTLY) {
-            //Must be this size
-            height = heightSize;
-        } else if (heightMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
-            height = Math.min(desiredDimension, heightSize);
-        } else {
-            //Be whatever you want
-            height = desiredDimension;
-        }
+        height = measureDimension(heightMode, heightSize, desiredDimension);
 
         int dim = Math.min(width, height);
         _radius = (int) (dim / 2 - _frameStrokeWidth);
 
         setMeasuredDimension(dim, dim);
+    }
+
+    private int measureDimension(int dimensionMode, int dimensionSize, int desiredSize) {
+        int dimension;
+        if (dimensionMode == MeasureSpec.EXACTLY) {
+            //Must be this size
+            dimension = dimensionSize;
+        } else if (dimensionMode == MeasureSpec.AT_MOST) {
+            //Can't be bigger than...
+            dimension = Math.min(desiredSize, dimensionSize);
+        } else {
+            //Be whatever you want
+            dimension = desiredSize;
+        }
+        return dimension;
     }
 
     private Paint joystickFramePaint;
@@ -173,14 +167,18 @@ public abstract class AbstractKnobView extends View {
         float ratio = length > availableRadius ? 1 : length / availableRadius;
 
         // Set the offsets for the knob graphic.
-        _knobOffsetX = Math.abs(length) + knobRadius < _radius ? getKnobX() : x * (_radius - knobRadius);
-        _knobOffsetY = Math.abs(length) + knobRadius < _radius ? getKnobY() : y * (_radius - knobRadius);
+        updateKnobOffset(knobRadius, x, y, length);
 
         // Notify listeners of the calculated point
         notifyListeners(x * ratio, -y * ratio); // Flip y to make up positive and down negative
 
         // Refresh the view
         invalidate();
+    }
+
+    private void updateKnobOffset(int knobRadius, float x, float y, float length) {
+        _knobOffsetX = Math.abs(length) + knobRadius < _radius ? getKnobX() : x * (_radius - knobRadius);
+        _knobOffsetY = Math.abs(length) + knobRadius < _radius ? getKnobY() : y * (_radius - knobRadius);
     }
 
     protected int getDefaultKnobDrawableID(){ return R.drawable.knob_red; }
@@ -194,13 +192,14 @@ public abstract class AbstractKnobView extends View {
     public float getKnobSizeRatio() { return _knobSizeRatio; }
     public void setKnobSizeRatio(float knobSizeRatio) { _knobSizeRatio = knobSizeRatio; }
 
-    // Observable input
+    // Observer pattern
     public void addListener(IInputListener listener){
         if( _listeners == null ) _listeners = new HashSet<IInputListener>();
         _listeners.add(listener);
     }
 
     public void removeListener(IInputListener listener){
+        if( _listeners == null ) return;
         _listeners.remove(listener);
         if( _listeners.isEmpty() ) _listeners = null;
     }
