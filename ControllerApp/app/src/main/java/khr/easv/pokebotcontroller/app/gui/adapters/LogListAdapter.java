@@ -46,6 +46,13 @@ public class LogListAdapter extends ArrayAdapter<LogEntry>{
     }
 
     private int getBackgroundColor(View view, int index, LogEntry entry){
+        int colorID = getBackgroundColorId(entry);
+        int color = view.getResources().getColor(colorID);
+        int alpha = index % 2 == 0 ? EVEN_ALPHA : ODD_ALPHA;
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    private int getBackgroundColorId(LogEntry entry) {
         int colorID;
         switch (entry.getTag()){
             case DEBUG:
@@ -64,8 +71,6 @@ public class LogListAdapter extends ArrayAdapter<LogEntry>{
                 colorID = -1; // = Color.WHITE
                 break;
         }
-        int color = view.getResources().getColor(colorID);
-        int alpha = index % 2 == 0 ? EVEN_ALPHA : ODD_ALPHA;
-        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+        return colorID;
     }
 }
