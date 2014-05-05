@@ -43,20 +43,24 @@ public class OrientationWrapper implements SensorEventListener {
     }
 
     private void setupSensors(Activity activity){
-        _sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
-        _rotationVector = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        _sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE); // set up the sensor manager
+        _rotationVector = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR); // here we define what type sensor we use
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if( event.sensor.getType() != Sensor.TYPE_ROTATION_VECTOR) return;
-        updateOrientation(event);
-        notifyListeners();
+        if( event.sensor.getType() != Sensor.TYPE_ROTATION_VECTOR) return; // check if the sensor we get is TYPE_ROTATION_VECTOR, if not just return;
+        updateOrientation(event); // if it is, updateOrientation.
+        notifyListeners(); // and notify listeners.
     }
 
+    /*
+     * In this method the orientation gets read from the sensor event.values and set into _rawRotation
+      * variable, then it gets remapped and the orientation is calculated.
+     */
     private void updateOrientation(SensorEvent event){
         SensorManager.getRotationMatrixFromVector(_rawRotation, event.values);
-        SensorManager.remapCoordinateSystem(_rawRotation, SensorManager.AXIS_X, SensorManager.AXIS_Z, _rotationMatrix);
+        SensorManager.remapCoordinateSystem(_rawRotation, SensorManager.AXIS_X, SensorManager.AXIS_Z, _rotationMatrix); // remapping x with z to get the right degrees in a vertical position of the phone.
         SensorManager.getOrientation(_rotationMatrix, _orientation);
     }
 
