@@ -39,26 +39,14 @@ public class ControllerConnection {
         _connectThread.start();
     }
 
-    private void cancelConnectedThread() {
-        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
-    }
-
-    private void cancelConnectThread() {
-        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
-    }
-
     private synchronized void connected(BluetoothSocket socket, BluetoothDevice device){
         Logger.info("Connected to brain!", device.toString());
         _connectedThread = new ConnectedThread(socket);
         _connectedThread.start();
     }
 
-    public synchronized void stop(){
-        cancelConnectThread();
-        cancelConnectedThread();
-        Logger.info("Disconnected from Brain.");
-    }
-
+    /** Write the inputX and inputY from the control GUI to the brain via a synchronized copy of
+      * the connected thread. */
     public void write(float x, float y){
         ConnectedThread sync;
         synchronized (this) {
@@ -66,6 +54,20 @@ public class ControllerConnection {
             sync = _connectedThread;
         }
         sync.write(x,y);
+    }
+
+    public synchronized void disconnect(){
+        cancelConnectThread();
+        cancelConnectedThread();
+        Logger.info("Disconnected from Brain.");
+    }
+
+    private void cancelConnectedThread() {
+        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
+    }
+
+    private void cancelConnectThread() {
+        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
     }
 
     private class ConnectThread extends Thread{
@@ -178,14 +180,16 @@ public class ControllerConnection {
         }
     }
 
+    // Observer pattern for messages sent from the Brain to the controller.
+    // NOT CURRENTLY USED (but nice functionality to have)
     public interface IBrainMessageListener{
-        void OnBrainMessage(byte[] msg);
+        void onBrainMessage(byte[] msg);
     }
 
     public void notifyListeners(byte[] msg){
         if( _listeners == null ) return;
         for (IBrainMessageListener listener : _listeners) {
-            listener.OnBrainMessage(msg);
+            listener.onBrainMessage(msg);
         }
     }
 
