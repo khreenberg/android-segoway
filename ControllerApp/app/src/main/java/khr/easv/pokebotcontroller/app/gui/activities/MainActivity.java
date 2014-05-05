@@ -47,9 +47,6 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id){
             case R.id.menu_exit:
@@ -75,16 +72,6 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void clearLog() {
-        Logger.clearEntries();
-        _logFragment.clear();
-    }
-
-    private void killApp() {
-        System.runFinalization();
-        System.exit(0);
     }
 
     private void setup(){
@@ -120,13 +107,33 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
         return true;
     }
 
+    private void clearLog() {
+        Logger.clearEntries();
+        _logFragment.clear();
+    }
+
+    private void killApp() {
+        System.runFinalization();
+        System.exit(0);
+    }
+
+    /////////// CALL-BACKS ////////////
     @Override
     public void onLogEntryClicked(LogEntry entry) {
         if( entry.getDetails().isEmpty() ) return;
         LogEntryDetailsFragment detailsFragment = new LogEntryDetailsFragment();
+        Bundle fragmentExtras = createLogDetailsBundle(entry);
+        detailsFragment.setArguments(fragmentExtras);
+        showLogDetails(detailsFragment);
+    }
+
+    private Bundle createLogDetailsBundle(LogEntry entry) {
         Bundle fragmentExtras = new Bundle(1);
         fragmentExtras.putSerializable(LogEntryDetailsFragment.BUNDLE_KEY_ENTRY, entry);
-        detailsFragment.setArguments(fragmentExtras);
+        return fragmentExtras;
+    }
+
+    private void showLogDetails(LogEntryDetailsFragment detailsFragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.logFragmentContainer, detailsFragment)
@@ -135,7 +142,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
     }
 
     @Override
-    public void OnDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
+    public void onDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
 
     @Override
     public void onInput(float x, float y) {

@@ -134,10 +134,10 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             BluetoothDevice device = (BluetoothDevice) parent.getItemAtPosition(position);
-            _listener.OnDeviceSelected(device);
+            _listener.onDeviceSelected(device);
         }
     }
 
     /** Callback interface */
-    public interface OnDeviceSelectedListener{ void OnDeviceSelected(BluetoothDevice device); }
+    public interface OnDeviceSelectedListener{ void onDeviceSelected(BluetoothDevice device); }
 }
