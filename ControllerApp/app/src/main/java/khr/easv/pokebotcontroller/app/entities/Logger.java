@@ -73,6 +73,10 @@ public class Logger {
         return sb.toString();
     }
 
+    public static List<LogEntry> getEntries() { return _entries; }
+    public static void clearEntries() { _entries.clear(); }
+
+    // Observer pattern stuff
     public static interface ILoggerListener { void onLog(LogEntry entry); }
     public static void addObserver(ILoggerListener observer){ _observers.add(observer); }
     public static void removeObserver(ILoggerListener observer){ _observers.remove(observer); }
@@ -80,8 +84,4 @@ public class Logger {
     private static void notify(LogEntry entry){
         for( ILoggerListener observer : _observers) observer.onLog(entry);
     }
-
-    public static List<LogEntry> getEntries() { return _entries; }
-    public static void clearEntries() { _entries.clear(); }
-
 }
