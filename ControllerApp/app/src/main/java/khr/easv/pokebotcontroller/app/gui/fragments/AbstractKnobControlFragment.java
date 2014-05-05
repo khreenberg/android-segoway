@@ -33,15 +33,6 @@ public abstract class AbstractKnobControlFragment extends Fragment {
         return _root;
     }
 
-    private void makeActivityListenForKnobUpdates(AbstractKnobView knobView) {
-        Activity activity = getActivity();
-        try {
-            knobView.addListener((IInputListener) activity);
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement the interface IInputListener!");
-        }
-    }
-
     protected void applyStyling(AbstractKnobView view) {
         view.setLayoutParams(createLayoutParams());
     }
@@ -50,6 +41,15 @@ public abstract class AbstractKnobControlFragment extends Fragment {
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.gravity = Gravity.CENTER;
         return layoutParams;
+    }
+
+    private void makeActivityListenForKnobUpdates(AbstractKnobView knobView) {
+        Activity activity = getActivity();
+        try {
+            knobView.addListener((IInputListener) activity);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement the interface IInputListener!");
+        }
     }
 
     protected abstract AbstractKnobView createKnobView(Context context);
