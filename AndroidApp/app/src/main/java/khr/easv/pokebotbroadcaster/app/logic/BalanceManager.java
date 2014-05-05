@@ -24,7 +24,7 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
     private double              _input          = 0,             // pitch
                                 _previousInput  = OPTIMAL_INPUT, // last pitch
                                 _error          = 0,             // The 'P'
-                                _integralSum    = 0,             // The 'I'
+                                _integralSum    = 0,             // The 'I' // NOT USED
                                 _differential   = 0;             // The 'D'
 
     //    TODO: Fine-tune these values
@@ -38,7 +38,7 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
     /** Integral - Eliminate steady state offset, by collecting _error (ε) until it's large
       * enough. The shorter the integral factor, the more aggressive the integral. */
-    private final double        K_I             = 0;
+    private final double        K_I             = 0; // NOT USED
 
     /** Derivative - Corrects present _error (ε) compared to the _error from last time we checked,
       * a.k.a. the rate of change of the _error Δε. The larger the derivative factor, the longer
