@@ -60,6 +60,48 @@ public abstract class AbstractKnobView extends View {
         a.recycle();
     }
 
+    /** Call this to update the actual graphics */
+    public void updateKnobPosition(){
+        // Calculate the knob radius.
+        int knobRadius = (int) (_radius * _knobSizeRatio);
+        // The distance the knob can move from the center before hitting the frame
+        int availableRadius = _radius - knobRadius;
+        // Get the X & Y positions relative to the center of the view from the subclass
+        float x = getKnobX();
+        float y = getKnobY();
+
+        // Calculate the length of the vector from the center of the view to the point from the subclass
+        float length = (float) Math.sqrt(x*x + y*y);
+
+        // If length is not zero, normalize the vector
+        x /= length != 0 ? length : 1;
+        y /= length != 0 ? length : 1;
+
+        // Allow the length of the vector to be less than the radius
+        float ratio = length > availableRadius ? 1 : length / availableRadius;
+
+        // Set the offsets for the knob graphic.
+        updateKnobOffset(knobRadius, x, y, length);
+
+        // Notify listeners of the calculated point
+        notifyListeners(x * ratio, -y * ratio); // Flip y to make up positive and down negative
+
+        // Refresh the view
+        invalidate();
+    }
+
+    private void updateKnobOffset(int knobRadius, float x, float y, float length) {
+        _knobOffsetX = Math.abs(length) + knobRadius < _radius ? getKnobX() : x * (_radius - knobRadius);
+        _knobOffsetY = Math.abs(length) + knobRadius < _radius ? getKnobY() : y * (_radius - knobRadius);
+    }
+
+    protected void initFramePaint(){
+        joystickFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        joystickFramePaint.setStyle(Paint.Style.STROKE);
+        joystickFramePaint.setColor(_joystickFrameColor);
+        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -76,6 +118,22 @@ public abstract class AbstractKnobView extends View {
         int knobYZero = paddingTop + _radius - knobRadius;
         // Draw the knob
         drawKnob(knobXZero, knobYZero, knobRadius, canvas);
+    }
+
+    private Paint joystickFramePaint;
+    protected void drawFrame(int x, int y, Canvas canvas){
+        if( joystickFramePaint == null ) initFramePaint();
+        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
+        x += _frameStrokeWidth;
+        y += _frameStrokeWidth;
+        canvas.drawCircle(x,y, _radius,joystickFramePaint);
+    }
+
+    protected void drawKnob(int x, int y, int knobRadius, Canvas canvas){
+        x += _frameStrokeWidth + _knobOffsetX;
+        y += _frameStrokeWidth + _knobOffsetY;
+        _knob.setBounds(x, y, x + knobRadius * 2, y + knobRadius * 2);
+        _knob.draw(canvas);
     }
 
     @Override
@@ -118,68 +176,10 @@ public abstract class AbstractKnobView extends View {
         return dimension;
     }
 
-    private Paint joystickFramePaint;
-    protected void drawFrame(int x, int y, Canvas canvas){
-        if( joystickFramePaint == null ) initFramePaint();
-        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
-        x += _frameStrokeWidth;
-        y += _frameStrokeWidth;
-        canvas.drawCircle(x,y, _radius,joystickFramePaint);
-    }
-
-    protected void drawKnob(int x, int y, int knobRadius, Canvas canvas){
-        x += _frameStrokeWidth + _knobOffsetX;
-        y += _frameStrokeWidth + _knobOffsetY;
-        _knob.setBounds(x, y, x + knobRadius * 2, y + knobRadius * 2);
-        _knob.draw(canvas);
-    }
-
-    protected void initFramePaint(){
-        joystickFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        joystickFramePaint.setStyle(Paint.Style.STROKE);
-        joystickFramePaint.setColor(_joystickFrameColor);
-        joystickFramePaint.setStrokeWidth(_frameStrokeWidth);
-    }
-
     /** Should return a difference in X position, relative to the center of the view */
     protected abstract float getKnobX();
     /** Should return a difference in Y position, relative to the center of the view */
     protected abstract float getKnobY();
-
-    /** Call this to update the actual graphics */
-    public void updateKnobPosition(){
-        // Calculate the knob radius.
-        int knobRadius = (int) (_radius * _knobSizeRatio);
-        // The distance the knob can move from the center before hitting the frame
-        int availableRadius = _radius - knobRadius;
-        // Get the X & Y positions relative to the center of the view from the subclass
-        float x = getKnobX();
-        float y = getKnobY();
-
-        // Calculate the length of the vector from the center of the view to the point from the subclass
-        float length = (float) Math.sqrt(x*x + y*y);
-
-        // If length is not zero, normalize the vector
-        x /= length != 0 ? length : 1;
-        y /= length != 0 ? length : 1;
-
-        // Allow the length of the vector to be less than the radius
-        float ratio = length > availableRadius ? 1 : length / availableRadius;
-
-        // Set the offsets for the knob graphic.
-        updateKnobOffset(knobRadius, x, y, length);
-
-        // Notify listeners of the calculated point
-        notifyListeners(x * ratio, -y * ratio); // Flip y to make up positive and down negative
-
-        // Refresh the view
-        invalidate();
-    }
-
-    private void updateKnobOffset(int knobRadius, float x, float y, float length) {
-        _knobOffsetX = Math.abs(length) + knobRadius < _radius ? getKnobX() : x * (_radius - knobRadius);
-        _knobOffsetY = Math.abs(length) + knobRadius < _radius ? getKnobY() : y * (_radius - knobRadius);
-    }
 
     protected int getDefaultKnobDrawableID(){ return R.drawable.knob_red; }
 
