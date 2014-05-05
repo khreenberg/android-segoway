@@ -25,14 +25,16 @@ public class ControllerConnection {
     private ConnectThread _connectThread;
     private ConnectedThread _connectedThread;
 
-    public ControllerConnection(){
-        _adapter = BluetoothAdapter.getDefaultAdapter();
-    }
+    public ControllerConnection(){ _adapter = BluetoothAdapter.getDefaultAdapter(); }
 
     public synchronized void connect(BluetoothDevice device){
         Logger.info("Connecting to brain!", device.toString());
-        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
-        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
+        cancelConnectThread();
+        cancelConnectedThread();
+        startConnectThread(device);
+    }
+
+    private void startConnectThread(BluetoothDevice device) {
         _connectThread = new ConnectThread(device);
         _connectThread.start();
     }
@@ -43,12 +45,8 @@ public class ControllerConnection {
         _connectedThread.start();
     }
 
-    public synchronized void stop(){
-        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
-        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
-        Logger.info("Disconnected from Brain.");
-    }
-
+    /** Write the inputX and inputY from the control GUI to the brain via a synchronized copy of
+      * the connected thread. */
     public void write(float x, float y){
         ConnectedThread sync;
         synchronized (this) {
@@ -56,6 +54,20 @@ public class ControllerConnection {
             sync = _connectedThread;
         }
         sync.write(x,y);
+    }
+
+    public synchronized void disconnect(){
+        cancelConnectThread();
+        cancelConnectedThread();
+        Logger.info("Disconnected from Brain.");
+    }
+
+    private void cancelConnectedThread() {
+        if( _connectedThread != null ) { _connectedThread.cancel(); _connectedThread = null; }
+    }
+
+    private void cancelConnectThread() {
+        if( _connectThread   != null ) { _connectThread.cancel();   _connectThread   = null; }
     }
 
     private class ConnectThread extends Thread{
@@ -139,15 +151,24 @@ public class ControllerConnection {
             }
         }
 
+        /** Prevent flooding the log */
+        private boolean _didLog = false;
         public void write(float x, float y){
             try {
-                byte[] buffer = new byte[8];
-                ByteBuffer.wrap(buffer, 0, 4).putFloat(x);
-                ByteBuffer.wrap(buffer, 4, 4).putFloat(y);
-                __output.write(buffer);
+                sendInput(x, y);
+                _didLog = false;
             }catch (IOException e){
+                if( _didLog ) return;
+                _didLog = true;
                 Logger.exception("Could not send to Brain!", e);
             }
+        }
+
+        private void sendInput(float x, float y) throws IOException {
+            byte[] buffer = new byte[8];
+            ByteBuffer.wrap(buffer, 0, 4).putFloat(x);
+            ByteBuffer.wrap(buffer, 4, 4).putFloat(y);
+            __output.write(buffer);
         }
 
         public void cancel(){
@@ -159,14 +180,16 @@ public class ControllerConnection {
         }
     }
 
+    // Observer pattern for messages sent from the Brain to the controller.
+    // NOT CURRENTLY USED (but nice functionality to have)
     public interface IBrainMessageListener{
-        void OnBrainMessage(byte[] msg);
+        void onBrainMessage(byte[] msg);
     }
 
     public void notifyListeners(byte[] msg){
         if( _listeners == null ) return;
         for (IBrainMessageListener listener : _listeners) {
-            listener.OnBrainMessage(msg);
+            listener.onBrainMessage(msg);
         }
     }
 

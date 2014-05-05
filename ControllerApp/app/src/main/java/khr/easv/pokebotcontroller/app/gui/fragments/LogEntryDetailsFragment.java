@@ -39,6 +39,7 @@ public class LogEntryDetailsFragment extends Fragment {
         _txtTag = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTag);
         _txtTitle = (TextView) _root.findViewById(R.id.txtLogEntryDetailsTitle);
         _txtDetails = (TextView) _root.findViewById(R.id.txtLogEntryDetailsDetails);
+        // Enable text scrolling
         _txtDetails.setMovementMethod(new ScrollingMovementMethod());
         _txtTitle.setMovementMethod(new ScrollingMovementMethod());
     }

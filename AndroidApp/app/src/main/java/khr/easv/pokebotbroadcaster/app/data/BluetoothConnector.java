@@ -22,9 +22,17 @@ public class BluetoothConnector {
     }
 
     public void connect() throws IOException {
-        BluetoothSocket _socket = _device.createRfcommSocketToServiceRecord(UUID.fromString(UUIDString));
-        _socket.connect();
-        _output = new DataOutputStream(_socket.getOutputStream());
+        BluetoothSocket socket = createSocket();
+        socket.connect();
+        _output = createOutputStream(socket);
+    }
+
+    private DataOutputStream createOutputStream(BluetoothSocket socket) throws IOException {
+        return new DataOutputStream(socket.getOutputStream());
+    }
+
+    private BluetoothSocket createSocket() throws IOException {
+        return _device.createRfcommSocketToServiceRecord(UUID.fromString(UUIDString));
     }
 
     public void sendCommand( short command ) throws IOException {

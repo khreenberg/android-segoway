@@ -50,31 +50,47 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         _root = inflater.inflate(R.layout.fragment_control, container, false);
         _layout = (FrameLayout) _root.findViewById(R.id.controlLayout);
 
+        // Load image buttons
         showLoadingBar();
         initializationTask.execute();
-        // Inflate the layout for this fragment
+
         return _root;
     }
 
     private void showLoadingBar() {
         _loadingBar = new ProgressBar(_root.getContext(), null, android.R.attr.progressBarStyleHorizontal);
+        styleLoadingBar();
+        _layout.addView(_loadingBar);
+    }
+
+    private void styleLoadingBar() {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.gravity = Gravity.CENTER;
         _loadingBar.setLayoutParams(layoutParams);
         _loadingBar.setMax(9);
-        _layout.addView(_loadingBar);
     }
 
     /** This method also does minor styling to the buttons. */
     private void addButtonsToLayout() {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.CENTER;
+        FrameLayout.LayoutParams layoutParams = createLayoutParams();
         for( ImageButtonIgnoreTransparency button : _buttons ){
-            button.setLayoutParams(layoutParams);
-            button.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            button.setBackgroundColor(Color.TRANSPARENT);
+            styleButton(button, layoutParams);
             _layout.addView(button);
         }
+    }
+
+    private void styleButton(ImageButtonIgnoreTransparency button, FrameLayout.LayoutParams layoutParams) {
+        button.setLayoutParams(layoutParams);
+        button.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        button.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    private FrameLayout.LayoutParams createLayoutParams() {
+        FrameLayout.LayoutParams layoutParams =
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                             ViewGroup.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER;
+        return layoutParams;
     }
 
     @Override
@@ -84,6 +100,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         notifyListeners();
     }
 
+    // This could easily have been done in a prettier way...
     public void setValues(View v) {
         if( v == _btnTurnLeft )     {_xValues[0] = -DIAGONAL; _yValues[0] =  DIAGONAL;}
         if( v == _btnMoveForward )  {_xValues[1] =  NO_INPUT; _yValues[1] =  STRAIGHT;}
@@ -122,16 +139,18 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         }
 
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            _loadingBar.setProgress(values[0]);
-        }
+        protected void onProgressUpdate(Integer... values) { _loadingBar.setProgress(values[0]); }
 
         private void initialize(){
-            _xValues = new float[9];
-            _yValues = new float[9];
+            initializeFloatArrays();
             initializeButtons();
             attachClickListener();
             makeActivityListen();
+        }
+
+        private void initializeFloatArrays() {
+            _xValues = new float[9];
+            _yValues = new float[9];
         }
 
         private void makeActivityListen() {
@@ -158,42 +177,43 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         }
 
         private void createButtons() {
+            int buttonCount = 0;
             // Top left
             _btnTurnLeft = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnTurnLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_turn_left));
-            publishProgress(1);
+            publishProgress(++buttonCount);
             // Top center
             _btnMoveForward = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnMoveForward.setImageDrawable(getResources().getDrawable(R.drawable.selector_move_forward));
-            publishProgress(2);
+            publishProgress(++buttonCount);
             // Top right
             _btnTurnRight = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnTurnRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_turn_right));
-            publishProgress(3);
+            publishProgress(++buttonCount);
             // Middle left
             _btnRotateLeft = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnRotateLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_rotate_left));
-            publishProgress(4);
+            publishProgress(++buttonCount);
             // Middle center
             _btnCenter = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnCenter.setImageDrawable(getResources().getDrawable(R.drawable.selector_center));
-            publishProgress(5);
+            publishProgress(++buttonCount);
             // Middle right
             _btnRotateRight = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnRotateRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_rotate_right));
-            publishProgress(6);
+            publishProgress(++buttonCount);
             // Bottom left
             _btnBackLeft = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnBackLeft.setImageDrawable(getResources().getDrawable(R.drawable.selector_back_left));
-            publishProgress(7);
+            publishProgress(++buttonCount);
             // Bottom center
             _btnMoveBack = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnMoveBack.setImageDrawable(getResources().getDrawable(R.drawable.selector_move_back));
-            publishProgress(8);
+            publishProgress(++buttonCount);
             // Bottom right
             _btnBackRight = new ImageButtonIgnoreTransparency(_root.getContext());
             _btnBackRight.setImageDrawable(getResources().getDrawable(R.drawable.selector_back_right));
-            publishProgress(9);
+            publishProgress(++buttonCount);
         }
 
         private void attachClickListener(){
@@ -201,6 +221,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         }
     };
 
+    // Observer pattern stuff
     public void addListener(IInputListener listener){
         if( _listeners == null ) _listeners = new HashSet<IInputListener>();
         _listeners.add(listener);
@@ -217,6 +238,7 @@ public class ButtonControlFragment extends Fragment implements IButtonControlLis
         for (IInputListener listener : _listeners)  listener.onInput(x,y);
     }
 
+    // Helper method
     private float getArraySum(float[] b) {
         float sum = 0.0f;
         for (int i = 0; i < b.length; i++) sum += b[i];

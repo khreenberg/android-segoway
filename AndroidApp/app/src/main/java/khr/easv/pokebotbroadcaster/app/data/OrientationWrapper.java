@@ -9,9 +9,9 @@ import android.hardware.SensorManager;
 
 import java.util.HashSet;
 
-public class OrientationWrapper implements SensorEventListener{
+public class OrientationWrapper implements SensorEventListener {
 
-    public static final int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
+    private static final int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
 
     /** Orientation as azimuth, pitch & roll */
     private float[] _orientation;
@@ -32,11 +32,13 @@ public class OrientationWrapper implements SensorEventListener{
     private HashSet<IOrientationListener> _listeners;
 
     public OrientationWrapper(Activity activity){
-        _listeners = new HashSet<IOrientationListener>();
         setupSensors(activity);
+        initializeFloatArrays();
+    }
 
-        _orientation = new float[3];
-        _rawRotation = new float[9];
+    private void initializeFloatArrays() {
+        _orientation    = new float[3];
+        _rawRotation    = new float[9];
         _rotationMatrix = new float[9];
     }
 
@@ -83,8 +85,16 @@ public class OrientationWrapper implements SensorEventListener{
     public interface IOrientationListener {
         void onOrientationChanged(float azimuth, float pitch, float roll);
     }
-    public void addListener(IOrientationListener listener){ _listeners.add(listener); }
-    public void removeListener(IOrientationListener listener){ _listeners.remove(listener); }
+    public void addListener(IOrientationListener listener){
+        if( _listeners == null ) _listeners = new HashSet<IOrientationListener>();
+        _listeners.add(listener);
+    }
+
+    public void removeListener(IOrientationListener listener){
+        if( _listeners == null ) return;
+        _listeners.remove(listener);
+        if( _listeners.isEmpty() ) _listeners = null;
+    }
 
     /** Notifies listeners of the new orientation in degrees */
     private void notifyListeners(){

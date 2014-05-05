@@ -52,17 +52,21 @@ public class BluetoothControllerServer {
     public synchronized ConnectionState getState(){ return _state; }
 
     public synchronized void start(){
-        if( _connectedThread != null ){ _connectedThread.cancel(); _connectedThread = null; }
+        cancelConnectedThread();
         if( _acceptThread != null ) return;
         _acceptThread = new AcceptThread();
         _acceptThread.start();
         setState(LISTENING);
     }
 
+    private void cancelConnectedThread() {
+        if( _connectedThread != null ){ _connectedThread.cancel(); _connectedThread = null; }
+    }
+
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
         Logger.info("Connecting to controller...");
-        if( _connectedThread != null ) {_connectedThread.cancel(); _connectedThread = null; }
-        if( _acceptThread != null ) {_acceptThread.cancel(); _acceptThread = null; }
+        cancelConnectedThread();
+        cancelAcceptThread();
 
         _connectedThread = new ConnectedThread(socket);
         _connectedThread.start();
@@ -70,9 +74,13 @@ public class BluetoothControllerServer {
         setState(CONNECTED);
     }
 
-    public synchronized void stop(){
-        if( _connectedThread != null ) {_connectedThread.cancel(); _connectedThread = null; }
+    private void cancelAcceptThread() {
         if( _acceptThread != null ) {_acceptThread.cancel(); _acceptThread = null; }
+    }
+
+    public synchronized void stop(){
+        cancelConnectedThread();
+        cancelAcceptThread();
         setState(NONE);
         Logger.info("Disconnected from controller.");
     }
@@ -108,18 +116,7 @@ public class BluetoothControllerServer {
 
         @Override
         public void run() {
-            if( __serverSocket == null ){
-                Logger.error("Cannot connect controller. Click for more details.",
-                        "This error is typically\n" +
-                        "caused by trying to\n" +
-                        "connect a controller\n" +
-                        "several times in a short\n" +
-                        "period of time. To fix it,\n" +
-                        "turn Bluetooth of and on\n" +
-                        "again on this device and\n " +
-                        "retry.");
-                return;
-            }
+            if (!checkSocket()) return;
             Logger.info("Waiting for controller...", this.toString());
             BluetoothSocket socket = null;
             while( _state != CONNECTED ){
@@ -152,6 +149,22 @@ public class BluetoothControllerServer {
                 }
             }
             Logger.info("Controller connection accepted!", "Socket: " + socket + "\nDevice: " + socket.getRemoteDevice());
+        }
+
+        private boolean checkSocket() {
+            if( __serverSocket != null ) return true;
+            Logger.error(
+                    "Cannot connect controller. Click for more details.",
+                    "This error is typically\n" +
+                    "caused by trying to\n" +
+                    "connect a controller\n" +
+                    "several times in a short\n" +
+                    "period of time. To fix it,\n" +
+                    "turn Bluetooth of and on\n" +
+                    "again on this device and\n " +
+                    "retry."
+            );
+            return false;
         }
 
         public void cancel(){
@@ -190,10 +203,7 @@ public class BluetoothControllerServer {
             byte[] buffer = new byte[8]; // Each float is 32bit (4 byte)
             while(true) {
                 try {
-                    __input.read(buffer);
-                    float x = ByteBuffer.wrap(buffer, 0, 4).getFloat();
-                    float y = ByteBuffer.wrap(buffer, 4, 4).getFloat();
-                    notifyInputListeners(x, y);
+                    readInputFromController(buffer);
                 } catch (IOException e) {
                     connectionLost();
                     break;
@@ -201,12 +211,11 @@ public class BluetoothControllerServer {
             }
         }
 
-        private String byteArrayToString(byte[] b) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i <b.length; i++) {
-                sb.append(b[i] + " ");
-            }
-            return sb.toString();
+        private void readInputFromController(byte[] buffer) throws IOException {
+            __input.read(buffer);
+            float x = ByteBuffer.wrap(buffer, 0, 4).getFloat();
+            float y = ByteBuffer.wrap(buffer, 4, 4).getFloat();
+            notifyInputListeners(x, y);
         }
 
         /** Prevent flooding of the log */
@@ -217,8 +226,8 @@ public class BluetoothControllerServer {
                 _didLog = false;
             } catch (IOException e) {
                 if( _didLog ) return;
-                Logger.exception("Could not write to controller!", e);
                 _didLog = true;
+                Logger.exception("Could not write to controller!", e);
             }
         }
 

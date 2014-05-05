@@ -22,7 +22,7 @@ import khr.easv.pokebotcontroller.app.gui.fragments.LogFragment;
 
 
 public class MainActivity extends FragmentActivity implements LogFragment.ILogEntryClickedListener,
-        BluetoothDeviceSelectionFragment.OnDeviceSelectedListener, IInputListener{
+        BluetoothDeviceSelectionFragment.IDeviceSelectedListener, IInputListener{
 
     private ControllerConnection _connection;
 
@@ -47,14 +47,11 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id){
             case R.id.menu_exit:
-                System.runFinalization();
-                System.exit(0);
+                killApp();
+                break;
             case R.id.menu_controlButton:
                 switchControlFragment(new ButtonControlFragment());
                 break;
@@ -71,8 +68,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
                 switchControlFragment(new BluetoothDeviceSelectionFragment());
                 break;
             case R.id.menu_clearLog:
-                Logger.clearEntries();
-                _logFragment.clear();
+                clearLog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -96,10 +92,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
 
     private void switchControlFragment(Fragment newFragment){
         // Check that the user is not trying to switch to the current fragment..
-        Class newFragmentClass = ((Object)newFragment).getClass();
-        if( _currentControlFragment == newFragmentClass ) return;
-        _currentControlFragment = newFragmentClass;
-
+        if (!shouldReplaceFragment(newFragment)) return;
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -107,13 +100,40 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
                 .commit();
     }
 
+    private boolean shouldReplaceFragment(Object newFragment) {
+        Class newFragmentClass = newFragment.getClass();
+        if( _currentControlFragment == newFragmentClass ) return false;
+        _currentControlFragment = newFragmentClass;
+        return true;
+    }
+
+    private void clearLog() {
+        Logger.clearEntries();
+        _logFragment.clear();
+    }
+
+    private void killApp() {
+        System.runFinalization();
+        System.exit(0);
+    }
+
+    /////////// CALL-BACKS ////////////
     @Override
     public void onLogEntryClicked(LogEntry entry) {
         if( entry.getDetails().isEmpty() ) return;
         LogEntryDetailsFragment detailsFragment = new LogEntryDetailsFragment();
+        Bundle fragmentExtras = createLogDetailsBundle(entry);
+        detailsFragment.setArguments(fragmentExtras);
+        showLogDetails(detailsFragment);
+    }
+
+    private Bundle createLogDetailsBundle(LogEntry entry) {
         Bundle fragmentExtras = new Bundle(1);
         fragmentExtras.putSerializable(LogEntryDetailsFragment.BUNDLE_KEY_ENTRY, entry);
-        detailsFragment.setArguments(fragmentExtras);
+        return fragmentExtras;
+    }
+
+    private void showLogDetails(LogEntryDetailsFragment detailsFragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.logFragmentContainer, detailsFragment)
@@ -122,7 +142,7 @@ public class MainActivity extends FragmentActivity implements LogFragment.ILogEn
     }
 
     @Override
-    public void OnDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
+    public void onDeviceSelected(BluetoothDevice device) { _connection.connect(device); }
 
     @Override
     public void onInput(float x, float y) {

@@ -3,6 +3,7 @@ package khr.easv.pokebotcontroller.app.gui.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer.DrawableContainerState;
@@ -13,7 +14,7 @@ import android.widget.ImageButton;
 import java.util.HashSet;
 
 /**
- * Simple extension of ImageButton, that ignores touch events triggered on transparent parts
+ * Simple extension of ImageButton, that ignores touch events on transparent parts
  * of the button. Probably requires the button uses a selector for it's images.
  */
 public class ImageButtonIgnoreTransparency extends ImageButton {
@@ -29,10 +30,16 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Filter undesired events
         if( event.getAction() == MotionEvent.ACTION_UP ) return notClicked();
         Bitmap bitmap = getBitmapFromStateListDrawable();
         if( bitmap == null ) return notClicked();
-        int x = (int) event.getX(), y = (int) event.getY();
+        // Compensate for image scaling
+        float touchX = event.getX(), touchY = event.getY();
+        int[] touchedImageCoordinate = convertTouchPositionToImageCoordinate(touchX, touchY);
+        int x = touchedImageCoordinate[0];
+        int y = touchedImageCoordinate[1];
+        // Read the alpha value of the touched pixel
         int alpha = 0;
         try{
             alpha = getBitmapAlphaAtPoint(bitmap, x,y);
@@ -41,6 +48,14 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
             /* Do nothing - It's handled in the following return statement */
         }
         return alpha > ALPHA_THRESHOLD ? handleEvent(event) : notClicked();
+    }
+
+    private int[] convertTouchPositionToImageCoordinate(float touchX, float touchY){
+        Matrix inverseMatrix = new Matrix();
+        getImageMatrix().invert(inverseMatrix);
+        float[] touchPoint = new float[]{touchX, touchY};
+        inverseMatrix.mapPoints(touchPoint);
+        return new int[]{(int) touchPoint[0], (int) touchPoint[1]};
     }
 
     private boolean handleEvent(MotionEvent event) {
@@ -76,7 +91,7 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
         return null;
     }
 
-
+    // Observer pattern
     public interface IButtonControlListener{
         void onButtonEvent(ImageButtonIgnoreTransparency button, boolean isPressed);
     }

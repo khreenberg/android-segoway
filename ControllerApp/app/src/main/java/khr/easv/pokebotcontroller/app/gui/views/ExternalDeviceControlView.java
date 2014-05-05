@@ -10,9 +10,12 @@ import khr.easv.pokebotcontroller.app.R;
 
 public class ExternalDeviceControlView extends AbstractKnobView{
 
+    /** Multiply joystick input by this value, to get usable readings */
     private static final float AXIS_MULTIPLIER = 333;
+    /** Input below this threshold will be interpreted as 0.0f */
     private static final float AXIS_THRESHOLD = 0.01f;
 
+    /** Axes */
     private float _leftX, _leftY, _rightX, _rightY, _dpadX, _dpadY;
 
     public ExternalDeviceControlView(Context context) {
@@ -45,14 +48,26 @@ public class ExternalDeviceControlView extends AbstractKnobView{
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        _leftX = getAxis(event, MotionEvent.AXIS_X);        // Left thumbstick axis X
-        _leftY = getAxis(event, MotionEvent.AXIS_Y);        // Left thumbstick axis Y
-        _rightX = getAxis(event, MotionEvent.AXIS_Z);       // Right thumbstick axis X
-        _rightY = getAxis(event, MotionEvent.AXIS_RZ);      // Right thumbstick axis Y
-        _dpadX = getAxis(event, MotionEvent.AXIS_HAT_X);    // D-pad axis X
-        _dpadY = getAxis(event, MotionEvent.AXIS_HAT_Y);    // D-pad axis Y
+        readLeftThumbstick(event);
+        readRightThumbstick(event);
+        readDirectionalPad(event);
         updateKnobPosition();
         return true; // Return true to say that we handled the input event, thus preventing loss of focus
+    }
+
+    private void readDirectionalPad(MotionEvent event) {
+        _dpadX = getAxis(event, MotionEvent.AXIS_HAT_X);    // D-pad axis X
+        _dpadY = getAxis(event, MotionEvent.AXIS_HAT_Y);    // D-pad axis Y
+    }
+
+    private void readRightThumbstick(MotionEvent event) {
+        _rightX = getAxis(event, MotionEvent.AXIS_Z);       // Right thumbstick axis X
+        _rightY = getAxis(event, MotionEvent.AXIS_RZ);      // Right thumbstick axis Y
+    }
+
+    private void readLeftThumbstick(MotionEvent event) {
+        _leftX = getAxis(event, MotionEvent.AXIS_X);        // Left thumbstick axis X
+        _leftY = getAxis(event, MotionEvent.AXIS_Y);        // Left thumbstick axis Y
     }
 
 

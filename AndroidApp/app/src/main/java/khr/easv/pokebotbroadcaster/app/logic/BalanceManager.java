@@ -6,8 +6,8 @@ import khr.easv.pokebotbroadcaster.app.data.OrientationWrapper;
 
 public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
-    // Observer pattern related variables
-    private HashSet<IPidListener> _listeners;
+    // Observers
+    private HashSet<IPidListener> _listeners    = new HashSet<IPidListener>();
 
     // Timing and delay
     private long                _lastCalled;
@@ -24,7 +24,7 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
     private double              _input          = 0,             // pitch
                                 _previousInput  = OPTIMAL_INPUT, // last pitch
                                 _error          = 0,             // The 'P'
-                                _integralSum    = 0,             // The 'I' // NOT USED
+                                _integral       = 0,             // The 'I' (not used)
                                 _differential   = 0;             // The 'D'
 
     //    TODO: Fine-tune these values
@@ -49,9 +49,6 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
     private Thread _thread;
     private boolean _done = false;
 
-    /* Constructor */
-    public BalanceManager() { _listeners = new HashSet<IPidListener>(); }
-
     // Thread start function
     public void start() {
         _thread = new Thread(new Runnable() {
@@ -62,7 +59,6 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
         });
         _thread.start(); // Start!
     }
-
 
     // Main function
     public void loop() {
@@ -94,18 +90,12 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
         short motorPower = 0;
         double input = _input; // _input might change during calculations, so we cache it
 
-        // P
-        _error = OPTIMAL_INPUT - input;
-        // I
-        _integralSum += _error * K_I;
-        _integralSum  = clamp(_integralSum, MIN_POWER, MAX_POWER);
-        // D
-        _differential = input - _previousInput;
-
-        double P_total = (K_P * _error) * Math.abs(K_P * _error);
+        double p = _error           = calculateProportional(input);
+        double i = _integral        = calculateIntegral();
+        double d = _differential    = calculateDifferential(input);
 
         // The actual algorithm
-        motorPower = (short)(P_total + (_integralSum) - (K_D *_differential));
+        motorPower = (short)(p + i - d);
 
         // Clamping the output
         motorPower = clamp(motorPower, MIN_POWER, MAX_POWER);
@@ -118,6 +108,20 @@ public class BalanceManager implements OrientationWrapper.IOrientationListener {
 
         // Create packet and send output
         notifyListeners(PacketCreator.createPacket(motorPower, motorPower));
+    }
+
+    private double calculateProportional(double input) {
+        return OPTIMAL_INPUT - input;
+    }
+
+    private double calculateDifferential(double input) {
+        return K_D * (input - _previousInput);
+    }
+
+    private double calculateIntegral() {
+        double integral = _integral + _error * K_I;
+        integral  = clamp(integral, MIN_POWER, MAX_POWER);
+        return integral;
     }
 
     /** Clamps a value between a given minimum and maximum. (inclusive) */

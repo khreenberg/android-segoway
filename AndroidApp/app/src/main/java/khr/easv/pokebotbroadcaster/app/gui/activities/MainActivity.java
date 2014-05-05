@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -54,7 +53,7 @@ public class MainActivity extends    ActionBarActivity
     private final DecimalFormat _inputNumberFormatter = new DecimalFormat("0.000");
     private final DecimalFormat _powerNumberFormatter = new DecimalFormat("#");
 
-    // As we don't want to update the UI on every orientation change, we had to sate the last update time in order to calculate the delta and set a delay.
+    // As we don't want to update the UI on every orientation change, we had to save the last update time in order to calculate the delta and set a delay.
     private long _lastUiTextUpdate;
 
     private LogFragment _logFragment;
@@ -85,18 +84,6 @@ public class MainActivity extends    ActionBarActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        // if (id == R.id.action_settings) {
-        //    return true;
-        // }
-        return super.onOptionsItemSelected(item);
     }
 
     private void initialize(){
@@ -144,11 +131,15 @@ public class MainActivity extends    ActionBarActivity
         _btnClearLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Logger.clearEntries();
-                _logFragment.clear();
+                clearLoggerAndFragment();
                 updateLogList();
             }
         });
+    }
+
+    private void clearLoggerAndFragment() {
+        Logger.clearEntries();
+        _logFragment.clear();
     }
 
     private void setupLogFragment(){
@@ -167,13 +158,16 @@ public class MainActivity extends    ActionBarActivity
         _controllerServer = new BluetoothControllerServer();
         _controllerServer.addControllerListener(this);
         if(_adapter.isEnabled()) { _controllerServer.start(); return; }
+        requestEnableBluetooth();
+    }
+
+    private void requestEnableBluetooth() {
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
     }
 
     private void bluetoothConnect() {
-        if( _bluetooth == null )
-            _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
+        if( _bluetooth == null ) _bluetooth = new BluetoothConnector(DEVICE_ADDRESS, _adapter);
         new BluetoothConnectionTask().execute(_bluetooth);
     }
 
@@ -208,16 +202,11 @@ public class MainActivity extends    ActionBarActivity
     }
 
     private void updateLogList() {
-        if( _logFragment.isVisible() )
-            _logFragment.getListView().invalidateViews();
+        if(_logFragment.isVisible()) _logFragment.getListView().invalidateViews();
     }
 
     private void updateUiText(){
-        long time = System.currentTimeMillis();
-        long deltaTime = time - _lastUiTextUpdate; // calculate delta time
-        if (deltaTime < UI_TEXT_UPDATE_INTERVAL) return; // if it has been under the treshhold, do nothing
-        _lastUiTextUpdate = time; // otherwise update the last update variable
-
+        if (!shouldUpdateuiText()) return;
         // update the UI texts.
         runOnUiThread(new Runnable() {
             @Override
@@ -227,6 +216,14 @@ public class MainActivity extends    ActionBarActivity
                 updateInputTextViews();
             }
         });
+    }
+
+    private boolean shouldUpdateuiText() {
+        long time = System.currentTimeMillis();
+        long deltaTime = time - _lastUiTextUpdate;
+        if (deltaTime < UI_TEXT_UPDATE_INTERVAL) return false;
+        _lastUiTextUpdate = time;
+        return true;
     }
 
     private void updatePitchTextView() {
@@ -304,7 +301,7 @@ public class MainActivity extends    ActionBarActivity
     // Bluetooth task.
     private class BluetoothConnectionTask extends AsyncTask<BluetoothConnector, Void, Boolean> {
 
-        Exception e;
+        private Exception e;
 
         @Override
         protected void onPreExecute() {
@@ -316,6 +313,7 @@ public class MainActivity extends    ActionBarActivity
         protected Boolean doInBackground(BluetoothConnector... connectors) {
             if( connectors.length == 0 )
                 throw new IllegalArgumentException("You must supply the BluetoothConnection task with a BluetoothConnector object!");
+
             try {
                 connectors[0].connect();
             }

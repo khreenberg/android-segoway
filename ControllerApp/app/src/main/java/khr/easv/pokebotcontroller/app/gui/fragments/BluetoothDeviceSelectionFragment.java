@@ -28,10 +28,9 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
 
     public static final int INTENT_ID_ENABLE_BLUETOOTH = 10;
 
-    public static final String BUNDLE_KEY_DEVICES = "bundle key external input devices";
     private View _root;
 
-    private OnDeviceSelectedListener _listener;
+    private IDeviceSelectedListener _listener;
     private BluetoothDeviceListAdapter _adapter;
 
     private ListView _lstExternalInputDevices;
@@ -41,14 +40,11 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
     public BluetoothDeviceSelectionFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = inflater.inflate(R.layout.fragment_bluetooth_device_selection, container, false);
         _txtFragmentTitle = (TextView) _root.findViewById(R.id.txtBluetoothSelectionFragmentTitle);
         initializeList();
 
-        // Inflate the layout for this fragment
         return _root;
     }
 
@@ -64,27 +60,15 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         _lstExternalInputDevices.setOnItemClickListener(new DeviceClickedListener());
     }
 
-    private void setupBluetoothChangeListener() {
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        getActivity().registerReceiver(_broadcastReceiver, filter);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            _listener = (OnDeviceSelectedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnDeviceSelectedListener");
-        }
-        setupBluetoothChangeListener();
-    }
-
     private void requestBluetoothIfNotEnabled(){
         if( BluetoothAdapter.getDefaultAdapter().isEnabled() ) return;
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, INTENT_ID_ENABLE_BLUETOOTH);
+    }
+
+    private void setupBluetoothChangeListener() {
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        getActivity().registerReceiver(_broadcastReceiver, filter);
     }
 
     @Override
@@ -96,6 +80,18 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
             return;
         }
         initializeList();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            _listener = (IDeviceSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement IDeviceSelectedListener");
+        }
+        setupBluetoothChangeListener();
     }
 
     @Override
@@ -119,25 +115,14 @@ public class BluetoothDeviceSelectionFragment extends Fragment {
         }
     };
 
-    public String getTitle(){ return _txtFragmentTitle.getText().toString(); }
-
-    public void setTitle(final String title){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _txtFragmentTitle.setText(title);
-            }
-        });
-    }
-
     private class DeviceClickedListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             BluetoothDevice device = (BluetoothDevice) parent.getItemAtPosition(position);
-            _listener.OnDeviceSelected(device);
+            _listener.onDeviceSelected(device);
         }
     }
 
     /** Callback interface */
-    public interface OnDeviceSelectedListener{ void OnDeviceSelected(BluetoothDevice device); }
+    public interface IDeviceSelectedListener { void onDeviceSelected(BluetoothDevice device); }
 }
