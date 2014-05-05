@@ -23,18 +23,18 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
     @Override
     public View getView(int index, View view, ViewGroup parent) {
-
-        if (view == null) {
-            LayoutInflater li = (LayoutInflater) getContext().getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-            view = li.inflate(R.layout.list_item_bluetooth_device, null);
-        }
+        if (view == null)  view = inflateView();
 
         BluetoothDevice device = _devices.get(index);
-
         TextView txtBluetoothDeviceName = (TextView) view.findViewById(R.id.txtBluetoothDeviceName);
         txtBluetoothDeviceName.setText(device.getName());
 
+        return view;
+    }
+
+    private View inflateView() {
+        View view;LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        view = li.inflate(R.layout.list_item_bluetooth_device, null);
         return view;
     }
 }
