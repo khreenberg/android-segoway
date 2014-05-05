@@ -28,20 +28,19 @@ public class LogListAdapter extends ArrayAdapter<LogEntry>{
 
     @Override
     public View getView(int index, View view, ViewGroup parent) {
-
-        if (view == null) {
-            LayoutInflater li = (LayoutInflater) getContext().getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-            view = li.inflate(R.layout.list_item_log_entry, null);
-        }
+        if (view == null) view = inflateView();
 
         LogEntry entry = _entries.get(index);
-
         TextView txtLogTitle = (TextView) view.findViewById(R.id.txtLogTitle);
         txtLogTitle.setText(entry.getTitle());
-
         view.setBackgroundColor(getBackgroundColor(view, index, entry));
 
+        return view;
+    }
+
+    private View inflateView() {
+        View view;LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        view = li.inflate(R.layout.list_item_log_entry, null);
         return view;
     }
 
