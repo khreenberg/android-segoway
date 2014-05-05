@@ -14,7 +14,7 @@ import android.widget.ImageButton;
 import java.util.HashSet;
 
 /**
- * Simple extension of ImageButton, that ignores touch events triggered on transparent parts
+ * Simple extension of ImageButton, that ignores touch events on transparent parts
  * of the button. Probably requires the button uses a selector for it's images.
  */
 public class ImageButtonIgnoreTransparency extends ImageButton {
@@ -91,7 +91,7 @@ public class ImageButtonIgnoreTransparency extends ImageButton {
         return null;
     }
 
-
+    // Observer pattern
     public interface IButtonControlListener{
         void onButtonEvent(ImageButtonIgnoreTransparency button, boolean isPressed);
     }
